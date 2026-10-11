@@ -2686,6 +2686,19 @@ function adminClick(e) {
     api('block', { email: be }).then(function (r) { A.confirmBlock = ''; accessDone(be + ' is blocked.')(r); }, fail);
   }
   if (a === 'blockcancel') { A.confirmBlock = ''; renderAccess(); renderActivity(); }
+  if (a === 'blockaddr') {
+    var bv = ($('#blockin').value || '').trim();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(bv)) { toast('Type an email address to block.', true); return; }
+    busy(t, true, 'Blocking…');
+    api('block', { email: bv }).then(accessDone(bv + ' is blocked.'), fail);
+  }
+  if (a === 'rmmember') {
+    var rmE = t.getAttribute('data-email');
+    if (A.confirmRmM !== rmE) { A.confirmRmM = rmE; $('#memlist').innerHTML = memberRows(); return; }
+    busy(t, true, 'Removing…');
+    api('removeMember', { email: rmE }).then(function (r) { A.confirmRmM = ''; accessDone(rmE + ' was removed from the approved list.')(r); }, fail);
+  }
+  if (a === 'rmmcancel') { A.confirmRmM = ''; $('#memlist').innerHTML = memberRows(); }
   if (a === 'unblock') {
     busy(t, true, '…');
     api('block', { email: t.getAttribute('data-email'), unblock: true }).then(accessDone('Unblocked.'), fail);
@@ -2943,8 +2956,12 @@ function memberRows() {
     return '<div class="mrow"><span><strong style="font-weight:800">' + h(m.name || '(no name)') + '</strong>' + (m.active ? '' : ' <span class="daynote">Inactive</span>') + '<span class="meta" style="word-break:break-all">' + h(m.email) + '</span></span>' +
       '<span class="meta">' + (m.lastSeen ? 'Signed in ' + h(stampIn(m.lastSeen)) : 'Hasn\'t signed in yet') + '</span>' +
       '<span class="meta">' + h(m.share ? 'Drive: ' + m.share : 'Drive not shared yet') + '</span>' +
-      '<span class="mact">' + (m.active ? '<button class="linkbtn" data-a="deact" data-email="' + h(m.email) + '">Deactivate</button>' : '<button class="linkbtn" data-a="react" data-email="' + h(m.email) + '">Reactivate</button>') + blockBtn(m.email) + '</span></div>';
+      '<span class="mact">' + (m.active ? '<button class="linkbtn" data-a="deact" data-email="' + h(m.email) + '">Deactivate</button>' : '<button class="linkbtn" data-a="react" data-email="' + h(m.email) + '">Reactivate</button>') + removeBtn(m.email) + blockBtn(m.email) + '</span></div>';
   }).join('');
+}
+function removeBtn(email) {
+  if (A.confirmRmM === email) return '<span style="display:inline-flex;gap:8px;align-items:center"><button class="sbtn" data-a="rmmember" data-email="' + h(email) + '" style="height:32px;padding:0 12px;font-size:13px;background:#D93025">Remove ' + h(email.split('@')[0]) + '</button><button class="linkbtn" data-a="rmmcancel">Cancel</button></span>';
+  return '<button class="linkbtn" data-a="rmmember" data-email="' + h(email) + '">Remove</button>';
 }
 function blockBtn(email) {
   if (A.confirmBlock === email) return '<span style="display:inline-flex;gap:8px;align-items:center"><button class="sbtn" data-a="block" data-email="' + h(email) + '" style="height:32px;padding:0 12px;font-size:13px;background:#D93025">Block ' + h(email.split('@')[0]) + '</button><button class="linkbtn" data-a="blockcancel">Cancel</button></span>';
@@ -2954,7 +2971,7 @@ function renderAccess() {
   var st = S.adminState, ac = st.access, g = ac.gate, box = $('#accbox'), ls = st.members.lastSync;
   if (!box) return;
   var gate = '<div class="box" style="flex:1 1 380px"><h3 class="h3" style="margin-bottom:6px">Class password</h3>' +
-    (g.on ? '<p style="margin:0 0 14px;font-size:15px;line-height:1.5;color:#3C4043">On, set ' + h(stampIn(g.at)) + (g.by ? ' by ' + h(shortName(g.by)) : '') + '. Everyone except approved classmates needs it, signed in or not.</p>'
+    (g.on ? '<p style="margin:0 0 14px;font-size:15px;line-height:1.5;color:#3C4043">On, set ' + h(stampIn(g.at)) + (g.by ? ' by ' + h(shortName(g.by).replace(/\.$/, '')) : '') + '. Everyone except approved classmates needs it, signed in or not.</p>'
       : '<p style="margin:0 0 14px;font-size:15px;line-height:1.5;color:#B3261E;font-weight:700">Not set yet, so anyone with the link can see the site. Set one to lock it.</p>') +
     '<label class="fld">' + (g.on ? 'New password' : 'Password') + ' <span class="opt">6 or more characters, not case-sensitive</span><input class="inp" id="cpw" autocomplete="off" spellcheck="false" autocapitalize="off"></label>' +
     '<div style="margin-top:10px"><button class="sbtn" data-a="setpw">' + (g.on ? 'Change the password' : 'Set the password') + '</button></div>' +
@@ -2975,15 +2992,19 @@ function renderAccess() {
     '<label class="tsearch" style="min-width:0;flex:0 1 280px">' + ICON.search + '<span class="sr">Search approved classmates</span><input type="search" id="mq" value="' + h(A.mq || '') + '" placeholder="Name or email" autocomplete="off"></label></div>' +
     '<div id="memlist">' + memberRows() + '</div>' +
     '<div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:14px;padding-top:14px;border-top:1px solid #E8EAED"><button class="sbtn2" data-a="sync">Sync Drive access</button><a href="' + h(st.settings.membersUrl) + '" target="_blank" rel="noopener" style="font-size:14px;font-weight:700">Open the Members sheet</a></div>' + sync +
-    '<p style="margin:12px 0 0;font-size:13px;line-height:1.45;color:#5F6368">Approved means an active row in the Members sheet: they see author names, upload sbobine, volunteer and skip the class password. Drive access comes from the same list, never from the email group. Deactivating or blocking someone removes their Drive access too.</p></div>';
+    '<p style="margin:12px 0 0;font-size:13px;line-height:1.45;color:#5F6368">Approved means an active row in the Members sheet: they see author names, upload sbobine, volunteer and skip the class password. Drive access comes from the same list, never from the email group. Deactivating, removing or blocking someone takes away their Drive access too.</p></div>';
   var others = ac.others.length ? '<div class="box" style="margin-top:20px"><h3 class="h3" style="margin-bottom:6px">Signed in, not approved</h3><p style="margin:0 0 4px;font-size:14px;line-height:1.45;color:#5F6368">They can upload slides and fix topics, with the class password.</p>' +
     ac.others.map(function (o) {
       return '<div class="adminli"><span><strong style="font-weight:800">' + h(o.name || o.email) + '</strong><small style="word-break:break-all">' + h(o.email) + ' · last seen ' + h(stampIn(o.lastSeen)) + '</small></span>' +
         '<span class="mact" style="flex:0 0 auto"><button class="linkbtn" data-a="approve-other" data-email="' + h(o.email) + '" data-name="' + h(o.name) + '">Approve</button>' + blockBtn(o.email) + '</span></div>';
     }).join('') + '</div>' : '';
-  var blocked = ac.blocked.length ? '<div class="box" style="margin-top:20px"><h3 class="h3" style="margin-bottom:6px">Blocked</h3>' +
-    ac.blocked.map(function (b) { return '<div class="adminli"><span><strong style="font-weight:800;word-break:break-all">' + h(b.email) + '</strong><small>Blocked ' + h(stampIn(b.at)) + (b.by ? ' by ' + h(shortName(b.by)) : '') + '</small></span><button class="linkbtn" data-a="unblock" data-email="' + h(b.email) + '">Unblock</button></div>'; }).join('') +
-    '<p style="margin:12px 0 0;font-size:13px;line-height:1.45;color:#5F6368">Blocked addresses can\'t sign in or get codes.</p></div>' : '';
+  var blocked = '<div class="box" style="margin-top:20px" id="blockedbox"><h3 class="h3" style="margin-bottom:6px">Blocked (' + ac.blocked.length + ')</h3>' +
+    '<p style="margin:0 0 12px;font-size:14px;line-height:1.45;color:#5F6368">Blocked addresses can\'t sign in, get codes or ask for access, and they\'re taken off the approved list and the Drive.</p>' +
+    '<div style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end"><label class="fld" style="flex:1 1 260px">Block an address<input class="inp" id="blockin" type="email" placeholder="name@example.com" autocomplete="off"></label>' +
+    '<button class="sbtn" data-a="blockaddr" style="height:48px;background:#D93025">Block</button></div>' +
+    (ac.blocked.length ? '<div style="margin-top:8px">' + ac.blocked.map(function (b) {
+      return '<div class="adminli"><span><strong style="font-weight:800;word-break:break-all">' + h(b.email) + '</strong><small>Blocked ' + h(stampIn(b.at)) + (b.by ? ' by ' + h(shortName(b.by)) : '') + '</small></span><button class="linkbtn" data-a="unblock" data-email="' + h(b.email) + '">Unblock</button></div>';
+    }).join('') + '</div>' : '<p style="margin:12px 0 0;font-size:15px;color:#5F6368">Nobody is blocked.</p>') + '</div>';
   box.innerHTML = '<div class="two">' + gate + reqs + '</div>' + add + mem + others + blocked;
 }
 
@@ -3095,6 +3116,7 @@ function activityText(r) {
     if (a.reactivated && typeof a.reactivated === 'string') return 'Reactivated ' + a.reactivated;
     if (a.blocked) return 'Blocked ' + a.blocked;
     if (a.unblocked) return 'Unblocked ' + a.unblocked;
+    if (a.removed) return 'Removed ' + a.removed + ' from the approved list';
     return (a.source === 'request' ? 'Approved an access request' : 'Added ' + a.added + ' ' + pl(a.added, 'person', 'people')) + (a.reactivated ? ', reactivated ' + a.reactivated : '');
   }
   if (r.action === 'settings' && a && typeof a === 'object') {
