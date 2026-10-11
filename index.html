@@ -479,6 +479,33 @@ table.lt tr.row.hl{background:var(--hl);box-shadow:inset 0 0 0 2px var(--blue)}
 .adminli{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 0;border-top:1px solid var(--line2)}
 .adminli small{display:block;font-size:14px;color:var(--muted);font-weight:500}
 
+/* ---------- access: gate, sign in, volunteering, reports, members ---------- */
+.gsi{min-height:44px;display:flex;align-items:center;justify-content:center}
+.or{display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--muted);font-size:13px;font-weight:700}
+.or::before,.or::after{content:'';flex:1 1 auto;height:1px;background:var(--line)}
+.apill .nm{max-width:140px;overflow:hidden;text-overflow:ellipsis}
+.volbtn{height:32px;padding:0 12px;border-radius:16px;border:2px solid var(--ink);background:#FFFFFF;color:var(--ink);font-size:13px;font-weight:800}
+.volbtn:hover{background:var(--ink);color:#FFFFFF}
+.volbtn.out{border-color:var(--line);color:var(--muted)}
+.volbtn.out:hover{background:#FFFFFF;border-color:var(--red);color:var(--red-ink)}
+.vtag{font-size:11px;font-weight:600;color:var(--faint)}
+.chip.vol{background:#5F6368}
+.chipc{height:22px;padding:0 8px;margin-left:6px;border:0;border-radius:11px;background:#FFFFFF;color:var(--ink);font-size:11px;font-weight:800}
+.repbtn{display:block;margin-top:8px;border:0;background:none;padding:0;font-size:12px;font-weight:600;color:var(--faint);text-decoration:underline}
+.repbtn:hover{color:var(--red-ink)}
+dialog.dlg{border:2px solid var(--ink);border-radius:22px;padding:22px;max-width:460px;width:calc(100% - 32px);box-shadow:6px 6px 0 var(--ink);color:var(--ink)}
+dialog.dlg::backdrop{background:rgba(27,29,31,.45)}
+.notify{margin-top:30px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;background:#FFFFFF;border-radius:18px;padding:18px 20px}
+.notify h2{margin:0;font-size:18px;font-weight:900}
+.notify p{margin:4px 0 0;font-size:14px;line-height:1.45;color:var(--ink2);max-width:640px}
+@media (max-width:899px){.notify{margin-top:22px}.notify .btn2{width:100%}}
+.viewas{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:800}
+.viewas select{height:32px;border-radius:16px;border:0;padding:0 10px;font-size:14px;font-weight:700;color:var(--ink);background:#FFFFFF}
+.mrow{display:grid;grid-template-columns:minmax(0,1.3fr) 160px minmax(0,1fr) 190px;gap:12px;align-items:center;border-top:1px solid var(--line2);padding:12px 0;font-size:14px}
+.mrow .meta{margin-top:0}
+.mact{display:flex;flex-wrap:wrap;gap:12px;align-items:center;font-size:14px}
+@media (max-width:899px){.mrow{display:flex;flex-direction:column;align-items:flex-start;gap:4px}}
+
 /* toast */
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#FFFFFF;padding:12px 18px;border-radius:14px;font-size:15px;font-weight:600;max-width:min(560px,calc(100% - 32px));box-shadow:0 8px 24px rgba(27,29,31,.25);opacity:0;pointer-events:none;z-index:50;transition:opacity .2s ease,transform .2s ease}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -536,6 +563,7 @@ table.lt tr.row.hl{background:var(--hl);box-shadow:inset 0 0 0 2px var(--blue)}
 </div>
 <datalist id="names-dl"></datalist>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
+<dialog id="repdlg" class="dlg" aria-labelledby="rep-h"></dialog>
 <script>
 var BOOT = (function () {
   var q = new URLSearchParams(location.search);
@@ -585,6 +613,9 @@ var BOOT = (function () {
 <script>var MODULES = {"INTERNAL MEDICINE":{"abbr":"IM","name":"Internal Medicine"},"NEUROLOGY":{"abbr":"Neuro","name":"Neurology"},"MENTAL HEALTH":{"abbr":"MH","name":"Mental Health"},"PHARMACOLOGY":{"abbr":"NeuroPharm","name":"Neuropharmacology"},"NEUROPHARMACOLOGY":{"abbr":"NeuroPharm","name":"Neuropharmacology"},"NEURORADIOLOGY":{"abbr":"NeuroRad","name":"Neuroradiology"},"REHABILITATION MEDICINE":{"abbr":"Rehab","name":"Rehabilitation Medicine"},"GENERAL SURGERY":{"abbr":"GenSurg","name":"General Surgery"},"CARDIAC SURGERY":{"abbr":"CardioSurg","name":"Cardiac Surgery"},"PLASTIC SURGERY":{"abbr":"Plastics","name":"Plastic Surgery"},"THORACIC SURGERY":{"abbr":"ThorSurg","name":"Thoracic Surgery"},"VASCULAR SURGERY":{"abbr":"VascSurg","name":"Vascular Surgery"},"NEUROSURGERY":{"abbr":"NeuroSurg","name":"Neurosurgery"},"MAXILLO-FACIAL SURGERY":{"abbr":"MaxFac","name":"Maxillofacial Surgery"},"MAXILLOFACIAL SURGERY":{"abbr":"MaxFac","name":"Maxillofacial Surgery"}};
 var COURSES = [{"key":"MEDICAL SCIENCE AND CLINICAL INVESTIGATION","code":"MS","name":"Medical Science and Clinical Investigation","color":"#2457D6"},{"key":"NEUROLOGICAL AND BEHAVIOURAL DISORDERS","code":"NB","name":"Neurological and Behavioural Disorders","color":"#8146D6"},{"key":"FUNDAMENTALS OF SURGERY","code":"FS","name":"Fundamentals of Surgery","color":"#0E8F92"}];
 var MAX_PARTS = 5;
+var MAX_AUTHORS = 4;
+var GOOGLE_CLIENT_ID = "367469496601-vl1pk0h2sunp5hlr76qft41qejfduiiv.apps.googleusercontent.com";
+var HELP_EMAIL = "ims-study-tracker-help@googlegroups.com";
 var WD_ = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 var MON_ = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 function titleCase_(s) {
@@ -768,12 +799,19 @@ if (typeof module !== 'undefined') module.exports = parseSchedule;
 <script>
 (function () {
 'use strict';
+// google.script is the bridge to the server. Google's sign-in script also uses window.google, so keep our own handle.
+var GS = window.google && window.google.script;
+function restoreGS() { if (!window.google) window.google = {}; if (!window.google.script) window.google.script = GS; }
 
 // =====================================================================================
 // Basics
 // =====================================================================================
 // reqEnv: what the address asks for. env: what the server actually serves (universal test mode can turn live into test).
-var S = { page: BOOT.page, reqEnv: BOOT.env, env: BOOT.env, url: BOOT.url, data: BOOT.data, admin: null, adminState: null, signinNote: '', universal: { on: false } };
+// me: who's asking ({name, email, level 1-4, admin, isAdmin, pending}); tok: sign-in session; pt: class-password token; key: emergency admin key
+var S = { page: BOOT.page, reqEnv: BOOT.env, env: BOOT.env, url: BOOT.url, data: BOOT.data, admin: null, adminState: null, signinNote: '', universal: { on: false },
+  me: null, tok: '', pt: '', key: '', viewAs: 0, locked: false, after: '', codeMail: '' };
+function level() { return S.me ? S.me.level : 1; }
+function approved() { return level() >= 3; }
 var $ = function (s, r) { return (r || document).querySelector(s); };
 var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
 var reduceMq = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -829,12 +867,14 @@ var ICON = {
 // =====================================================================================
 function api(name, req) {
   return new Promise(function (resolve, reject) {
-    var r = Object.assign({ env: S.reqEnv, key: S.admin ? S.admin.key : '' }, req || {});
-    google.script.run.withSuccessHandler(function (res) {
+    var r = Object.assign({ env: S.reqEnv, key: S.key, tok: S.tok, pt: S.pt, viewAs: S.reqEnv === 'test' && S.page !== 'admin' ? S.viewAs : 0 }, req || {});
+    GS.run.withSuccessHandler(function (res) {
       if (res && res.ok) return resolve(res.data);
       var e = new Error((res && res.error) || 'The server didn\'t answer. Check your connection and try again.');
       e.code = res && res.code;
-      if (e.code === 'auth' && S.admin) authLost(e.message);
+      if (e.code === 'auth' && S.key) authLost(e.message);
+      if (e.code === 'blocked') dropSession(e.message);
+      if (e.code === 'pass') lockOut(res.me);
       reject(e);
     }).withFailureHandler(function (err) {
       reject(new Error(err && err.message ? 'Connection problem: ' + err.message : 'Connection problem. Try again.'));
@@ -842,10 +882,22 @@ function api(name, req) {
   });
 }
 function authLost(msg) {
-  signOut(true);
+  store.del('sb.key'); S.key = '';
+  S.me = null; S.admin = null; S.data = null; S.adminState = null;
   S.signinNote = msg;
-  if (S.page === 'admin' || (S.reqEnv === 'test' && !S.universal.on)) go('signin');
-  else renderHeader();
+  if (S.page === 'admin' || (S.reqEnv === 'test' && !S.universal.on)) go('signin'); else renderPage({ keep: true });
+}
+function dropSession(msg) {
+  store.del('st.tok'); S.tok = '';
+  S.me = null; S.admin = null; S.data = null; S.adminState = null;
+  if (msg) toast(msg, true);
+}
+// The class password is needed: a first visit, or an admin changed it
+function lockOut(me) {
+  var was = S.locked;
+  store.del('st.pt'); S.pt = ''; S.locked = true; S.data = null;
+  if (me) S.me = { name: me.name, email: me.email, level: me.level, admin: false, isAdmin: false };
+  if (!was && S.page !== 'signin') swap(function () { renderPage(); });
 }
 
 // =====================================================================================
@@ -876,7 +928,13 @@ function setData(d) {
   SEM.start = mondayMs(first);
   SEM.weeks = Math.max(1, Math.round((mondayMs(last) - SEM.start) / (7 * DAY)) + 1);
   $('#names-dl').innerHTML = (d.names || []).map(function (n) { return '<option value="' + h(n) + '">'; }).join('');
-  if (d.admin && S.admin) S.admin.name = d.admin.name;
+  if (d.me) {
+    S.me = d.me;
+    S.admin = d.me.admin ? { name: d.me.name } : null;
+    // a sign-in that expired or was signed out elsewhere
+    if (S.tok && !d.me.email && !d.me.viewAs) dropSession();
+  }
+  S.locked = false;
   S.env = d.env || S.env;
   S.universal = d.universal || { on: false };
 }
@@ -914,12 +972,13 @@ function pageHref(page, env) {
 }
 function go(page, opt) {
   opt = opt || {};
-  if (page === 'admin' && !S.admin) { S.signinNote = ''; page = 'signin'; }
+  // the admin page always shows everything: leave "see it as"
+  if (page === 'admin' && S.viewAs) { S.viewAs = 0; S.data = null; try { window.sessionStorage.removeItem('st.viewas'); } catch (e) {} }
   S.page = page;
   try {
     var params = { page: page };
     if (S.reqEnv === 'test') params.env = 'test';
-    google.script.history.push({ page: page }, params, opt.hash || '');
+    GS.history.push({ page: page }, params, opt.hash || '');
   } catch (e) {}
   swap(function () { renderPage(opt); });
 }
@@ -930,12 +989,13 @@ function swap(fn) {
   setTimeout(function () { fn(); window.scrollTo(0, 0); v.classList.remove('out'); }, 140);
 }
 function renderHeader() {
-  var p = S.page, a = S.admin;
+  var p = S.page, me = S.me, isAdm = !!(me && me.isAdmin);
   var pill;
-  if (a) {
-    pill = '<span class="apill' + (S.env === 'test' || p === 'admin' ? ' on' : '') + '"><a href="' + h(pageHref('admin')) + '" data-go="admin">Admin: ' + h(shortName(a.name)) + '</a> · <a href="#" data-act="signout">Sign out</a></span>';
+  if (me && (me.email || isAdm)) {
+    pill = '<span class="apill' + (p === 'admin' || (isAdm && S.env === 'test') ? ' on' : '') + '">' + (isAdm ? '<a href="' + h(pageHref('admin')) + '" data-go="admin">Admin</a> · ' : '') +
+      (me.email ? '<span class="nm" title="' + h(me.email) + '">' + h(shortName(me.name || me.email)) + '</span> · ' : '') + '<a href="#" data-act="signout">Sign out</a></span>';
   } else {
-    pill = '<a class="apill' + (p === 'signin' ? ' on' : '') + '" href="' + h(pageHref('signin')) + '" data-go="signin"' + (p === 'signin' ? ' aria-current="page"' : '') + '>Admin sign in</a>';
+    pill = '<a class="apill' + (p === 'signin' ? ' on' : '') + '" href="' + h(pageHref('signin')) + '" data-go="signin"' + (p === 'signin' ? ' aria-current="page"' : '') + '>Sign in</a>';
   }
   $('#hdr').innerHTML =
     '<div class="brand"><span class="wm">STUDY TRACKER</span><span class="yr">IMS · 5th Year</span></div>' +
@@ -944,17 +1004,26 @@ function renderHeader() {
     '<a href="' + h(pageHref('upload')) + '" data-go="upload"' + (p === 'upload' ? ' class="on" aria-current="page"' : '') + '>Upload</a>' +
     '</nav>' + pill + '</div>';
   var b = $('#banner'), kind = '', html = '';
-  if (S.env === 'test' && S.universal.on && !S.admin) {
+  if (S.env === 'test' && S.universal.on && !isAdm) {
     kind = 'universal';
     html = '<span class="tag">Test mode</span><span class="txt">The portal is being tried out, so everything here is test data. Uploads go to the test folders and emails to the test list. Nothing here is real yet.</span>';
   } else if (S.env === 'test') {
-    kind = 'test';
-    html = '<span class="tag">Test mode</span><span class="txt">Uploads go to the test folders and emails to the test list. Nothing here touches the real portal.</span><a href="' + h(pageHref(S.page === 'signin' ? 'dashboard' : S.page, 'live')) + '">Leave test mode</a>';
-  } else if (S.admin && S.universal.on) {
+    var va = isAdm && p !== 'admin' && p !== 'signin';
+    kind = 'test' + (va ? 'va' + S.viewAs : '');
+    html = '<span class="tag">Test mode</span><span class="txt">Uploads go to the test folders and emails to the test list. Nothing here touches the real portal.</span>' +
+      (va ? viewAsSel() : '') + '<a href="' + h(pageHref(S.page === 'signin' ? 'dashboard' : S.page, 'live')) + '">Leave test mode</a>';
+  } else if (isAdm && S.universal.on) {
     kind = 'uniadmin';
     html = '<span class="tag">Test mode for everyone</span><span class="txt">Everyone who isn\'t signed in as an admin sees the test portal. You\'re seeing the real one.</span><button class="linkbtn" data-act="uni-off" style="color:#FFFFFF;font-size:14px;font-weight:800">Turn it off</button>';
   }
   if (b.dataset.kind !== kind) { b.dataset.kind = kind; b.innerHTML = kind ? '<div class="banner-wrap"><div role="status" class="banner drop">' + html + '</div></div>' : ''; }
+}
+// Admins in test mode can see the site the way each kind of classmate does
+function viewAsSel() {
+  return '<label class="viewas">See it as <select data-act="viewas" aria-label="See the test site as">' +
+    [[0, 'an admin (you)'], [3, 'an approved classmate'], [2, 'signed in, not approved'], [1, 'not signed in']].map(function (o) {
+      return '<option value="' + o[0] + '"' + (S.viewAs === o[0] ? ' selected' : '') + '>' + o[1] + '</option>';
+    }).join('') + '</select></label>';
 }
 function setUniversal(on, btn) {
   if (btn) btn.disabled = true;
@@ -967,34 +1036,45 @@ function setUniversal(on, btn) {
     toast(on ? 'Universal test mode is on. Everyone else now sees the test portal.' : 'Universal test mode is off. Everyone sees the real portal again.');
   }, function (e) { if (btn) btn.disabled = false; toast(e.message, true); });
 }
-function signOut(silent) {
-  store.del('sb.key'); store.del('sb.name');
-  S.admin = null; S.adminState = null;
-  if (S.data) S.data.admin = null;
-  if (!silent) {
-    toast('Signed out.');
-    if (S.reqEnv === 'test') { window.open(pageHref('dashboard', 'live'), '_top'); return; }
-    S.data = null;
-    if (S.page === 'admin') go('dashboard'); else { renderHeader(); renderPage({ keep: true }); }
-  }
+function signOut() {
+  if (S.tok) api('signOut', { tok: S.tok }).catch(function () {});
+  store.del('st.tok'); store.del('sb.key'); store.del('sb.name');
+  S.tok = ''; S.key = ''; S.me = null; S.admin = null; S.adminState = null; S.data = null; S.viewAs = 0;
+  toast('Signed out.');
+  if (S.reqEnv === 'test') { window.open(pageHref('dashboard', 'live'), '_top'); return; }
+  if (S.page === 'admin' || S.page === 'upload') go('dashboard'); else renderPage({ keep: true });
 }
 function renderPage(opt) {
   opt = opt || {};
   renderHeader();
   var v = $('#view');
   v.onclick = v.oninput = v.onchange = v.onkeydown = null;
-  if (S.page === 'admin' && !S.admin) { S.page = 'signin'; renderHeader(); }
-  if (S.page === 'signin') return renderSignin(v);
+  if (S.page === 'signin') {
+    // signed in on this device: find out as whom before showing the page
+    if ((S.tok || S.key) && !S.me) {
+      v.innerHTML = '<div class="wrap"><div class="loading">Loading…</div></div>';
+      var done = function () { if (S.page === 'signin') { renderHeader(); renderSignin(v); } };
+      api('state').then(function (d) { setData(d); done(); }, done);
+      return;
+    }
+    return renderSignin(v);
+  }
+  if (S.locked) return renderGate(v);
   if (!S.data) {
     v.innerHTML = '<div class="wrap"><div class="loading">Loading the semester…</div></div>';
     api('state').then(function (d) { setData(d); renderPage(opt); }, function (e) {
+      if (e.code === 'pass') return;   // lockOut shows the class password page
+      if (e.code === 'blocked') return renderPage(opt);
       if (e.code === 'auth') { S.signinNote = 'Test mode is for admins. Sign in first.'; S.page = 'signin'; return renderPage(opt); }
       v.innerHTML = '<div class="wrap"><div class="err-box">' + h(e.message) + '</div></div>';
     });
     return;
   }
+  if (S.page === 'admin') {
+    if (!S.me || !S.me.isAdmin) { S.signinNote = 'The admin page is for admins. Sign in with an admin account.'; S.page = 'signin'; return renderPage(opt); }
+    return renderAdmin(v, opt);
+  }
   if (S.page === 'upload') return renderUpload(v, opt);
-  if (S.page === 'admin') return renderAdmin(v, opt);
   return renderDashboard(v, opt);
 }
 
@@ -1005,9 +1085,19 @@ document.addEventListener('click', function (e) {
   if (so) { e.preventDefault(); signOut(); }
   var uo = e.target.closest('[data-act="uni-off"]');
   if (uo) { e.preventDefault(); setUniversal(false, uo); }
+  var rp = e.target.closest('[data-report]');
+  if (rp) { e.preventDefault(); openReport(rp.getAttribute('data-report')); }
+});
+document.addEventListener('change', function (e) {
+  if (!e.target.matches || !e.target.matches('[data-act="viewas"]')) return;
+  S.viewAs = +e.target.value || 0;
+  try { if (S.viewAs) window.sessionStorage.setItem('st.viewas', String(S.viewAs)); else window.sessionStorage.removeItem('st.viewas'); } catch (x) {}
+  S.data = null;
+  resetUpload();
+  renderPage({ keep: true });
 });
 try {
-  google.script.history.setChangeHandler(function (ev) {
+  GS.history.setChangeHandler(function (ev) {
     var p = ev.location && ev.location.parameter && ev.location.parameter.page;
     if (p && p !== S.page) { S.page = p; swap(function () { renderPage(); }); }
   });
@@ -1019,10 +1109,13 @@ try {
 function badge(cc, extra) { return '<span class="badge"' + ' style="background:' + ccol(cc) + (extra || '') + '">' + h(cc || '?') + '</span>'; }
 function spill(l, cls) { return '<span class="spill ' + (l.removed ? 'st-removed' : 'st-' + l.st) + (cls ? ' ' + cls : '') + '">' + h(statusLabel(l)) + '</span>'; }
 
-// Admin-only author chips. The server re-checks the key on every change.
+// Admin-only author chips. The server re-checks on every change. Volunteers are grey, with Confirm.
 function authorEditor(l) {
   return '<span class="ae" data-ae="' + h(l.id) + '">' + l.asg.map(function (n) {
-    return '<span class="chip">' + h(n) + '<button class="chipx" data-unassign="' + h(l.id) + '" data-name="' + h(n) + '" aria-label="Remove ' + h(n) + ' from ' + h(lecTitle(l)) + '">×</button></span>';
+    var vol = l.vol.indexOf(n) >= 0;
+    return '<span class="chip' + (vol ? ' vol' : '') + '"' + (vol ? ' title="Volunteered"' : '') + '>' + h(n) +
+      (vol ? '<button class="chipc" data-confirmvol="' + h(l.id) + '" data-name="' + h(n) + '" aria-label="' + h(n) + ' volunteered. Make them an assigned author of ' + h(lecTitle(l)) + '">Confirm</button>' : '') +
+      '<button class="chipx" data-unassign="' + h(l.id) + '" data-name="' + h(n) + '" aria-label="Remove ' + h(n) + ' from ' + h(lecTitle(l)) + '">×</button></span>';
   }).join('') + '<button class="add" data-addname="' + h(l.id) + '" aria-label="Add an author to ' + h(lecTitle(l)) + '">+ Add</button></span>';
 }
 function wireAuthorEditors(root, onChange) {
@@ -1048,6 +1141,14 @@ function wireAuthorEditors(root, onChange) {
       inp.addEventListener('blur', function () { finish(true); });
       return;
     }
+    var cv = e.target.closest('[data-confirmvol]');
+    if (cv) {
+      var cid = cv.getAttribute('data-confirmvol'), cn = cv.getAttribute('data-name');
+      cv.disabled = true;
+      api('confirmVolunteer', { lectureId: cid, name: cn }).then(function (r) { updateLecture(r.lecture, r.counts, r.names); onChange(cid); toast(cn + ' is now assigned to ' + lecTitle(r.lecture) + '.'); },
+        function (err) { toast(err.message, true); onChange(cid); });
+      return;
+    }
     var rm = e.target.closest('[data-unassign]');
     if (rm) {
       var lid = rm.getAttribute('data-unassign'), nm = rm.getAttribute('data-name');
@@ -1058,7 +1159,21 @@ function wireAuthorEditors(root, onChange) {
   });
 }
 
-// Dashboard topic field: open to everyone, saves on Enter or when leaving the field
+// Approved classmates put themselves on a lecture, or take themselves off one they volunteered for
+function wireVolunteer(root, onChange) {
+  root.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-volunteer],[data-withdraw]');
+    if (!b) return;
+    var vol = b.hasAttribute('data-volunteer'), id = b.getAttribute(vol ? 'data-volunteer' : 'data-withdraw');
+    b.disabled = true;
+    api(vol ? 'volunteer' : 'withdraw', { lectureId: id }).then(function (r) {
+      updateLecture(r.lecture, r.counts, r.names); onChange(id);
+      toast(vol ? 'You\'re down for ' + lecTitle(r.lecture) + '. Thanks!' : 'You\'re off ' + lecTitle(r.lecture) + '.');
+    }, function (err) { b.disabled = false; toast(err.message, true); });
+  });
+}
+
+// Dashboard topic field: for signed-in classmates, saves on Enter or when leaving the field
 function wireTopicInputs(root, onChange) {
   var save = function (inp) {
     var id = inp.getAttribute('data-topic'), v = inp.value.trim(), l = byId[id];
@@ -1131,7 +1246,7 @@ function renderDashboard(v, opt) {
     (phone ? '<p class="abbrs" style="font-weight:600">Tap a lecture to jump to it. <button class="linkbtn" data-act="abbr" style="color:#5F6368">What the abbreviations mean</button></p><p class="abbrs" id="abbr" hidden>' + h(abbrText()) + '</p>'
       : '<p class="abbrs">' + h(abbrText()) + '</p>') +
     '</section>' +
-    drivesHtml() +
+    drivesHtml() + notifyHtml() +
     '<div id="weekpart"></div>' +
     '</main>';
   renderWeekPart();
@@ -1159,6 +1274,16 @@ function renderDashboard(v, opt) {
   var refresh = function () { renderWeekList(); refreshOverview(); };
   wireAuthorEditors(dash, refresh);
   wireTopicInputs(dash, refresh);
+  wireVolunteer(dash, refresh);
+}
+
+// Mailing list sign-up: Google Groups adds whoever emails <group>+subscribe@
+function notifyHtml() {
+  var n = S.data.notify;
+  if (!n || !n.subscribe) return '';
+  return '<section class="notify" aria-labelledby="h-notify"><div><h2 id="h-notify">Get an email when something is uploaded</h2>' +
+    '<p>' + (S.env === 'test' ? 'This is the test list. ' : '') + 'It opens a ready email to the mailing list: press Send from the address you want the emails on. An admin may need to approve it. Leaving the list later only stops the emails.</p></div>' +
+    '<a class="btn2" href="' + h(n.subscribe) + '">Get the emails</a></section>';
 }
 
 var FOLDER_SVG = '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>';
@@ -1246,7 +1371,7 @@ function renderWeekList() {
   var dd = $('#ddays');
   if (dd) dd.style.display = searching ? 'none' : '';
   var head = searching ? '<div class="matchhead"><h2 aria-live="polite">' + list.length + ' ' + pl(list.length, 'lecture matches', 'lectures match') + '</h2><button class="pillbtn" data-act="clear">Clear</button></div>' : '';
-  var admin = !!S.admin;
+  var admin = !!S.admin, showWho = admin || approved();
   if (phone) {
     var prevD = '', html = head;
     if (!list.length) html += '<div class="empty" style="margin:0">' + (searching ? 'Nothing matches.' : 'No lectures on this day.') + '</div>';
@@ -1262,14 +1387,19 @@ function renderWeekList() {
       var nd = l.date !== prev; prev = l.date;
       rows += dashRow(l, nd, searching, admin);
     });
-    box.innerHTML = head + '<div class="tablebox"><table class="lt"><thead><tr><th scope="col" style="width:' + (searching ? 130 : 110) + 'px">When</th><th scope="col">Lecture</th><th scope="col" style="width:' + (admin ? 250 : 170) + 'px">Authors</th><th scope="col" style="width:170px">Status</th><th scope="col" style="width:170px">Files</th></tr></thead><tbody>' +
-      (rows || '<tr><td colspan="5" style="padding:28px 24px;color:#5F6368">' + (searching ? 'Nothing matches.' : 'No lectures this week.') + '</td></tr>') + '</tbody></table></div>' +
+    box.innerHTML = head + '<div class="tablebox"><table class="lt"><thead><tr><th scope="col" style="width:' + (searching ? 130 : 110) + 'px">When</th><th scope="col">Lecture</th>' +
+      (showWho ? '<th scope="col" style="width:' + (admin ? 250 : 190) + 'px">Authors</th>' : '') + '<th scope="col" style="width:170px">Status</th><th scope="col" style="width:170px">Files</th></tr></thead><tbody>' +
+      (rows || '<tr><td colspan="' + (showWho ? 5 : 4) + '" style="padding:28px 24px;color:#5F6368">' + (searching ? 'Nothing matches.' : 'No lectures this week.') + '</td></tr>') + '</tbody></table></div>' +
       '<p class="foot">Slides open for the whole class. Sbobine open only for classmates they\'ve been shared with.</p>';
   }
 }
 
 function topicBlock(l, phone) {
   var locked = l.topic && (l.src === 'submission' || l.src === 'schedule');
+  if (!locked && level() < 2) {
+    if (!l.topic) return phone ? '<div class="tp" style="color:#80868B">No topic yet</div>' : '<span class="ltopic"><span class="t" style="color:#80868B">No topic yet</span></span>';
+    locked = true;
+  }
   if (locked) {
     return phone ? '<div class="tp">' + h(l.topic) + '</div><div class="src">' + h(srcNote(l)) + '</div>'
       : '<span class="ltopic"><span class="t">' + h(l.topic) + '</span><span class="src">' + h(srcNote(l)) + '</span></span>';
@@ -1278,10 +1408,16 @@ function topicBlock(l, phone) {
   var note = l.manual ? '<span class="src">Details added by hand</span>' : '';
   return phone ? inp + (note ? '<div>' + note + '</div>' : '') : '<span class="ltopic" style="align-items:center">' + inp + note + '</span>';
 }
+// Names are only sent to approved classmates. They can volunteer, and withdraw only where they volunteered.
 function whoHtml(l, admin) {
   if (admin) return authorEditor(l) + (green(l.st) && l.who.join() !== l.asg.join() ? '<span class="subnote">Written by ' + h(l.who.join(', ')) + '</span>' : '');
-  return l.who.length ? '<span class="who">' + h(l.who.join(', ')) + '</span>' : '<span class="who none">Nobody yet</span>';
+  var list = l.who.length ? '<span class="who">' + l.who.map(function (n) { return h(n) + (!green(l.st) && l.vol.indexOf(n) >= 0 ? '<span class="vtag"> (volunteer)</span>' : ''); }).join(', ') + '</span>'
+    : '<span class="who none">Nobody yet</span>';
+  var btn = l.mine && !green(l.st) ? '<button class="volbtn out" data-withdraw="' + h(l.id) + '" aria-label="Withdraw from ' + h(lecTitle(l)) + '">Withdraw</button>'
+    : l.vok ? '<button class="volbtn" data-volunteer="' + h(l.id) + '" aria-label="Volunteer for ' + h(lecTitle(l)) + '">' + (l.asg.length ? 'Join them' : 'I\'ll write it') + '</button>' : '';
+  return list + (btn ? '<span style="display:block;margin-top:8px">' + btn + '</span>' : '');
 }
+function reportBtn(l) { return '<button class="repbtn" data-report="' + h(l.id) + '" aria-label="Report a problem with ' + h(lecTitle(l)) + '">Report a problem</button>'; }
 function statusExtras(l) {
   var s = '';
   if (green(l.st) && l.unrev) s += '<span class="subnote">Not reviewed yet</span>';
@@ -1301,17 +1437,43 @@ function dashRow(l, newDay, searching, admin) {
     (newDay && note ? '<span class="daynote" style="margin:4px 0 4px">' + h(note) + '</span>' : '') +
     '<span style="display:block;font-size:13px;color:#5F6368">' + h(l.start + '–' + l.end) + '</span></td>' +
     '<td><span class="lname' + (l.removed ? ' rm' : '') + '">' + badge(l.cc) + '<b>' + h(lecTitle(l)) + '</b><span style="color:#3C4043">Prof. ' + h(l.prof) + '</span></span>' + topicBlock(l, false) + '</td>' +
-    '<td>' + whoHtml(l, admin) + '</td>' +
+    (admin || approved() ? '<td>' + whoHtml(l, admin) + '</td>' : '') +
     '<td style="padding-top:12px">' + spill(l) + statusExtras(l) + '</td>' +
-    '<td><span class="flinks">' + filesHtml(l) + '</span></td></tr>';
+    '<td><span class="flinks">' + filesHtml(l) + '</span>' + reportBtn(l) + '</td></tr>';
 }
 function dashCard(l, i, admin) {
   return '<article id="lec-' + h(l.id) + '" class="dcard' + (l.removed ? ' rm' : '') + (D.hl === l.id ? ' hl' : '') + '">' +
     '<div class="r1"><span class="tm">' + h(l.start + '–' + l.end) + '</span>' + spill(l) + '</div>' +
     '<div class="r2">' + badge(l.cc) + '<b>' + h(lecTitle(l)) + '</b></div>' +
     '<div class="pf">Prof. ' + h(l.prof) + '</div>' + topicBlock(l, true) +
-    '<div class="au"><span>Authors</span>' + whoHtml(l, admin) + statusExtras(l) + '</div>' +
-    (l.files.length ? '<div class="fpills">' + filesHtml(l) + '</div>' : '') + '</article>';
+    (admin || approved() ? '<div class="au"><span>Authors</span>' + whoHtml(l, admin) + statusExtras(l) + '</div>' : statusExtras(l)) +
+    (l.files.length ? '<div class="fpills">' + filesHtml(l) + '</div>' : '') + reportBtn(l) + '</article>';
+}
+
+// Report a problem: a topic or a file. Admins get a note without the text.
+var REPWHAT = { topic: 'The topic', file: 'A file', other: 'Something else' };
+function openReport(id) {
+  var l = byId[id], d = $('#repdlg');
+  if (!l || !d) return;
+  d.innerHTML = '<form id="repform"><h2 id="rep-h" style="margin:0 0 4px;font-size:22px;font-weight:900">Report a problem</h2>' +
+    '<p style="margin:0 0 14px;font-size:14px;line-height:1.45;color:#3C4043">' + h(lecTitle(l) + ', ' + dayLabel_(l.date)) + '. The admins get a note and take a look.</p>' +
+    '<div role="radiogroup" aria-label="What\'s wrong?" style="display:flex;flex-direction:column">' +
+    [['topic', 'The topic is wrong or inappropriate'], ['file', 'A file is wrong or inappropriate'], ['other', 'Something else']].map(function (o, i) {
+      return '<label class="check" style="margin-top:4px"><input type="radio" name="rwhat" value="' + o[0] + '"' + (i === 0 ? ' checked' : '') + '><span aria-hidden="true" class="bx" style="border-radius:50%">✓</span>' + o[1] + '</label>';
+    }).join('') + '</div>' +
+    '<label class="fld" style="margin-top:12px">Anything to add? <span class="opt">Optional</span><textarea class="ta" id="rnote" rows="2" maxlength="300" style="font-weight:500"></textarea></label>' +
+    '<div id="rerr"></div><div style="display:flex;gap:10px;margin-top:16px"><button class="sbtn" id="rsend">Send the report</button><button type="button" class="sbtn2" id="rcancel">Cancel</button></div></form>';
+  if (d.showModal) d.showModal(); else d.setAttribute('open', '');
+  $('#rcancel').onclick = function () { d.close ? d.close() : d.removeAttribute('open'); };
+  $('#repform').onsubmit = function (e) {
+    e.preventDefault();
+    var what = (d.querySelector('input[name="rwhat"]:checked') || {}).value || 'other', btn = $('#rsend');
+    busy(btn, true, 'Sending…');
+    api('report', { lectureId: id, what: what, note: $('#rnote').value }).then(function () {
+      d.close ? d.close() : d.removeAttribute('open');
+      toast('Thanks. The admins will take a look.');
+    }, function (x) { busy(btn, false); $('#rerr').innerHTML = '<div class="err-box drop" role="alert">' + h(x.message) + '</div>'; });
+  };
 }
 
 function jump(id) {
@@ -1422,6 +1584,7 @@ function summaryHtml(extra) {
 }
 
 function renderUpload(v, opt) {
+  if (level() < 2) return renderUploadSignin(v);
   if (U.step === 'done') return renderDone(v);
   if (U.step === 1) renderPick(v);
   else if (U.step === 2) renderType(v);
@@ -1514,6 +1677,7 @@ function updateDayTabs() {
 }
 function statusText(l) {
   var who = l.who.join(', ');
+  if (!who) return { submitted: 'Submitted', reused: "Last year's sbobina, minor edits", 'reused-asis': "Last year's sbobina, used as is", writing: 'Being written', assigned: 'To be held, has authors', overdue: 'Overdue', open: 'No authors yet' }[l.st];
   if (l.st === 'submitted') return 'Submitted by ' + who;
   if (l.st === 'reused') return "Last year's sbobina, minor edits" + (who ? ', by ' + who : '');
   if (l.st === 'reused-asis') return "Last year's sbobina, used as is" + (who ? ', by ' + who : '');
@@ -1598,8 +1762,8 @@ function futureLecture() {
   return lecs.filter(function (l) { return l.date > S.data.today; })[0] || null;
 }
 function renderType(v) {
-  var fut = futureLecture();
-  if (fut && U.kind === 'sbobina') U.kind = 'slides';
+  var fut = futureLecture(), ok = approved();
+  if ((fut || !ok) && U.kind === 'sbobina') U.kind = 'slides';
   var s = summaryOf() || { cc: '?', title: '', sub: '' }, k = U.kind;
   var cta = k === 'sbobina' ? 'Continue with the sbobina' : 'Continue with the slides';
   v.innerHTML =
@@ -1607,8 +1771,9 @@ function renderType(v) {
     '<div class="darksum ph">' + badge(s.cc) + '<div style="flex:1 1 auto;min-width:0"><div class="t">' + h(s.title) + '</div><div class="s">' + h(s.sub) + '</div></div><button class="linkbtn" data-u="change">Change</button></div>' +
     '<h1 class="big rise" style="margin-top:' + (desk() ? '4px' : '26px') + '">What are you uploading?</h1>' +
     '<div role="radiogroup" aria-label="What are you uploading?" class="choices">' +
-    choice('sbobina', 'Sbobina', fut ? 'Opens on ' + dayLabel_(fut.date) + ', the day of the lecture. You can upload the slides now.' : 'The written-up lecture, as a Word file, a PDF or both. Just the Word file is fine: we make the PDF. Shared with the group only.', ICON.doc, !!fut) +
+    choice('sbobina', 'Sbobina', !ok ? 'For approved classmates. Ask for access below.' : fut ? 'Opens on ' + dayLabel_(fut.date) + ', the day of the lecture. You can upload the slides now.' : 'The written-up lecture, as a Word file, a PDF or both. Just the Word file is fine: we make the PDF. Shared with the group only.', ICON.doc, !!fut || !ok) +
     choice('slides', 'Slides', 'The professor\'s slides, as a PDF or PowerPoint. A PowerPoint is fine: we make the PDF. Open to the whole class.', ICON.screen) + '</div>' +
+    (ok ? '' : '<div id="reqbox">' + requestBox() + '</div>') +
     '<p style="margin:16px 2px 0;font-size:14px;line-height:1.45;color:#5F6368">Have both? Upload one, then come back for the other. Slides don\'t count as the sbobina.</p>' +
     '</div><aside class="aside dk" aria-label="Your upload">' + vsteps(2) + summaryHtml() +
     '<button class="btn wide" data-u="next" style="margin-top:20px" id="typecta">' + cta + '</button><button class="btn2 wide" data-u="back" style="margin-top:10px">Back</button></aside></div></div>' +
@@ -1625,16 +1790,44 @@ function renderType(v) {
     }
     if (a === 'next') toStep(3);
     if (a === 'back' || a === 'change') toStep(1);
+    if (a === 'reqaccess') {
+      var nm = ($('#rqname') || {}).value || '';
+      if (!nm.trim()) { toast('Add your name first.', true); return; }
+      busy(t, true, 'Sending…');
+      api('requestAccess', { name: nm.trim() }).then(function (r) {
+        if (r.approved) { toast('You\'re already approved. Loading…'); S.data = null; return renderPage(); }
+        S.me.pending = !!r.pending;
+        $('#reqbox').innerHTML = requestBox();
+        toast('Request sent. You\'ll get an email once an admin approves you.');
+      }, function (e) { busy(t, false); toast(e.message, true); });
+    }
   };
   function choice(k2, title, desc, icon, off) {
     return '<button class="choice" role="radio" data-u="kind" data-k="' + k2 + '" aria-checked="' + (k === k2) + '"' + (off ? ' disabled aria-disabled="true"' : '') + '><span aria-hidden="true" class="ic">' + icon + '</span><span class="tx"><b>' + title + '</b><span>' + desc + '</span></span><span aria-hidden="true" class="radio"></span></button>';
   }
 }
 
+// Signed in but not approved: ask the admins once
+function requestBox() {
+  if (S.me && S.me.pending) {
+    return '<div class="graybox drop" role="status" style="margin-top:16px"><strong style="font-weight:800">Your request is with the admins.</strong> You\'ll get an email once you\'re approved. Then you can upload sbobine here and see who\'s writing what.</div>';
+  }
+  return '<section class="card" aria-labelledby="h-req" style="margin-top:16px"><h2 id="h-req">Want to upload sbobine?</h2>' +
+    '<p style="margin:0;font-size:14px;line-height:1.45;color:#3C4043">Sbobine and the names of who\'s writing what are for approved classmates. Ask once and an admin will approve you.</p>' +
+    '<label class="fld">Your name and surname<input class="inp" id="rqname" value="' + h(S.me ? S.me.name : '') + '" autocomplete="name" maxlength="80"></label>' +
+    '<div><button class="sbtn" data-u="reqaccess">Ask for access</button></div></section>';
+}
+function renderUploadSignin(v) {
+  v.innerHTML = '<main class="signin"><div class="box"><h1 class="rise">Sign in to upload</h1>' +
+    '<p style="margin:0 0 20px;font-size:15px;line-height:1.5;color:#3C4043">Anyone in the class can upload slides once signed in. Sbobine are for approved classmates: you can ask for access after you sign in.</p>' +
+    '<button class="btn wide" data-u="tosignin">Sign in</button></div></main>';
+  v.onclick = function (e) { if (e.target.closest('[data-u="tosignin"]')) { S.after = 'upload'; S.signinNote = ''; go('signin'); } };
+}
+
 // =====================================================================================
 // Upload step 3: confirm the details
 // =====================================================================================
-function myName() { return store.get('sb.me') || ''; }
+function myName() { return (S.me && S.me.name) || store.get('sb.me') || ''; }
 function prefill() {
   var key = (U.custom ? 'custom' : selIds().join(',')) + '|' + U.kind;
   if (U.f && U.fKey === key) return;
@@ -1678,7 +1871,7 @@ function renderDetails(v) {
     '<section class="card"><label class="fld">Notes for the group <span class="opt">Optional, shown in the email</span><textarea class="ta" rows="3" data-f="notes" maxlength="1000" style="font-weight:500" placeholder="e.g. Audio cut out for the last 10 minutes">' + h(f.notes) + '</textarea></label></section>'
   ) : (
     '<section aria-label="About the slides" class="card">' + topicsHtml +
-    '<label class="fld">Uploaded by<input class="inp" data-f="uploadedBy" value="' + h(f.uploadedBy) + '" list="names-dl" autocomplete="name" placeholder="Your name and surname"></label>' +
+    '<p style="margin:0;font-size:14px;line-height:1.45;color:#3C4043">Uploaded as <strong style="font-weight:800">' + h(myName()) + '</strong>. Only approved classmates see who uploaded what.</p>' +
     '<label class="fld">Notes <span class="opt">Optional, shown in the email</span><textarea class="ta" rows="2" data-f="notes" maxlength="1000" style="font-weight:500" placeholder="e.g. Updated version the professor sent after class">' + h(f.notes) + '</textarea></label></section>'
   );
   v.innerHTML =
@@ -1723,7 +1916,7 @@ function renderDetails(v) {
     var a = t.getAttribute('data-u');
     if (a === 'edits') { f.reuseEdits = t.getAttribute('data-v'); $$('[data-u="edits"]', v).forEach(function (b) { b.setAttribute('aria-checked', b.getAttribute('data-v') === f.reuseEdits); }); }
     if (a === 'back') toStep(2);
-    if (a === 'next') { if (validateDetails()) { if (!sb) store.set('sb.me', f.uploadedBy.trim(), true); toStep(4); } }
+    if (a === 'next') { if (validateDetails()) toStep(4); }
   };
 }
 function renderRevBox(animate) {
@@ -1801,7 +1994,7 @@ function validateDetails() {
     if (!f.authors.length) bad('#list-authors [data-newname]', 'at least one author');
     if (f.reviewed && !f.reviewers.length) bad('#list-reviewers [data-newname]', 'at least one reviewer');
     if (f.reused && !f.reuseEdits) miss.push('whether last year\'s sbobina was edited');
-  } else if (!String(f.uploadedBy).trim()) bad('[data-f="uploadedBy"]', 'who is uploading the slides');
+  }
   var box = $('#derr');
   if (!miss.length) { box.innerHTML = ''; return true; }
   var uniq = miss.filter(function (m, i) { return miss.indexOf(m) === i; });
@@ -1858,7 +2051,7 @@ function renderFiles(v) {
   var slots = sb ? '<div class="files2"><div class="slot"><span>Word file' + (U.files.pdf ? ' <span class="muted" style="font-weight:500">optional</span>' : '') + '</span><div id="slot-word"></div></div>' +
     '<div class="slot"><span>PDF' + (U.files.word || !U.files.pdf ? ' <span class="muted" style="font-weight:500">optional</span>' : '') + '</span><div id="slot-pdf"></div></div></div>'
     : '<span style="display:block;font-size:14px;font-weight:700;margin-bottom:8px">PowerPoint or PDF</span><div id="slot-slides"></div><p style="margin:8px 2px 0;font-size:13px;line-height:1.4;color:#5F6368">Only have a PDF? Upload that instead, no PowerPoint needed.</p>';
-  var people = sb ? 'Authors: ' + h(f.authors.join(', ')) + '<br>' + (f.reviewed ? 'Reviewed by ' + h(f.reviewers.join(', ')) : 'Not reviewed yet') : 'Uploaded by ' + h(f.uploadedBy);
+  var people = sb ? 'Authors: ' + h(f.authors.join(', ')) + '<br>' + (f.reviewed ? 'Reviewed by ' + h(f.reviewers.join(', ')) : 'Not reviewed yet') : 'Uploaded by ' + h(myName());
   v.innerHTML =
     '<div class="wrap"><div class="cols"><div class="main">' + hsteps(4) +
     '<h1 class="big rise" style="margin-bottom:16px">' + (sb ? 'Upload the sbobina' : 'Upload the slides') + '</h1>' + slots + alert + what +
@@ -2104,6 +2297,7 @@ function renderDone(v) {
       return '<li class="up" style="animation-delay:' + (2.2 + i * 0.16).toFixed(2) + 's"><span aria-hidden="true" class="tk" style="animation-delay:' + (2.3 + i * 0.16).toFixed(2) + 's">✓</span><span>' + h(t) + '</span></li>';
     }).join('') + '</ul>' +
     '<div class="donebtns up" style="animation-delay:' + (2.3 + r.steps.length * 0.16).toFixed(2) + 's"><button class="btn" data-u="again">Upload something else</button><a class="btn2" href="' + h(pageHref('dashboard')) + '" data-go="dashboard" style="height:52px;font-size:16px">See the dashboard</a></div>' +
+    (S.data.notify && S.data.notify.subscribe ? '<p class="up" style="margin:18px 0 0;font-size:14px;line-height:1.45;color:#5F6368;animation-delay:' + (2.4 + r.steps.length * 0.16).toFixed(2) + 's">Want an email whenever something is uploaded? <a href="' + h(S.data.notify.subscribe) + '" style="font-weight:700">Get the emails</a></p>' : '') +
     '</div></div></div>';
   v.onclick = function (e) { if (e.target.closest('[data-u="again"]')) { resetUpload(); swap(function () { renderPage(); }); } };
   if (!slides && !reduced() && r.after > before) {
@@ -2120,37 +2314,146 @@ function renderDone(v) {
 }
 
 // =====================================================================================
-// Admin sign in
+// Class password, sign in
 // =====================================================================================
-function renderSignin(v) {
-  var note = S.signinNote;
+function renderGate(v) {
+  var me = S.me || {};
   v.innerHTML = '<main class="signin"><div class="box">' +
-    '<h1 class="rise">Admin sign in</h1>' +
+    '<h1 class="rise">Class password</h1>' +
+    '<p style="margin:0 0 18px;font-size:15px;line-height:1.5;color:#3C4043">Study Tracker is just for our class. Type the class password to see the lectures. Each device only asks once.</p>' +
+    (me.email ? '<div class="graybox" style="margin:0 0 16px">Signed in as <strong style="font-weight:800">' + h(me.email) + '</strong>. You still need the class password until an admin approves you.</div>' : '') +
+    '<form id="gform"><label style="display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:700">Class password' +
+    '<span class="keyrow"><input type="password" id="gpw" autocomplete="off" spellcheck="false" autocapitalize="off" required><button type="button" id="gshow" aria-pressed="false">Show</button></span></label>' +
+    '<div id="gerr"></div><button class="btn wide" id="gbtn" style="margin-top:16px">Open the site</button></form>' +
+    '<p style="margin:18px 0 0;font-size:14px;line-height:1.5;color:#5F6368">Don\'t know it? Ask a classmate.' + (me.email ? '' : ' Approved classmates can <a href="' + h(pageHref('signin')) + '" data-go="signin" style="font-weight:700">sign in</a> instead.') + '</p>' +
+    '</div></main>';
+  $('#gshow').onclick = function () { var i = $('#gpw'), on = i.type === 'password'; i.type = on ? 'text' : 'password'; this.textContent = on ? 'Hide' : 'Show'; this.setAttribute('aria-pressed', on); };
+  $('#gpw').focus();
+  $('#gform').onsubmit = function (e) {
+    e.preventDefault();
+    var pw = $('#gpw').value, btn = $('#gbtn');
+    if (!pw.trim()) return;
+    busy(btn, true, 'Checking…');
+    api('unlock', { password: pw }).then(function (r) {
+      S.pt = r.pt || ''; store.set('st.pt', S.pt, true);
+      S.locked = false; S.data = null;
+      swap(function () { renderPage(); });
+    }, function (x) { busy(btn, false); $('#gerr').innerHTML = '<div class="err-box drop" role="alert" style="margin:12px 0 0">' + h(x.message) + '</div>'; $('#gpw').select(); });
+  };
+}
+
+// Google's sign-in button (Google Identity Services), loaded only on this page
+var gsiP = null, gsiInit = false;
+function loadGsi() {
+  if (gsiP) return gsiP;
+  gsiP = new Promise(function (res, rej) {
+    var sc = document.createElement('script');
+    sc.src = 'https://accounts.google.com/gsi/client'; sc.async = true;
+    sc.onload = function () { restoreGS(); if (window.google && window.google.accounts && window.google.accounts.id) res(window.google.accounts.id); else rej(new Error('no gsi')); };
+    sc.onerror = function () { gsiP = null; rej(new Error('Couldn\'t load Google sign-in.')); };
+    document.head.appendChild(sc);
+  });
+  return gsiP;
+}
+function privacyHref() { return (S.url || '').replace(/[^\/]*$/, '') + 'privacy.html'; }
+function afterSignIn(r) {
+  S.tok = r.tok; store.set('st.tok', r.tok, true);
+  S.me = r.me; S.codeMail = ''; S.signinNote = ''; S.data = null; S.adminState = null; S.locked = false;
+  toast('Signed in as ' + (r.me.name || r.me.email) + '.');
+  var to = S.after || 'dashboard';
+  S.after = '';
+  go(to);
+}
+function levelLine(me) {
+  if (me.isAdmin) return 'You\'re an admin.';
+  if (me.level >= 3) return 'You\'re an approved classmate.';
+  return 'An admin hasn\'t approved this address yet, so you still need the class password' + (me.pending ? '. Your request is waiting.' : '. You can ask for access on the Upload page.');
+}
+function renderSignin(v) {
+  var note = S.signinNote, me = S.me;
+  if (me && me.email && me.level >= 2 && !note) {
+    v.innerHTML = '<main class="signin"><div class="box"><h1 class="rise">You\'re signed in</h1>' +
+      '<p style="margin:0;font-size:15px;line-height:1.5;color:#3C4043">As <strong style="font-weight:800">' + h(me.name) + '</strong> (' + h(me.email) + '). ' + h(levelLine(me)) + '</p>' +
+      '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:20px"><a class="btn" href="' + h(pageHref(S.after || 'dashboard')) + '" data-go="' + h(S.after || 'dashboard') + '">Continue</a><button class="btn2" data-act="signout" style="height:56px;font-size:16px">Sign out</button></div></div></main>';
+    return;
+  }
+  var keyOpen = !!S.keyOpen;
+  v.innerHTML = '<main class="signin"><div class="box">' +
+    '<h1 class="rise">Sign in</h1>' +
     (note ? '<div class="err-box drop" role="alert" style="margin:0 0 14px">' + h(note) + '</div>' : '') +
-    '<p style="margin:0 0 20px;font-size:15px;line-height:1.5;color:#3C4043">Paste the key you were emailed when you were made an admin. Admins can assign authors, approve schedule changes and manage the Drive.</p>' +
-    '<form id="sform"><label style="display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:700">Your admin key' +
+    '<p style="margin:0 0 20px;font-size:15px;line-height:1.5;color:#3C4043">Sign in to upload slides and fix lecture topics. Once an admin approves you, you can also upload sbobine, see who\'s writing what, volunteer for lectures and skip the class password.</p>' +
+    '<div id="gsi" class="gsi"><span class="muted" style="font-size:14px">Loading Google sign-in…</span></div>' +
+    '<div class="or" aria-hidden="true">or</div>' +
+    '<form id="cform" novalidate>' +
+    '<label class="fld">Email<input class="inp" type="email" id="cmail" autocomplete="email" inputmode="email" placeholder="you@example.com" value="' + h(S.codeMail) + '"></label>' +
+    '<div id="cstep2"' + (S.codeMail ? '' : ' hidden') + ' style="margin-top:12px"><label class="fld">The 6-digit code from the email<input class="inp" id="ccode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" style="letter-spacing:.3em;font-size:20px"></label></div>' +
+    '<div id="cerr"></div><button class="btn2 wide" id="cbtn" style="margin-top:14px">' + (S.codeMail ? 'Sign in' : 'Email me a code') + '</button></form>' +
+    '<p style="margin:18px 0 0;font-size:13px;line-height:1.5;color:#5F6368">Only your name and email address are used. <a href="' + h(privacyHref()) + '" target="_blank" rel="noopener" style="font-weight:700;color:#5F6368">Privacy</a></p>' +
+    '<details id="keyd"' + (keyOpen ? ' open' : '') + ' style="margin-top:16px;border-top:1px solid #E8EAED;padding-top:12px"><summary style="cursor:pointer;font-size:14px;font-weight:700;color:#5F6368">Admin key</summary>' +
+    '<form id="sform" style="margin-top:12px"><label style="display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:700">Emergency admin key' +
     '<span class="keyrow"><input type="password" id="skey" autocomplete="current-password" spellcheck="false" autocapitalize="off" required><button type="button" id="sshow" aria-pressed="false">Show</button></span></label>' +
     '<label class="check"><input type="checkbox" id="skeep"><span aria-hidden="true" class="bx">✓</span>Keep me signed in on this device</label>' +
-    '<button class="btn wide" id="sbtn" style="margin-top:16px">Sign in</button></form>' +
-    '<p style="margin:18px 0 0;font-size:14px;line-height:1.5;color:#5F6368">Lost your key? Ask another admin to send you a new one from the admin page. Only use this on your own phone or laptop.</p>' +
+    '<button class="sbtn" id="sbtn" style="margin-top:12px">Sign in with the key</button></form></details>' +
     '</div></main>';
+  S.keyOpen = false;
+  // Google
+  loadGsi().then(function (gid) {
+    var box = $('#gsi');
+    if (!box) return;
+    if (!gsiInit) {
+      gsiInit = true;
+      gid.initialize({ client_id: GOOGLE_CLIENT_ID, ux_mode: 'popup', auto_select: false, callback: function (resp) {
+        var b = $('#gsi');
+        if (!resp || !resp.credential) return;
+        if (b) b.innerHTML = '<span class="muted" style="font-size:14px">Signing you in…</span>';
+        api('signInGoogle', { credential: resp.credential }).then(afterSignIn, function (x) { S.signinNote = x.message; renderSignin($('#view')); });
+      } });
+    }
+    box.innerHTML = '';
+    gid.renderButton(box, { type: 'standard', theme: 'outline', size: 'large', shape: 'pill', text: 'signin_with', logo_alignment: 'left', locale: 'en', width: Math.max(220, Math.min(box.clientWidth || 320, 400)) });
+  }, function () { var box = $('#gsi'); if (box) box.innerHTML = '<p style="margin:0;font-size:14px;color:#5F6368">Google sign-in didn\'t load here. Use an emailed code instead.</p>'; });
+  // emailed code
+  $('#cmail').oninput = function () {
+    var same = S.codeMail && this.value.trim().toLowerCase() === S.codeMail.toLowerCase();
+    $('#cstep2').hidden = !same; $('#cbtn').textContent = same ? 'Sign in' : 'Email me a code';
+  };
+  $('#cform').onsubmit = function (e) {
+    e.preventDefault();
+    var email = $('#cmail').value.trim(), btn = $('#cbtn'), err = $('#cerr');
+    var fail = function (x) {
+      busy(btn, false);
+      err.innerHTML = '<div class="err-box drop" role="alert" style="margin:12px 0 0">' + h(x.message) + (x.code === 'pass' ? ' <a href="' + h(pageHref('dashboard')) + '" data-go="dashboard" style="color:inherit">Enter the class password</a>' : '') + '</div>';
+    };
+    err.innerHTML = '';
+    if (!S.codeMail || S.codeMail.toLowerCase() !== email.toLowerCase()) {
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return fail(new Error('Type your email address.'));
+      busy(btn, true, 'Sending…');
+      api('requestCode', { email: email }).then(function () {
+        S.codeMail = email; busy(btn, false); btn.textContent = 'Sign in';
+        $('#cstep2').hidden = false; $('#ccode').focus();
+        toast('Code sent to ' + email + '. Check spam if it isn\'t there.');
+      }, fail);
+      return;
+    }
+    var code = $('#ccode').value.replace(/\D/g, '');
+    if (code.length !== 6) return fail(new Error('Type the 6 digits from the email.'));
+    busy(btn, true, 'Checking…');
+    api('verifyCode', { email: email, code: code }).then(afterSignIn, fail);
+  };
+  // emergency admin key
   $('#sshow').onclick = function () { var i = $('#skey'), on = i.type === 'password'; i.type = on ? 'text' : 'password'; this.textContent = on ? 'Hide' : 'Show'; this.setAttribute('aria-pressed', on); };
-  $('#skey').focus();
   $('#sform').onsubmit = function (e) {
     e.preventDefault();
     var key = $('#skey').value.trim(), keep = $('#skeep').checked, btn = $('#sbtn');
     if (!key) return;
     btn.disabled = true; btn.textContent = 'Checking…';
-    google.script.run.withSuccessHandler(function (res) {
-      if (!res || !res.ok) { btn.disabled = false; btn.textContent = 'Sign in'; S.signinNote = (res && res.error) || 'That key didn\'t work.'; renderSignin(v); $('#skey').value = key; return; }
-      store.del('sb.key'); store.del('sb.name');
-      store.set('sb.key', key, keep); store.set('sb.name', res.data.name, keep);
-      S.admin = { key: key, name: res.data.name };
-      S.signinNote = '';
-      S.data = null;
+    GS.run.withSuccessHandler(function (res) {
+      if (!res || !res.ok) { S.signinNote = (res && res.error) || 'That key didn\'t work.'; S.keyOpen = true; renderSignin(v); $('#skey').value = key; return; }
+      store.del('sb.key'); store.set('sb.key', key, keep);
+      S.key = key; S.signinNote = ''; S.data = null; S.me = null;
       toast('Signed in as ' + res.data.name + '.');
       go(S.reqEnv === 'test' ? 'dashboard' : 'admin');
-    }).withFailureHandler(function (err) { btn.disabled = false; btn.textContent = 'Sign in'; toast('Connection problem: ' + (err && err.message || err), true); })
+    }).withFailureHandler(function (err) { btn.disabled = false; btn.textContent = 'Sign in with the key'; toast('Connection problem: ' + (err && err.message || err), true); })
       .api('signIn', { env: S.env, key: key });
   };
 }
@@ -2169,21 +2472,21 @@ function renderAdmin(v, opt) {
   v.innerHTML = '<main class="wrap" id="admin" style="padding-bottom:80px">' +
     '<h1 class="ah1 rise">Admin' + (S.env === 'test' ? ' <span style="font-size:.4em;letter-spacing:0;vertical-align:middle" class="daynote">TEST DATA</span>' : '') + '</h1>' +
     '<p style="margin:10px 0 0;font-size:16px;color:#3C4043">Everything you change here is logged with your name.</p>' +
-    '<nav aria-label="Admin sections" class="secnav" id="secnav">' +
-    [['schedule', 'Schedule changes'], ['authors', 'Authors'], ['drive', 'Drive folders'], ['members', 'Members and email'], ['admins', 'Admins and settings'], ['test', 'Test mode'], ['activity', 'Activity']].map(function (s) {
-      return '<a href="#' + s[0] + '" data-sec="' + s[0] + '"' + (s[0] === 'test' ? ' class="dash"' : '') + '>' + s[1] + (s[0] === 'schedule' && pend ? ' <span class="cnt">1</span>' : '') + '</a>';
-    }).join('') + '</nav>' +
+    '<nav aria-label="Admin sections" class="secnav" id="secnav">' + secnavHtml() + '</nav>' +
     '<section id="schedule" class="asec" aria-labelledby="h-schedule"><h2 id="h-schedule" class="h2">Schedule changes</h2><div id="sched"></div></section>' +
-    '<section id="authors" class="asec" aria-labelledby="h-authors"><h2 id="h-authors" class="h2" style="margin-bottom:6px">Authors</h2><p style="margin:0 0 14px;font-size:15px;line-height:1.45;color:#3C4043">Add one or more authors per lecture. Lectures without authors stay grey and never turn overdue.</p><div id="authpills" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px"></div><div id="authlist"></div><p style="margin:10px 4px 0;font-size:13px;color:#5F6368">Changes save as you make them. The same chips appear on the dashboard while you\'re signed in.</p></section>' +
+    '<section id="reports" class="asec" aria-labelledby="h-reports"><h2 id="h-reports" class="h2">Reports</h2><div id="repbox"></div></section>' +
+    '<section id="members" class="asec" aria-labelledby="h-members"><h2 id="h-members" class="h2">Members and access</h2><div id="accbox"></div></section>' +
+    '<section id="authors" class="asec" aria-labelledby="h-authors"><h2 id="h-authors" class="h2" style="margin-bottom:6px">Authors</h2><p style="margin:0 0 14px;font-size:15px;line-height:1.45;color:#3C4043">Add one or more authors per lecture. Lectures without authors stay grey and never turn overdue. Approved classmates can also volunteer for lectures nobody\'s been assigned to, up to ' + MAX_AUTHORS + ' people. Volunteers are grey: Confirm makes it an assignment they can\'t withdraw from.</p><div id="authpills" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px"></div><div id="authlist"></div><p style="margin:10px 4px 0;font-size:13px;color:#5F6368">Changes save as you make them. The same chips appear on the dashboard while you\'re signed in.</p></section>' +
     '<section id="drive" class="asec" aria-labelledby="h-drive"><h2 id="h-drive" class="h2">Drive folders</h2><div class="box" id="drivebox"></div></section>' +
-    '<section id="members" class="asec" aria-labelledby="h-members"><h2 id="h-members" class="h2">Members and email</h2><div class="two" id="membox"></div></section>' +
+    '<section id="email" class="asec" aria-labelledby="h-email"><h2 id="h-email" class="h2">Email</h2><div class="two" id="membox"></div></section>' +
     '<section id="admins" class="asec" aria-labelledby="h-admins"><h2 id="h-admins" class="h2">Admins and settings</h2><div class="two" id="adminbox"></div></section>' +
     '<section id="test" class="asec" aria-labelledby="h-test"><h2 id="h-test" class="h2">Test mode</h2><div id="testbox"></div></section>' +
     '<section id="activity" class="asec" aria-labelledby="h-activity"><h2 id="h-activity" class="h2">Activity</h2><div class="box" style="padding:6px 22px" id="actbox"></div></section>' +
     '</main>';
-  renderSched(); renderAuthPills(); renderAuthList(); renderDrive(); renderMembers(); renderAdmins(); renderTest(); renderActivity();
+  renderSched(); renderReports(); renderAccess(); renderAuthPills(); renderAuthList(); renderDrive(); renderMembers(); renderAdmins(); renderTest(); renderActivity();
   var root = $('#admin');
   root.addEventListener('click', adminClick);
+  root.addEventListener('input', function (e) { if (e.target.id === 'mq') { A.mq = e.target.value; $('#memlist').innerHTML = memberRows(); } });
   wireAuthorEditors($('#authlist'), function () { renderAuthList(); renderAuthPills(); });
   wireTopicInputs($('#authlist'), function () { renderAuthList(); });
   $('#secnav').addEventListener('click', function (e) {
@@ -2206,7 +2509,7 @@ function renderAdmin(v, opt) {
   if (!A.folders) api('listFolders').then(function (r) { A.folders = r.folders; renderDrive(); }, function (e) { A.folders = []; A.foldersErr = e.message; renderDrive(); });
   if (pend && pend.needsParse) parsePending(pend);
   var hash = opt && opt.hash;
-  if (!hash) { try { google.script.url.getLocation(function (loc) { if (loc.hash) scrollToSec(loc.hash); }); } catch (e) {} } else scrollToSec(hash);
+  if (!hash) { try { GS.url.getLocation(function (loc) { if (loc.hash) scrollToSec(loc.hash); }); } catch (e) {} } else scrollToSec(hash);
 }
 function scrollToSec(id) { setTimeout(function () { var t = document.getElementById(String(id).replace('#', '')); if (t) t.scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth' }); }, 150); }
 function busy(btn, on, label) { if (!btn) return; if (on) { btn.dataset.label = btn.textContent; btn.textContent = label || 'Working…'; btn.disabled = true; } else { btn.textContent = btn.dataset.label || btn.textContent; btn.disabled = false; } }
@@ -2329,6 +2632,74 @@ function adminClick(e) {
     inp.click();
   }
   if (a === 'allact') { A.allActivity = true; renderActivity(); }
+  // ----- members and access
+  var accessDone = function (msg) { return function (r) { busy(t, false); st.access = r.access; renderAccess(); renderActivity(); refreshSecnav(); if (msg) toast(typeof msg === 'function' ? msg(r) : msg); }; };
+  if (a === 'setpw') {
+    var pw = $('#cpw').value;
+    busy(t, true, 'Saving…');
+    api('setClassPassword', { password: pw }).then(function (r) {
+      busy(t, false); st.access.gate = r.gate; S.pt = r.pt; store.set('st.pt', r.pt, true); renderAccess();
+      toast('Class password saved. Share it with the class.');
+    }, fail);
+  }
+  if (a === 'approve-req' || a === 'deny-req') {
+    var ok = a === 'approve-req';
+    busy(t, true, ok ? 'Approving…' : 'Declining…');
+    api('decideRequest', { email: t.getAttribute('data-email'), approve: ok }).then(accessDone(ok ? 'Approved. They\'ve been emailed.' : 'Declined.'), fail);
+  }
+  if (a === 'approve-other') {
+    busy(t, true, 'Approving…');
+    api('decideRequest', { email: t.getAttribute('data-email'), name: t.getAttribute('data-name'), approve: true, direct: true }).then(accessDone('Approved. They\'ve been emailed.'), fail);
+  }
+  if (a === 'addmembers') {
+    busy(t, true, 'Adding…');
+    api('addMembers', { text: $('#addtxt').value, welcome: $('#addwelcome').checked }).then(function (r) {
+      var x = r.result;
+      accessDone()(r);
+      $('#addres').innerHTML = '<div class="graybox drop">' + h(x.added.length + ' added' + (x.reactivated.length ? ', ' + x.reactivated.length + ' reactivated' : '') + (x.already.length ? ', ' + x.already.length + ' already approved' : '') + (x.welcomed ? ', ' + x.welcomed + ' welcome ' + pl(x.welcomed, 'email', 'emails') + ' sent' : '') + '.') +
+        (x.shareFailed.length ? '<br>Drive couldn\'t be shared with ' + x.shareFailed.map(function (f) { return h(f.email) + ' (' + h(f.why) + ')'; }).join('; ') + '. Ask them for a Gmail address.' : '') + '</div>';
+    }, fail);
+  }
+  if (a === 'deact' || a === 'react') {
+    busy(t, true, '…');
+    api('setMember', { email: t.getAttribute('data-email'), active: a === 'react' }).then(accessDone(a === 'react' ? 'Reactivated.' : 'Deactivated. They\'re no longer approved and lost Drive access.'), fail);
+  }
+  if (a === 'block') {
+    var be = t.getAttribute('data-email');
+    if (A.confirmBlock !== be) { A.confirmBlock = be; renderAccess(); renderActivity(); return; }
+    busy(t, true, 'Blocking…');
+    api('block', { email: be }).then(function (r) { A.confirmBlock = ''; accessDone(be + ' is blocked.')(r); }, fail);
+  }
+  if (a === 'blockcancel') { A.confirmBlock = ''; renderAccess(); renderActivity(); }
+  if (a === 'unblock') {
+    busy(t, true, '…');
+    api('block', { email: t.getAttribute('data-email'), unblock: true }).then(accessDone('Unblocked.'), fail);
+  }
+  // ----- reports, taking uploads down
+  var reload = function (msg) {
+    return api('adminState').then(function (s2) { S.adminState = s2; st = s2; renderReports(); renderActivity(); renderAuthList(); refreshSecnav(); if (msg) toast(msg); });
+  };
+  if (a === 'rmup') {
+    var sid = t.getAttribute('data-id');
+    if (A.confirmRm !== sid) { A.confirmRm = sid; renderReports(); renderActivity(); return; }
+    busy(t, true, 'Taking it down…');
+    api('removeUpload', { submissionId: sid }).then(function (r) {
+      A.confirmRm = ''; setData(r.state);
+      reload('Taken down and moved to the _Removed folder.' + (r.restored ? ' The version it replaced is back.' : ''));
+    }, fail);
+  }
+  if (a === 'rmcancel2') { A.confirmRm = ''; renderReports(); renderActivity(); }
+  if (a === 'rep-done' || a === 'rep-dismiss') {
+    busy(t, true, '…');
+    api('dismissReport', { row: +t.getAttribute('data-row'), done: a === 'rep-done' }).then(function (r) { st.reports = r.reports; renderReports(); refreshSecnav(); toast(a === 'rep-done' ? 'Marked as handled.' : 'Dismissed.'); }, fail);
+  }
+  if (a === 'rep-cleartopic') {
+    busy(t, true, 'Clearing…');
+    api('setTopic', { lectureId: t.getAttribute('data-id'), topic: '' }).then(function (r) {
+      updateLecture(r.lecture, r.counts);
+      return api('dismissReport', { row: +t.getAttribute('data-row'), done: true });
+    }).then(function (r) { st.reports = r.reports; renderReports(); refreshSecnav(); renderAuthList(); toast('Topic cleared and the report marked as handled.'); }, fail);
+  }
   if (a === 'authf') { A.authFilter = t.getAttribute('data-f'); renderAuthPills(); renderAuthList(); }
   if (a === 'aw-prev') { A.authWeek = Math.max(0, A.authWeek - 1); A.authDay = 0; renderAuthList(); }
   if (a === 'aw-next') { A.authWeek = Math.min(SEM.weeks - 1, A.authWeek + 1); A.authDay = 0; renderAuthList(); }
@@ -2345,7 +2716,7 @@ function adminClick(e) {
   if (a === 'changeroot') { var r0 = $('#rootedit'); r0.hidden = !r0.hidden; if (!r0.hidden) $('#froot').focus(); }
   if (a === 'sync') {
     busy(t, true, 'Syncing…');
-    api('syncAccess').then(function (r) { busy(t, false); st.members.lastSync = r.summary; renderMembers(); toast('Drive access synced.'); }, fail);
+    api('syncAccess').then(function (r) { busy(t, false); st.members.lastSync = r.summary; renderAccess(); toast('Drive access synced.'); }, fail);
   }
   if (a === 'savegroup') {
     busy(t, true, 'Saving…');
@@ -2368,22 +2739,24 @@ function adminClick(e) {
   }
   if (a === 'addadmin') {
     busy(t, true, 'Adding…');
-    api('addAdmin', { name: $('#nan').value, email: $('#nae').value }).then(function (r) { busy(t, false); st.admins = r.admins; renderAdmins(); toast('Added. Their key is on its way by email.'); }, fail);
+    api('addAdmin', { name: $('#nan').value, email: $('#nae').value }).then(function (r) { busy(t, false); st.admins = r.admins; renderAdmins(); toast('Added and emailed. They sign in with that address.'); }, fail);
   }
   if (a === 'rmadmin') {
     var em = t.getAttribute('data-email');
     if (A.removing !== em) { A.removing = em; renderAdmins(); return; }
     busy(t, true, 'Removing…');
-    api('removeAdmin', { email: em }).then(function (r) { A.removing = ''; st.admins = r.admins; renderAdmins(); toast('Removed. Their key stopped working.'); }, fail);
+    api('removeAdmin', { email: em }).then(function (r) { A.removing = ''; st.admins = r.admins; renderAdmins(); toast('Removed. They\'re no longer an admin.'); }, fail);
   }
   if (a === 'rmcancel') { A.removing = ''; renderAdmins(); }
   if (a === 'newkey') {
     busy(t, true, 'Making a key…');
     api('newKey').then(function (r) {
-      var keep = false;
-      try { keep = window.localStorage.getItem('sb.key') !== null; } catch (x) {}
-      store.del('sb.key'); store.set('sb.key', r.key, keep);
-      S.admin.key = r.key; A.newKey = r.key; renderAdmins(); toast('New key made and emailed to you. The old one no longer works.');
+      if (S.key) {
+        var keep = false;
+        try { keep = window.localStorage.getItem('sb.key') !== null; } catch (x) {}
+        store.del('sb.key'); store.set('sb.key', r.key, keep); S.key = r.key;
+      }
+      A.newKey = r.key; renderAdmins(); toast('Emergency key made and emailed to you. Any older one no longer works.');
     }, fail);
   }
   if (a === 'savegrace') {
@@ -2429,9 +2802,18 @@ function adminClick(e) {
     api('saveTestEmails', { emails: rest }).then(function (r) { st.settings.testEmails = r.testEmails; renderTest(); }, fail);
   }
 }
+function secnavHtml() {
+  var st = S.adminState, cnt = { schedule: st.schedule.pending ? 1 : 0, reports: st.reports.length, members: st.access.requests.length };
+  return [['schedule', 'Schedule changes'], ['reports', 'Reports'], ['members', 'Members and access'], ['authors', 'Authors'], ['drive', 'Drive folders'], ['email', 'Email'], ['admins', 'Admins and settings'], ['test', 'Test mode'], ['activity', 'Activity']].map(function (x) {
+    return '<a href="#' + x[0] + '" data-sec="' + x[0] + '"' + (x[0] === 'test' ? ' class="dash"' : '') + '>' + x[1] + (cnt[x[0]] ? ' <span class="cnt">' + cnt[x[0]] + '</span>' : '') + '</a>';
+  }).join('');
+}
 function refreshSecnav() {
-  var a = $('#secnav [data-sec="schedule"]');
-  if (a) a.innerHTML = 'Schedule changes' + (S.adminState.schedule.pending ? ' <span class="cnt">1</span>' : '');
+  var nav = $('#secnav');
+  if (!nav) return;
+  var on = $('#secnav a.on'), id = on && on.getAttribute('data-sec');
+  nav.innerHTML = secnavHtml();
+  if (id) { var a = $('#secnav [data-sec="' + id + '"]'); if (a) a.classList.add('on'); }
 }
 
 // ----- authors
@@ -2523,21 +2905,95 @@ function renderDrive() {
     '<p style="margin:16px 0 0;font-size:14px;line-height:1.5;color:#5F6368">The portal never changes folder sharing. Set the three Slides folders to "Anyone with the link can view" in Drive yourself; the sbobine folders stay shared with the group only.</p>';
 }
 
-// ----- members and email
+// ----- email
 function renderMembers() {
-  var st = S.adminState, m = st.members, s = st.settings, ls = m.lastSync, box = $('#membox');
+  var st = S.adminState, s = st.settings, box = $('#membox');
   if (!box) return;
-  var sync = ls ? '<div class="graybox"><strong style="font-weight:800">Last sync ' + h(stampIn(ls.at)) + '.</strong> ' + ls.ok + ' ' + pl(ls.ok, 'person', 'people') + ' can open the sbobine' + (ls.failed.length ? '. ' + ls.failed.length + ' couldn\'t be added: ' + ls.failed.map(function (f) { return h(f.email) + ' (' + h(f.why) + ')'; }).join('; ') + '. Ask them for a Gmail address.' : '.') + '</div>' : '';
-  box.innerHTML = '<div class="box" style="flex:1 1 380px"><h3 class="h3" style="margin-bottom:6px">Who can open the sbobine</h3>' +
-    '<p style="margin:0 0 16px;font-size:15px;line-height:1.5;color:#3C4043">' + m.count + ' ' + pl(m.count, 'person', 'people') + ' in the Members sheet' + (m.count !== m.active ? ' (' + m.active + ' active)' : '') + '. <a href="' + h(s.membersUrl) + '" target="_blank" rel="noopener" style="font-weight:700">Open the sheet</a></p>' +
-    '<button class="sbtn" data-a="sync">Sync Drive access</button>' + sync +
-    '<p style="margin:12px 0 0;font-size:13px;line-height:1.45;color:#5F6368">Shares the main folder as Viewer with each active member in the sheet and removes members marked inactive. The email group doesn\'t give access, so joining or leaving it only changes who gets emails. Slides folders keep their public link.</p></div>' +
-    '<div class="box" style="flex:1 1 380px"><h3 class="h3">Group email</h3>' +
+  box.innerHTML = '<div class="box" style="flex:1 1 380px"><h3 class="h3">Group email</h3>' +
     (S.env === 'test' ? '<p style="margin:0;font-size:15px;line-height:1.5;color:#3C4043">In test mode, emails go only to the test list (see Test mode below).</p>'
       : '<label class="fld">Google Group address<input class="inp" id="gmail" value="' + h(s.groupEmail) + '"></label><div style="margin-top:10px"><button class="sbtn2 soft" data-a="savegroup">Save address</button></div>') +
     '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:14px"><button class="sbtn2" data-a="copyemails">Copy all member emails</button><button class="sbtn2" data-a="testemail">Send a test email</button></div>' +
     (A.emailsText ? '<label class="fld" style="margin-top:12px">Member emails<textarea class="ta" id="emailsta" rows="3" readonly style="font-size:14px;font-weight:500">' + h(A.emailsText) + '</textarea></label>' : '') +
-    '<p style="margin:14px 0 0;font-size:14px;line-height:1.5;color:#5F6368">' + (st.mail.quota >= 0 ? st.mail.quota + ' emails left today. ' : '') + (st.mail.queue ? st.mail.queue + ' waiting to be sent (they go out every hour).' : 'Nothing waiting to be sent.') + '</p></div>';
+    '<p style="margin:14px 0 0;font-size:14px;line-height:1.5;color:#5F6368">' + (st.mail.quota >= 0 ? st.mail.quota + ' emails left today. ' : '') + (st.mail.queue ? st.mail.queue + ' waiting to be sent (they go out every hour).' : 'Nothing waiting to be sent.') + '</p></div>' +
+    '<div class="box" style="flex:1 1 280px"><h3 class="h3">Joining the list</h3><p style="margin:0;font-size:15px;line-height:1.5;color:#3C4043">' +
+    (st.notify && st.notify.join ? 'People join by emailing <strong style="font-weight:800;word-break:break-all">' + h(st.notify.join) + '</strong>. The dashboard and every email have a button for it. Leaving the list only stops the emails.' : 'No Google Group is set.') + '</p></div>';
+}
+
+// ----- members and access
+function memberRows() {
+  var ac = S.adminState.access, q = (A.mq || '').trim().toLowerCase();
+  var list = ac.members.filter(function (m) { return !q || (m.name + ' ' + m.email).toLowerCase().indexOf(q) >= 0; });
+  if (!list.length) return '<p style="margin:12px 0 0;font-size:15px;color:#5F6368">' + (q ? 'Nobody matches.' : 'Nobody yet. Add people above, or approve requests.') + '</p>';
+  return list.map(function (m) {
+    return '<div class="mrow"><span><strong style="font-weight:800">' + h(m.name || '(no name)') + '</strong>' + (m.active ? '' : ' <span class="daynote">Inactive</span>') + '<span class="meta" style="word-break:break-all">' + h(m.email) + '</span></span>' +
+      '<span class="meta">' + (m.lastSeen ? 'Signed in ' + h(stampIn(m.lastSeen)) : 'Hasn\'t signed in yet') + '</span>' +
+      '<span class="meta">' + h(m.share ? 'Drive: ' + m.share : 'Drive not shared yet') + '</span>' +
+      '<span class="mact">' + (m.active ? '<button class="linkbtn" data-a="deact" data-email="' + h(m.email) + '">Deactivate</button>' : '<button class="linkbtn" data-a="react" data-email="' + h(m.email) + '">Reactivate</button>') + blockBtn(m.email) + '</span></div>';
+  }).join('');
+}
+function blockBtn(email) {
+  if (A.confirmBlock === email) return '<span style="display:inline-flex;gap:8px;align-items:center"><button class="sbtn" data-a="block" data-email="' + h(email) + '" style="height:32px;padding:0 12px;font-size:13px;background:#D93025">Block ' + h(email.split('@')[0]) + '</button><button class="linkbtn" data-a="blockcancel">Cancel</button></span>';
+  return '<button class="linkbtn" data-a="block" data-email="' + h(email) + '" style="color:#B3261E">Block</button>';
+}
+function renderAccess() {
+  var st = S.adminState, ac = st.access, g = ac.gate, box = $('#accbox'), ls = st.members.lastSync;
+  if (!box) return;
+  var gate = '<div class="box" style="flex:1 1 380px"><h3 class="h3" style="margin-bottom:6px">Class password</h3>' +
+    (g.on ? '<p style="margin:0 0 14px;font-size:15px;line-height:1.5;color:#3C4043">On, set ' + h(stampIn(g.at)) + (g.by ? ' by ' + h(shortName(g.by)) : '') + '. Everyone except approved classmates needs it, signed in or not.</p>'
+      : '<p style="margin:0 0 14px;font-size:15px;line-height:1.5;color:#B3261E;font-weight:700">Not set yet, so anyone with the link can see the site. Set one to lock it.</p>') +
+    '<label class="fld">' + (g.on ? 'New password' : 'Password') + ' <span class="opt">6 or more characters, not case-sensitive</span><input class="inp" id="cpw" autocomplete="off" spellcheck="false" autocapitalize="off"></label>' +
+    '<div style="margin-top:10px"><button class="sbtn" data-a="setpw">' + (g.on ? 'Change the password' : 'Set the password') + '</button></div>' +
+    (g.on ? '<p style="margin:12px 0 0;font-size:13px;line-height:1.45;color:#5F6368">Changing it asks every device that isn\'t signed in as an approved classmate for the new one.</p>' : '') + '</div>';
+  var reqs = '<div class="box" style="flex:1 1 380px"><h3 class="h3" style="margin-bottom:6px">Access requests</h3>' +
+    (ac.requests.length ? ac.requests.map(function (r) {
+      return '<div class="adminli"><span><strong style="font-weight:800">' + h(r.name) + '</strong><small style="word-break:break-all">' + h(r.email) + ' · ' + h(stampLabel(r.at)) + '</small></span>' +
+        '<span style="display:flex;gap:8px;flex:0 0 auto"><button class="sbtn" data-a="approve-req" data-email="' + h(r.email) + '" style="height:36px;padding:0 14px">Approve</button><button class="sbtn2 soft" data-a="deny-req" data-email="' + h(r.email) + '" style="height:36px;padding:0 14px">Decline</button></span></div>';
+    }).join('') : '<p style="margin:0;font-size:15px;color:#5F6368">None waiting.</p>') +
+    '<p style="margin:12px 0 0;font-size:13px;line-height:1.45;color:#5F6368">Approving adds them to the Members sheet, shares the sbobine folders with them and sends a welcome email.</p></div>';
+  var add = '<div class="box" style="margin-top:20px"><h3 class="h3" style="margin-bottom:6px">Add people</h3><p style="margin:0 0 12px;font-size:15px;line-height:1.5;color:#3C4043">One per line: <em>Name Surname, email</em>. Just the email works too.</p>' +
+    '<textarea class="ta" id="addtxt" rows="4" placeholder="Giulia Bianchi, giulia@example.com&#10;marco.rossi@example.com" style="font-size:15px;font-weight:500"></textarea>' +
+    '<label class="check"><input type="checkbox" id="addwelcome" checked><span aria-hidden="true" class="bx">✓</span>Send each a welcome email</label>' +
+    '<div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:6px"><button class="sbtn" data-a="addmembers">Add and share the Drive</button><span style="font-size:13px;color:#5F6368">Welcome emails count toward the ' + (st.mail.quota >= 0 ? st.mail.quota + ' emails left today' : 'daily email limit') + '.</span></div><div id="addres"></div></div>';
+  var nActive = ac.members.filter(function (m) { return m.active; }).length;
+  var sync = ls ? '<div class="graybox"><strong style="font-weight:800">Last sync ' + h(stampIn(ls.at)) + '.</strong> ' + ls.ok + ' ' + pl(ls.ok, 'person', 'people') + ' can open the sbobine' + (ls.failed.length ? '. ' + ls.failed.length + ' couldn\'t be added: ' + ls.failed.map(function (f) { return h(f.email) + ' (' + h(f.why) + ')'; }).join('; ') + '. Ask them for a Gmail address.' : '.') + '</div>' : '';
+  var mem = '<div class="box" style="margin-top:20px"><div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:4px"><h3 class="h3" style="margin:0">Approved classmates (' + nActive + ')</h3>' +
+    '<label class="tsearch" style="min-width:0;flex:0 1 280px">' + ICON.search + '<span class="sr">Search approved classmates</span><input type="search" id="mq" value="' + h(A.mq || '') + '" placeholder="Name or email" autocomplete="off"></label></div>' +
+    '<div id="memlist">' + memberRows() + '</div>' +
+    '<div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:14px;padding-top:14px;border-top:1px solid #E8EAED"><button class="sbtn2" data-a="sync">Sync Drive access</button><a href="' + h(st.settings.membersUrl) + '" target="_blank" rel="noopener" style="font-size:14px;font-weight:700">Open the Members sheet</a></div>' + sync +
+    '<p style="margin:12px 0 0;font-size:13px;line-height:1.45;color:#5F6368">Approved means an active row in the Members sheet: they see author names, upload sbobine, volunteer and skip the class password. Drive access comes from the same list, never from the email group. Deactivating or blocking someone removes their Drive access too.</p></div>';
+  var others = ac.others.length ? '<div class="box" style="margin-top:20px"><h3 class="h3" style="margin-bottom:6px">Signed in, not approved</h3><p style="margin:0 0 4px;font-size:14px;line-height:1.45;color:#5F6368">They can upload slides and fix topics, with the class password.</p>' +
+    ac.others.map(function (o) {
+      return '<div class="adminli"><span><strong style="font-weight:800">' + h(o.name || o.email) + '</strong><small style="word-break:break-all">' + h(o.email) + ' · last seen ' + h(stampIn(o.lastSeen)) + '</small></span>' +
+        '<span class="mact" style="flex:0 0 auto"><button class="linkbtn" data-a="approve-other" data-email="' + h(o.email) + '" data-name="' + h(o.name) + '">Approve</button>' + blockBtn(o.email) + '</span></div>';
+    }).join('') + '</div>' : '';
+  var blocked = ac.blocked.length ? '<div class="box" style="margin-top:20px"><h3 class="h3" style="margin-bottom:6px">Blocked</h3>' +
+    ac.blocked.map(function (b) { return '<div class="adminli"><span><strong style="font-weight:800;word-break:break-all">' + h(b.email) + '</strong><small>Blocked ' + h(stampIn(b.at)) + (b.by ? ' by ' + h(shortName(b.by)) : '') + '</small></span><button class="linkbtn" data-a="unblock" data-email="' + h(b.email) + '">Unblock</button></div>'; }).join('') +
+    '<p style="margin:12px 0 0;font-size:13px;line-height:1.45;color:#5F6368">Blocked addresses can\'t sign in or get codes.</p></div>' : '';
+  box.innerHTML = '<div class="two">' + gate + reqs + '</div>' + add + mem + others + blocked;
+}
+
+// ----- reports
+function rmBtn(id) {
+  if (A.confirmRm === id) return '<span style="display:inline-flex;gap:8px;align-items:center"><button class="sbtn" data-a="rmup" data-id="' + h(id) + '" style="height:32px;padding:0 12px;font-size:13px;background:#D93025">Take it down</button><button class="linkbtn" data-a="rmcancel2">Cancel</button></span>';
+  return '<button class="linkbtn" data-a="rmup" data-id="' + h(id) + '" style="color:#B3261E">Take down</button>';
+}
+function renderReports() {
+  var box = $('#repbox'), list = S.adminState.reports;
+  if (!box) return;
+  if (!list.length) { box.innerHTML = '<div class="box"><p style="margin:0;font-size:15px;line-height:1.5;color:#5F6368">No reports waiting. Anyone can flag a topic or a file from the dashboard, and admins get an email when they do.</p></div>'; return; }
+  box.innerHTML = list.map(function (r) {
+    var subs = r.subs.map(function (x) {
+      return '<div class="adminli"><span><strong style="font-weight:800">' + (x.kind === 'slides' ? 'Slides' : 'Sbobina') + (x.part > 1 ? ', part ' + x.part : '') + '</strong><small style="word-break:break-all">Uploaded ' + h(stampLabel(x.at)) + (x.by ? ' by ' + h(x.by) : '') + '</small></span>' +
+        '<span class="mact" style="flex:0 0 auto">' + (x.url ? '<a href="' + h(x.url) + '" target="_blank" rel="noopener" style="font-weight:700">Open</a>' : '') + rmBtn(x.id) + '</span></div>';
+    }).join('');
+    return '<div class="loud" style="margin-bottom:16px"><h3>' + h(r.title) + ' <span style="font-size:15px;font-weight:600;color:#5F6368">' + h(r.day) + '</span></h3>' +
+      '<p>Flagged: <strong style="font-weight:800">' + h(REPWHAT[r.what] || r.what) + '</strong>, ' + h(stampIn(r.at)) + ', by ' + h(r.by) + '</p>' +
+      (r.note ? '<p style="background:#F3F4F2;border-radius:12px;padding:10px 12px;margin-top:10px">' + h(r.note) + '</p>' : '') +
+      '<p style="margin-top:10px">Topic now: ' + (r.topic ? '<strong style="font-weight:800">' + h(r.topic) + '</strong>' : 'none') +
+      (r.manual && r.manual === r.topic ? ' <button class="linkbtn" data-a="rep-cleartopic" data-id="' + h(r.lectureId) + '" data-row="' + r.row + '" style="font-size:14px;color:#B3261E">Clear this topic</button>' : '') + '</p>' +
+      (subs ? '<div style="margin-top:10px">' + subs + '</div>' : '') +
+      '<div class="actrow"><button class="sbtn" data-a="rep-done" data-row="' + r.row + '">Mark as handled</button><button class="sbtn2 soft" data-a="rep-dismiss" data-row="' + r.row + '">Dismiss</button></div></div>';
+  }).join('');
 }
 
 // ----- admins and settings
@@ -2547,15 +3003,15 @@ function renderAdmins() {
   box.innerHTML = '<div class="box" style="flex:2 1 480px"><h3 class="h3">Admins</h3><ul style="list-style:none;margin:0;padding:0">' +
     st.admins.map(function (a) {
       var mine = a.email.toLowerCase() === me.email.toLowerCase();
-      var act = mine ? '<button class="linkbtn" data-a="newkey" style="font-size:14px">Get a new key</button>'
+      var act = mine ? '<button class="linkbtn" data-a="newkey" style="font-size:14px">Make an emergency key</button>'
         : A.removing === a.email ? '<span style="display:flex;gap:10px;align-items:center;font-size:14px"><button class="sbtn" data-a="rmadmin" data-email="' + h(a.email) + '" style="height:36px;background:#D93025">Remove</button><button class="linkbtn" data-a="rmcancel">Cancel</button></span>'
           : '<button class="linkbtn" data-a="rmadmin" data-email="' + h(a.email) + '" style="font-size:14px">Remove</button>';
       return '<li class="adminli"><span><strong style="font-weight:800">' + h(a.name) + '</strong>' + (mine ? ' <span style="color:#5F6368">(you)</span>' : '') + '<small>' + (a.addedBy === 'setup' ? 'Added at setup' : 'Added by ' + h(shortName(a.addedBy)) + (a.addedAt ? ', ' + h(stampLabel(a.addedAt)) : '')) + ' · ' + h(a.email) + '</small></span>' + act + '</li>';
     }).join('') + '</ul>' +
-    (A.newKey ? '<div class="graybox drop">Your new key (also emailed to you). This device stays signed in with it.<div class="keyshow">' + h(A.newKey) + '</div></div>' : '') +
+    (A.newKey ? '<div class="graybox drop">Your emergency key, also emailed to you. If signing in ever fails, use it under "Admin key" on the sign-in page.<div class="keyshow">' + h(A.newKey) + '</div></div>' : '') +
     '<div style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin-top:12px;padding-top:16px;border-top:1px solid #E8EAED">' +
     '<label class="fld" style="flex:1 1 150px">Name<input class="inp" id="nan" placeholder="e.g. Marco Tosi"></label>' +
-    '<label class="fld" style="flex:2 1 200px">Email<input class="inp" id="nae" type="email" placeholder="Where their key is sent"></label>' +
+    '<label class="fld" style="flex:2 1 200px">Email<input class="inp" id="nae" type="email" placeholder="The address they sign in with"></label>' +
     '<button class="sbtn" data-a="addadmin" style="height:48px">Add admin</button></div></div>' +
     '<div class="box" style="flex:1 1 280px"><h3 class="h3">Settings</h3>' +
     '<label class="fld">Days after a lecture before it counts as overdue<span style="display:flex;gap:10px"><input class="inp" id="grace" value="' + h(s.grace) + '" inputmode="numeric" style="width:100px;font-weight:700"><button class="sbtn2 soft" data-a="savegrace">Save</button></span></label>' +
@@ -2608,12 +3064,29 @@ function activityText(r) {
   if (r.action === 'import') return 'Imported authors for ' + lecName(r.lectureId) + ': ' + (Array.isArray(a) ? a.join(', ') : '');
   if (r.action === 'approve-schedule') return 'Approved a schedule change' + (a && a.counts ? ' (' + a.counts.changed + ' changed, ' + a.counts.added + ' added, ' + a.counts.removed + ' removed)' : '');
   if (r.action === 'dismiss-schedule') return 'Dismissed a schedule change';
-  if (r.action === 'upload' && a) return a.by + ' uploaded ' + (a.kind === 'slides' ? 'slides' : 'the sbobina') + ' for ' + a.title + (a.part > 1 ? ', part ' + a.part : '') + (a.state === 'superseded' ? ' (since replaced)' : '') + (a.email === 'imported' ? ' (imported)' : '');
+  if (r.action === 'upload' && a) return (a.kind === 'slides' ? 'Uploaded slides' : 'Uploaded the sbobina') + ' for ' + a.title + (a.part > 1 ? ', part ' + a.part : '') + (a.kind === 'sbobina' && a.by ? ' (authors: ' + a.by + ')' : '') + (a.state === 'superseded' ? ' (since replaced)' : a.state === 'removed' ? ' (taken down)' : '') + (a.email === 'imported' ? ' (imported)' : '');
+  if (r.action === 'topic') return (a ? (b ? 'Changed the topic of ' : 'Added the topic of ') + lecName(r.lectureId) + ': "' + a + '"' : 'Cleared the topic of ' + lecName(r.lectureId));
+  if (r.action === 'filtered' && a) return 'Blocked wording (' + a.field + '): "' + a.text + '"';
+  if (r.action === 'volunteer') return 'Volunteered for ' + lecName(r.lectureId);
+  if (r.action === 'withdraw') return 'Withdrew from ' + lecName(r.lectureId);
+  if (r.action === 'confirm-volunteer') return 'Made ' + a + ' an assigned author of ' + lecName(r.lectureId);
+  if (r.action === 'request') return 'Asked for access';
+  if (r.action === 'remove-upload' && a) return 'Took down ' + (a.kind === 'slides' ? 'slides' : 'the sbobina') + ' for ' + a.title + (a.restored ? ', the earlier version is back' : '');
+  if (r.action === 'report-resolved') return 'Handled a report on ' + lecName(r.lectureId);
+  if (r.action === 'report-dismissed') return 'Dismissed a report on ' + lecName(r.lectureId);
+  if (r.action === 'members' && a && typeof a === 'object') {
+    if (a.declined) return 'Declined access for ' + a.declined;
+    if (a.deactivated) return 'Deactivated ' + a.deactivated;
+    if (a.reactivated && typeof a.reactivated === 'string') return 'Reactivated ' + a.reactivated;
+    if (a.blocked) return 'Blocked ' + a.blocked;
+    if (a.unblocked) return 'Unblocked ' + a.unblocked;
+    return (a.source === 'request' ? 'Approved an access request' : 'Added ' + a.added + ' ' + pl(a.added, 'person', 'people')) + (a.reactivated ? ', reactivated ' + a.reactivated : '');
+  }
   if (r.action === 'settings' && a && typeof a === 'object') {
     var k = Object.keys(a)[0], val = a[k];
     var names = { link: 'Changed the schedule link', graceDays: 'Set the overdue grace period to ' + val + ' days', groupEmail: 'Set the group address to ' + val, testEmails: 'Changed the test email list',
       root: 'Changed the Drive folders', folders: 'Changed the Drive folders', syncedAccess: 'Synced Drive access (' + val + ' people)', addedAdmin: 'Added admin ' + val, removedAdmin: 'Removed admin ' + val,
-      newKey: 'Made a new admin key', resetTest: 'Reset the test data', universalTest: (val ? 'Turned universal test mode on' : 'Turned universal test mode off') };
+      newKey: 'Made an emergency admin key', resetTest: 'Reset the test data', universalTest: (val ? 'Turned universal test mode on' : 'Turned universal test mode off'), classPassword: 'Set the class password' };
     return names[k] || 'Changed settings';
   }
   return r.action;
@@ -2622,8 +3095,12 @@ function renderActivity() {
   var box = $('#actbox'), list = S.adminState.activity;
   if (!box) return;
   var all = list.length, shown = A.allActivity ? list : list.slice(0, 25);
+  var admins = {};
+  S.adminState.admins.forEach(function (x) { admins[x.email.toLowerCase()] = 1; });
   box.innerHTML = all ? shown.map(function (r, i) {
-    return '<div class="actv" style="' + (i === 0 ? 'border-top:0' : '') + '"><span style="color:#5F6368">' + h(stampLabel(r.at)) + '</span><strong style="font-weight:800">' + h(r.who === 'Portal' || r.who === 'Import' ? r.who : shortName(r.who)) + '</strong><span>' + h(activityText(r)) + '</span></div>';
+    var acts = (r.action === 'upload' && r.state === 'current' && r.id ? rmBtn(r.id) : '') + (r.email && !admins[r.email] ? blockBtn(r.email) : '');
+    return '<div class="actv" style="' + (i === 0 ? 'border-top:0' : '') + '"><span style="color:#5F6368">' + h(stampLabel(r.at)) + '</span><strong style="font-weight:800">' + h(r.who === 'Portal' || r.who === 'Import' ? r.who : shortName(r.who)) + '</strong>' +
+      '<span>' + h(activityText(r)) + (r.email ? '<span class="meta" style="word-break:break-all">' + h(r.email) + '</span>' : '') + (acts ? '<span class="mact" style="margin-top:6px">' + acts + '</span>' : '') + '</span></div>';
   }).join('') + (all > shown.length ? '<div style="padding:12px 0 16px;border-top:1px solid #E8EAED"><button class="pillbtn" data-a="allact">Show all ' + all + '</button></div>' : '') : '<p style="padding:16px 0;color:#5F6368">Nothing yet.</p>';
 }
 
@@ -2631,14 +3108,9 @@ function renderActivity() {
 // Start
 // =====================================================================================
 (function start() {
-  var k = store.get('sb.key');
-  if (k) S.admin = { key: k, name: store.get('sb.name') || 'Admin' };
-  if (S.data) setData(S.data);
-  if (BOOT.error && !S.data) { $('#view').innerHTML = '<div class="wrap"><div class="err-box">' + h(BOOT.error) + '</div></div>'; renderHeader(); return; }
-  // An admin on the live dashboard gets the author chips: fetch the state with the key once
-  if (S.admin && S.data && !S.data.admin) {
-    api('state').then(function (d) { setData(d); if (S.page === 'dashboard') renderPage({ keep: true }); else renderHeader(); }, function () {});
-  }
+  S.tok = store.get('st.tok') || ''; S.pt = store.get('st.pt') || ''; S.key = store.get('sb.key') || '';
+  try { S.viewAs = +(window.sessionStorage.getItem('st.viewas') || 0) || 0; } catch (e) {}
+  if (BOOT.error) { $('#view').innerHTML = '<div class="wrap"><div class="err-box">' + h(BOOT.error) + '</div></div>'; renderHeader(); return; }
   renderPage();
 })();
 })();
