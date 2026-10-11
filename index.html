@@ -506,6 +506,8 @@ dialog.dlg::backdrop{background:rgba(27,29,31,.45)}
 .mact{display:flex;flex-wrap:wrap;gap:12px;align-items:center;font-size:14px}
 @media (max-width:899px){.mrow{display:flex;flex-direction:column;align-items:flex-start;gap:4px}}
 
+.bwarn{margin-top:8px;background:var(--red-bg);color:var(--red-ink);border-radius:12px;padding:10px 14px;font-size:14px;font-weight:700;line-height:1.4}
+
 /* toast */
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#FFFFFF;padding:12px 18px;border-radius:14px;font-size:15px;font-weight:600;max-width:min(560px,calc(100% - 32px));box-shadow:0 8px 24px rgba(27,29,31,.25);opacity:0;pointer-events:none;z-index:50;transition:opacity .2s ease,transform .2s ease}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -867,7 +869,9 @@ var ICON = {
 // =====================================================================================
 function api(name, req) {
   return new Promise(function (resolve, reject) {
-    var r = Object.assign({ env: S.reqEnv, key: S.key, tok: S.tok, pt: S.pt, viewAs: S.reqEnv === 'test' && S.page !== 'admin' ? S.viewAs : 0 }, req || {});
+    // an admin seeing "test mode for everyone" as a classmate gets the test portal
+    var env = S.reqEnv === 'live' && S.universal.on && S.viewAs && S.page !== 'admin' ? 'test' : S.reqEnv;
+    var r = Object.assign({ env: env, key: S.key, tok: S.tok, pt: S.pt, viewAs: env === 'test' && S.page !== 'admin' ? S.viewAs : 0 }, req || {});
     GS.run.withSuccessHandler(function (res) {
       if (res && res.ok) return resolve(res.data);
       var e = new Error((res && res.error) || 'The server didn\'t answer. Check your connection and try again.');
@@ -992,7 +996,7 @@ function renderHeader() {
   var p = S.page, me = S.me, isAdm = !!(me && me.isAdmin);
   var pill;
   if (me && (me.email || isAdm)) {
-    pill = '<span class="apill' + (p === 'admin' || (isAdm && S.env === 'test') ? ' on' : '') + '">' + (isAdm ? '<a href="' + h(pageHref('admin')) + '" data-go="admin">Admin</a> · ' : '') +
+    pill = '<span class="apill on">' + (isAdm ? '<a href="' + h(pageHref('admin')) + '" data-go="admin">Admin</a> · ' : '') +
       (me.email ? '<span class="nm" title="' + h(me.email) + '">' + h(shortName(me.name || me.email)) + '</span> · ' : '') + '<a href="#" data-act="signout">Sign out</a></span>';
   } else {
     pill = '<a class="apill' + (p === 'signin' ? ' on' : '') + '" href="' + h(pageHref('signin')) + '" data-go="signin"' + (p === 'signin' ? ' aria-current="page"' : '') + '>Sign in</a>';
@@ -1003,20 +1007,26 @@ function renderHeader() {
     '<a href="' + h(pageHref('dashboard')) + '" data-go="dashboard"' + (p === 'dashboard' ? ' class="on" aria-current="page"' : '') + '>Dashboard</a>' +
     '<a href="' + h(pageHref('upload')) + '" data-go="upload"' + (p === 'upload' ? ' class="on" aria-current="page"' : '') + '>Upload</a>' +
     '</nav>' + pill + '</div>';
-  var b = $('#banner'), kind = '', html = '';
-  if (S.env === 'test' && S.universal.on && !isAdm) {
+  var b = $('#banner'), kind = '', html = '', warn = '';
+  var va = isAdm && p !== 'admin' && p !== 'signin';
+  if (isAdm && S.universal.on && S.reqEnv === 'live') {
+    // test mode for everyone: the admin picks between the real portal and what classmates see
+    kind = 'uniadmin' + (va ? 'va' + S.viewAs : '');
+    html = '<span class="tag">Test mode for everyone</span><span class="txt">' + (S.viewAs && va ? 'You\'re seeing the test portal the way classmates see it right now.' : 'Everyone who isn\'t signed in as an admin sees the test portal.') + '</span>' +
+      (va ? viewAsSel() : '') + '<button class="linkbtn" data-act="uni-off" style="color:#FFFFFF;font-size:14px;font-weight:800">Turn it off</button>';
+    if (!S.viewAs || !va) warn = 'You\'re seeing the real portal, not what classmates see. ' + (va ? 'Pick who to see it as above to try it their way.' : 'Everything you change here is real.');
+  } else if (S.env === 'test' && S.universal.on && !isAdm) {
     kind = 'universal';
     html = '<span class="tag">Test mode</span><span class="txt">The portal is being tried out, so everything here is test data. Uploads go to the test folders and emails to the test list. Nothing here is real yet.</span>';
   } else if (S.env === 'test') {
-    var va = isAdm && p !== 'admin' && p !== 'signin';
     kind = 'test' + (va ? 'va' + S.viewAs : '');
     html = '<span class="tag">Test mode</span><span class="txt">Uploads go to the test folders and emails to the test list. Nothing here touches the real portal.</span>' +
       (va ? viewAsSel() : '') + '<a href="' + h(pageHref(S.page === 'signin' ? 'dashboard' : S.page, 'live')) + '">Leave test mode</a>';
-  } else if (isAdm && S.universal.on) {
-    kind = 'uniadmin';
-    html = '<span class="tag">Test mode for everyone</span><span class="txt">Everyone who isn\'t signed in as an admin sees the test portal. You\'re seeing the real one.</span><button class="linkbtn" data-act="uni-off" style="color:#FFFFFF;font-size:14px;font-weight:800">Turn it off</button>';
   }
-  if (b.dataset.kind !== kind) { b.dataset.kind = kind; b.innerHTML = kind ? '<div class="banner-wrap"><div role="status" class="banner drop">' + html + '</div></div>' : ''; }
+  if (b.dataset.kind !== kind) {
+    b.dataset.kind = kind;
+    b.innerHTML = kind ? '<div class="banner-wrap"><div role="status" class="banner drop">' + html + '</div>' + (warn ? '<div class="bwarn drop" role="note">' + h(warn) + '</div>' : '') + '</div>' : '';
+  }
 }
 // Admins in test mode can see the site the way each kind of classmate does
 function viewAsSel() {
@@ -1029,6 +1039,11 @@ function setUniversal(on, btn) {
   if (btn) btn.disabled = true;
   return api('setUniversal', { on: on }).then(function (u) {
     S.universal = u;
+    if (!on && S.viewAs && S.reqEnv === 'live') {
+      S.viewAs = 0;
+      try { window.sessionStorage.removeItem('st.viewas'); } catch (x) {}
+      S.data = null; renderPage({ keep: true });
+    }
     if (S.data) S.data.universal = u;
     if (S.adminState) S.adminState.settings.universal = u;
     renderHeader();
