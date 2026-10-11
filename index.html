@@ -1,0 +1,2647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Study Tracker</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Ccircle cx=%2216%22 cy=%2216%22 r=%2213%22 fill=%22%232457D6%22 stroke=%22white%22 stroke-width=%224%22/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,600..900&family=Hanken+Grotesk:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F4F2;--ink:#1B1D1F;--ink2:#3C4043;--muted:#5F6368;--faint:#80868B;--note:#A3A8AD;--line:#D5D8DB;--line2:#E8EAED;--card:#FFFFFF;
+  --blue:#2457D6;--hl:#EEF3FF;--green:#2BA84A;--green2:#6DD38B;--green-ink:#1E7B37;--yellow:#E8A600;--fyellow:#FBE7A1;--yline:#D9B940;
+  --grey:#BDC1C6;--grey2:#DADCE0;--red:#D93025;--red-ink:#B3261E;--red-bg:#FDF1EF;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:'Hanken Grotesk',system-ui,-apple-system,'Segoe UI',sans-serif;-webkit-text-size-adjust:100%}
+body{min-height:100vh}
+a{color:var(--ink)}a:hover{color:var(--blue)}
+button,input,select,textarea{font-family:inherit;color:inherit}
+button{cursor:pointer}
+button:disabled{cursor:not-allowed}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (min-width:900px){.ph{display:none!important}}
+@media (max-width:899px){.dk{display:none!important}}
+
+/* ---------- header ---------- */
+.hdr{max-width:1200px;margin:0 auto;padding:22px 40px 0;display:flex;align-items:center;justify-content:space-between;gap:14px}
+.brand{display:flex;align-items:baseline;gap:12px;font-family:'Archivo',sans-serif;text-decoration:none}
+.wm{font-weight:900;font-stretch:68%;line-height:1;font-size:38px;color:var(--ink)}
+.yr{font-weight:700;color:var(--blue);font-size:16px}
+.hdr-r{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.navpill{display:flex;background:var(--ink);border-radius:24px;padding:4px}
+.navpill a{text-decoration:none;font-size:15px;font-weight:600;color:#FFFFFF;padding:11px 18px;border-radius:20px}
+.navpill a.on{color:var(--ink);background:var(--bg);font-weight:700}
+.navpill a:not(.on):hover{color:#D5D8DB}
+.apill{display:inline-flex;align-items:center;gap:5px;height:22px;padding:0 12px;border-radius:11px;border:1px solid #C4C7CB;font-size:12px;font-weight:600;color:var(--muted);text-decoration:none;white-space:nowrap}
+.apill a{color:inherit;text-decoration:none}.apill a:hover{text-decoration:underline}
+.apill.on{background:var(--ink);border-color:var(--ink);color:#FFFFFF;font-weight:700}
+@media (max-width:899px){
+  .hdr{padding:18px 20px 6px;align-items:flex-start}
+  .brand{flex-direction:column;line-height:.9;padding-top:4px;gap:0}
+  .wm{font-size:30px}.yr{font-size:14px;margin-top:4px}
+  .navpill a{font-size:14px;padding:10px 14px}
+}
+.banner-wrap{max-width:1200px;margin:14px auto 0;padding:0 40px}
+@media (max-width:899px){.banner-wrap{padding:10px 20px 0;margin:0}}
+.banner{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;background:repeating-linear-gradient(135deg,#1B1D1F 0 14px,#2E3134 14px 28px);color:#FFFFFF;border-radius:16px;padding:12px 16px}
+.banner .tag{display:inline-flex;align-items:center;height:28px;padding:0 12px;border-radius:14px;background:#FFFFFF;color:var(--ink);font-size:14px;font-weight:900}
+.banner .txt{flex:1 1 220px;font-size:14px;font-weight:600;line-height:1.4}
+.banner a{color:#FFFFFF;font-size:14px;font-weight:800}
+
+/* ---------- layout ---------- */
+.view{transition:opacity .14s ease}
+.view.out{opacity:0}
+.wrap{max-width:1200px;margin:0 auto;padding:30px 40px 64px}
+.cols{display:flex;gap:48px;align-items:flex-start}
+.main{flex:1 1 0;min-width:0;max-width:700px}
+.aside{width:360px;flex:0 0 360px;position:sticky;top:24px;background:var(--card);border-radius:22px;padding:22px}
+@media (max-width:899px){.wrap{padding:14px 20px 24px}.cols{display:block}.main{max-width:none}}
+h1.big{margin:4px 0 18px;line-height:1.08;font-weight:900;letter-spacing:-.02em;font-size:40px}
+@media (max-width:899px){h1.big{font-size:28px}}
+.lead{margin:0 0 8px;font-size:15px;line-height:1.45;color:var(--ink2)}
+.muted{color:var(--muted)}
+.loading{padding:80px 0;text-align:center;color:var(--muted);font-size:16px;font-weight:600}
+.err-box{background:var(--red-bg);border-radius:14px;padding:14px 16px;font-size:15px;line-height:1.45;color:var(--red-ink);font-weight:600;margin:12px 0}
+
+/* ---------- buttons, inputs ---------- */
+.btn{height:56px;padding:0 24px;border:0;border-radius:28px;background:var(--ink);color:#FFFFFF;font-size:16px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;gap:10px;text-decoration:none}
+.btn:hover{color:#FFFFFF;background:#2E3134}
+.btn:disabled{background:var(--grey);color:#FFFFFF}
+.btn.red{background:var(--red)}.btn.red:hover{background:#C2271D}
+.btn.wide{width:100%}
+.btn2{height:48px;padding:0 20px;border-radius:24px;border:2px solid var(--ink);background:transparent;color:var(--ink);font-size:15px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
+.btn2:hover{background:#FFFFFF;color:var(--ink)}
+.btn2.wide{width:100%}
+.sbtn{height:44px;padding:0 18px;border:0;border-radius:22px;background:var(--ink);color:#FFFFFF;font-size:15px;font-weight:800}
+.sbtn2{height:44px;padding:0 18px;border-radius:22px;border:2px solid var(--ink);background:transparent;font-size:15px;font-weight:800}
+.sbtn2.soft{border-color:var(--line)}
+.sbtn:disabled,.sbtn2:disabled{opacity:.5}
+.round{width:44px;height:44px;flex:0 0 44px;border-radius:50%;border:2px solid var(--ink);background:transparent;display:flex;align-items:center;justify-content:center}
+.round:disabled{opacity:.3}
+.pillbtn{height:36px;padding:0 14px;border-radius:18px;border:2px solid var(--line);background:#FFFFFF;font-size:14px;font-weight:700}
+.pillbtn.on{background:var(--ink);border-color:var(--ink);color:#FFFFFF}
+.linkbtn{border:0;background:none;padding:0;font-size:inherit;font-weight:700;text-decoration:underline;color:inherit}
+.fld{display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:700;min-width:0}
+.fld .opt{font-weight:500;color:var(--muted)}
+.inp{height:48px;border-radius:12px;border:2px solid var(--line);background:#FFFFFF;padding:0 14px;font-size:16px;font-weight:600;color:var(--ink);min-width:0;width:100%}
+select.inp{padding-right:8px}
+.ta{border-radius:12px;border:2px solid var(--line);padding:12px 14px;font-size:16px;font-weight:600;line-height:1.35;resize:vertical;color:var(--ink);width:100%;background:#FFFFFF}
+.inp:focus,.ta:focus{border-color:var(--ink);outline:none}
+.inp:focus-visible,.ta:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.bad{border-color:var(--red)!important}
+.ferr{font-size:13px;font-weight:700;color:var(--red-ink)}
+.chip{display:inline-flex;align-items:center;gap:4px;height:40px;padding:0 4px 0 14px;border-radius:20px;background:var(--ink);color:#FFFFFF;font-size:15px;font-weight:700}
+.chipx{width:32px;height:32px;border:0;border-radius:50%;background:transparent;color:#FFFFFF;font-size:18px;line-height:1}
+.chipx:hover{background:#3C4043}
+.add{align-self:flex-start;height:44px;padding:0 16px;border-radius:22px;border:2px dashed #9AA0A6;background:transparent;color:var(--ink);font-size:15px;font-weight:700}
+.add:hover{border-color:var(--ink)}
+.addin{height:44px;border-radius:22px;border:2px solid var(--ink);padding:0 16px;font-size:15px;font-weight:700;width:260px;max-width:100%}
+.card{background:#FFFFFF;border-radius:18px;padding:18px 16px;display:flex;flex-direction:column;gap:14px;margin-top:14px}
+.card h2{margin:0;font-size:17px;font-weight:900}
+.sw{width:56px;height:34px;flex:0 0 56px;border:0;border-radius:17px;padding:4px;display:flex;justify-content:flex-start;background:var(--grey)}
+.sw[aria-checked="true"]{background:var(--ink)}
+.knob{width:26px;height:26px;border-radius:50%;background:#FFFFFF;display:block}
+.sw[aria-checked="true"] .knob{transform:translateX(22px)}
+.swrow{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.swrow span{font-size:15px;font-weight:700;line-height:1.3}
+.opt2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.optb{height:48px;border-radius:12px;font-size:15px;font-weight:700;border:2px solid var(--line);background:#FFFFFF;color:var(--ink)}
+.optb[aria-checked="true"]{border-color:var(--ink);background:var(--ink);color:#FFFFFF}
+
+/* badges, pills */
+.badge{font-size:12px;font-weight:900;height:22px;min-width:30px;padding:0 6px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;color:#FFFFFF;flex:0 0 auto}
+.spill{display:inline-flex;align-items:center;height:30px;padding:0 12px;border-radius:15px;font-size:14px;font-weight:800;white-space:nowrap}
+.mini{width:18px;height:18px;flex:0 0 18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;line-height:1}
+.st-submitted,.st-reused,.st-reused-asis{background:var(--green);color:#FFFFFF}
+.st-writing{background:var(--yellow);color:var(--ink)}
+.st-assigned{background:var(--fyellow);color:var(--ink)}
+.st-open{background:var(--grey2);color:var(--ink)}
+.st-overdue{background:var(--red);color:#FFFFFF}
+.st-removed{background:#F1F3F4;color:var(--muted);text-decoration:line-through}
+.mini.st-assigned{border:2px solid var(--yline)}
+.mini.st-open{background:var(--grey)}
+
+/* steps */
+.hsteps{list-style:none;margin:0 0 18px;padding:0;position:relative;display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
+.hsteps .track,.hsteps .fill{position:absolute;left:12.5%;top:10px;height:4px;border-radius:2px}
+.hsteps .track{right:12.5%;background:var(--line)}
+.hsteps .fill{background:var(--ink);transition:width .5s cubic-bezier(.2,.8,.2,1)}
+.hsteps li{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px}
+.sdot{width:24px;height:24px;flex:0 0 24px;border-radius:50%;position:relative;z-index:1;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#FFFFFF;background:#FFFFFF;border:3px solid var(--grey)}
+.sdot.done{background:var(--ink);border:0}
+.sdot.cur{border:6px solid var(--ink)}
+.slab{font-size:12px;font-weight:600;color:var(--muted)}
+.slab.cur{font-weight:800;color:var(--ink)}
+.vsteps{list-style:none;margin:0 0 18px;padding:0}
+.vsteps li{position:relative;display:flex;align-items:center;gap:12px;min-height:40px}
+.vsteps .vl{position:absolute;left:10px;top:28px;height:24px;width:4px;border-radius:2px;background:var(--line);overflow:hidden}
+.vsteps .vl i{position:absolute;left:0;top:0;width:100%;height:0;background:var(--ink);transition:height .45s cubic-bezier(.2,.8,.2,1)}
+.vsteps .vl.done i{height:100%}
+.vsteps .slab{font-size:15px}
+.summary{border-top:1px solid var(--line2);padding-top:16px;display:flex;align-items:flex-start;gap:10px}
+.summary .t{font-size:18px;font-weight:900}
+.summary .s{font-size:14px;color:var(--muted);margin-top:2px}
+.summary .x{font-size:14px;margin-top:8px;line-height:1.4}
+.darksum{background:var(--ink);color:#FFFFFF;border-radius:16px;padding:14px 16px;display:flex;align-items:flex-start;gap:12px}
+.darksum .t{font-size:18px;font-weight:900}.darksum .s{font-size:14px;color:#D5D8DB;margin-top:2px}
+.darksum a,.darksum button.linkbtn{color:#FFFFFF;font-size:14px;font-weight:700;padding:4px 0}
+.darksum .badge{box-shadow:0 0 0 2px #FFFFFF;margin-top:2px}
+.bottombar{position:sticky;bottom:0;padding:14px 20px 22px;background:var(--bg);border-top:1px solid var(--line);display:flex;gap:10px;z-index:5}
+.bottombar .btn{flex:1 1 auto;min-height:56px;height:auto;padding:8px 18px}
+.bottombar .btn2{height:56px;padding:0 20px;font-size:16px}
+.note-warn{margin-top:10px;font-size:13px;line-height:1.4;font-weight:700;color:var(--red-ink)}
+
+/* ---------- pick (step 1) ---------- */
+.searchbox{display:flex;align-items:center;gap:8px;height:44px;padding:0 14px;border-radius:22px;background:#FFFFFF;border:2px solid var(--line);margin-bottom:16px}
+.searchbox:focus-within{border-color:var(--ink)}
+.searchbox input{border:0;outline:none;background:transparent;font-size:15px;flex:1 1 auto;min-width:0}
+.weeknav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:12px}
+.weeknav .mid{text-align:center;line-height:1.2}
+.weeknav .mid b{display:block;font-weight:800;font-size:17px}
+.weeknav .mid span{font-size:13px;color:var(--muted)}
+.days{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin-bottom:22px}
+.dtab{height:72px;border-radius:14px;border:2px solid var(--line);background:#FFFFFF;color:var(--ink);padding:6px 0}
+.dtab[aria-selected="true"]{border-color:var(--ink);background:var(--ink);color:#FFFFFF}
+.dtab .wd{display:block;font-size:12px;font-weight:600;opacity:.75}
+.dtab .dn{display:block;font-size:20px;font-weight:900;line-height:1.1}
+.dtab .dd{display:block;width:6px;height:6px;border-radius:50%;margin:3px auto 0}
+.dtab .dc{display:block;font-size:11px;font-weight:600;opacity:.75}
+@media (max-width:899px){.dtab{height:64px}}
+.dayhead{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:6px}
+.dayhead h2{margin:0;font-size:15px;font-weight:800}
+.dayhead span{font-size:13px;color:var(--muted)}
+.daynote{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:11px;background:#E8EAED;color:var(--ink2);font-size:11px;font-weight:800;margin-left:8px;vertical-align:1px;white-space:nowrap;letter-spacing:.01em}
+table.lt .daynote{margin-left:0;font-size:10px;padding:0 6px;height:20px}
+.metro{list-style:none;margin:0;padding:0}
+.stoprow{display:flex;align-items:stretch}
+.rail{position:relative;width:40px;flex:0 0 40px}
+.rail .bar{position:absolute;left:16px;width:8px;top:0;bottom:0}
+.rail .stop{position:absolute;left:7px;top:20px;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;z-index:1;font-size:15px;font-weight:900;line-height:1;color:#FFFFFF;border:3px solid #FFFFFF}
+.lcard{flex:1 1 auto;min-width:0;text-align:left;margin:6px 0;padding:12px 14px 14px;border-radius:16px;border:2px solid transparent;background:#FFFFFF;color:var(--ink);box-shadow:0 1px 0 var(--line);display:block}
+.lcard .r1{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.lcard .tm{font-size:13px;font-weight:700;color:var(--muted)}
+.lcard .tt{display:block;font-size:19px;font-weight:900;letter-spacing:-.01em;margin-top:2px}
+.lcard .pf{display:block;font-size:14px;font-weight:600;margin-top:1px}
+.lcard .tp{display:block;font-size:14px;line-height:1.35;margin-top:4px;color:var(--ink2)}
+.lcard .sr2{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;margin-top:10px;padding-top:9px;border-top:1px solid var(--line2)}
+.lcard .sr2.overdue{color:var(--red-ink)}
+.lcard.sel{border-color:var(--ink);background:var(--ink);color:#FFFFFF;box-shadow:none}
+.lcard.sel .tm{color:#B9BDC1}.lcard.sel .tp{color:#D5D8DB}
+.lcard.sel .sr2{border-top-color:#3C4043;color:#FFFFFF}
+.lcard.sel .badge{box-shadow:0 0 0 2px #FFFFFF}
+.lcard.sel .mini{border:2px solid #FFFFFF}
+.lcard.removed .tt{text-decoration:line-through}
+.joinbtn{flex:1 1 auto;min-width:0;display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:14px;border:2px dashed #9AA0A6;background:transparent;color:var(--ink);min-height:56px;text-align:left}
+.joinbtn[aria-pressed="true"]{border-style:solid;border-color:var(--ink);background:#FFFFFF}
+.joinbtn .bx{width:26px;height:26px;flex:0 0 26px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;background:#FFFFFF;color:var(--ink);border:2px solid var(--ink)}
+.joinbtn[aria-pressed="true"] .bx{background:var(--ink);color:#FFFFFF}
+.joinbtn b{display:block;font-size:14px;font-weight:800}
+.joinbtn small{display:block;font-size:13px;font-weight:500;color:var(--muted);margin-top:1px}
+.empty{background:#FFFFFF;border-radius:16px;padding:18px;color:var(--muted);font-size:15px;margin-left:40px}
+.reshead{margin:18px 0 4px 40px;font-size:14px;font-weight:800;color:var(--ink2)}
+.customlink{margin:18px 0 0 40px;font-size:14px;color:var(--muted)}
+
+/* ---------- type, upload ---------- */
+.choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media (max-width:899px){.choices{display:flex;flex-direction:column;gap:12px}}
+.choice{width:100%;display:flex;align-items:center;gap:14px;padding:18px 16px;border-radius:18px;border:2px solid var(--line);background:#FFFFFF;color:var(--ink);min-height:96px;text-align:left}
+.choice[aria-checked="true"]{border-color:var(--ink);box-shadow:0 0 0 2px var(--ink) inset}
+.choice:disabled{opacity:.55;border-style:dashed}
+.choice .ic{width:48px;height:48px;flex:0 0 48px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:var(--bg)}
+.choice[aria-checked="true"] .ic{background:var(--ink);color:#FFFFFF}
+.choice .tx{flex:1 1 auto}
+.choice .tx b{display:block;font-size:19px;font-weight:900}
+.choice .tx span{display:block;font-size:14px;line-height:1.35;color:var(--muted);margin-top:2px}
+.radio{width:24px;height:24px;flex:0 0 24px;border-radius:50%;background:#FFFFFF;border:2px solid var(--grey)}
+[aria-checked="true"]>.radio{border:7px solid var(--ink)}
+.dgrid{display:grid;gap:12px;grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:899px){.dgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.files2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media (max-width:899px){.files2{display:flex;flex-direction:column}}
+.slot{display:flex;flex-direction:column;gap:8px}
+.slot>span{font-size:14px;font-weight:700}
+.drop{position:relative}
+.fz{display:flex;align-items:center;gap:12px;text-align:left;background:transparent;border:2px dashed #9AA0A6;border-radius:16px;padding:14px;color:var(--ink);min-height:76px;width:100%}
+.fz:hover,.fz.over{border-color:var(--ink);background:#FFFFFF}
+.fz .ico{width:40px;height:40px;flex:0 0 40px;border-radius:10px;background:#FFFFFF;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:600}
+.fz b{display:block;font-size:15px;font-weight:700}
+.fz small{display:block;font-size:13px;line-height:1.35;color:var(--muted)}
+.ff{display:flex;align-items:center;gap:12px;background:#FFFFFF;border:2px solid var(--ink);border-radius:16px;padding:12px 8px 12px 14px;min-height:76px}
+.ff .ico{width:40px;height:40px;flex:0 0 40px;border-radius:10px;color:#FFFFFF;font-size:14px;font-weight:900;display:flex;align-items:center;justify-content:center}
+.ff .nm{flex:1 1 auto;min-width:0}
+.ff .nm b{display:block;font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ff .nm small{display:block;font-size:13px;color:var(--muted)}
+.ff .rm{width:44px;height:44px;border:0;border-radius:50%;background:transparent;font-size:22px;color:var(--muted)}
+.ff .rm:hover{background:var(--bg)}
+.savedas{margin-top:18px;background:#FFFFFF;border-radius:16px;padding:14px 16px}
+.savedas .k{display:block;font-size:13px;font-weight:700;color:var(--muted)}
+.savedas .v{display:block;font-size:15px;font-weight:800;line-height:1.35;margin-top:4px;word-break:break-word}
+.savedas .e{display:block;font-size:13px;color:var(--muted);margin-top:4px}
+.alert{margin-top:18px;background:var(--red);color:#FFFFFF;border-radius:20px;padding:20px 18px}
+.alert .row1{display:flex;align-items:flex-start;gap:12px}
+.alert .bang{width:34px;height:34px;flex:0 0 34px;border-radius:50%;background:#FFFFFF;color:var(--red);font-size:20px;font-weight:900;display:flex;align-items:center;justify-content:center}
+.alert h3{margin:0;font-size:20px;font-weight:900;line-height:1.15}
+.alert p{margin:6px 0 10px;font-size:15px;line-height:1.45}
+.alert .pt{display:flex;align-items:center;justify-content:space-between;gap:10px;background:rgba(255,255,255,.14);border-radius:12px;padding:10px 12px;font-size:14px;margin-top:6px}
+.alert .pt a{color:#FFFFFF;font-weight:800}
+.whatgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:899px){.whatgrid{display:flex;flex-direction:column;gap:10px}}
+.what{width:100%;display:flex;align-items:flex-start;gap:12px;padding:16px;border-radius:16px;background:#FFFFFF;color:var(--ink);border:2px solid var(--line);text-align:left}
+.what .radio{margin-top:1px}
+.what[aria-checked="true"]{border-color:var(--ink);box-shadow:0 0 0 2px var(--ink) inset}
+.what.red[aria-checked="true"]{border-color:var(--red);box-shadow:0 0 0 2px var(--red) inset}
+.what.red[aria-checked="true"]>.radio{border-color:var(--red)}
+.what b{display:block;font-size:16px;font-weight:900}
+.what span.d{display:block;font-size:14px;line-height:1.4;color:var(--muted);margin-top:3px}
+.what:disabled{opacity:.5}
+.partpanel{background:#FFFFFF;border:2px solid var(--red);border-radius:16px;padding:14px 16px;grid-column:1/-1;order:3}
+.what.addopt{order:2}
+@media (max-width:899px){.partpanel{order:2}.what.addopt{order:3}}
+.partpanel .lb{display:block;font-size:15px;font-weight:800;margin-bottom:10px}
+.partbtns{display:flex;flex-wrap:wrap;gap:8px}
+.partb{flex:1 1 140px;min-height:48px;padding:0 10px;border-radius:12px;font-size:14px;font-weight:800;border:2px solid var(--line);background:#FFFFFF;color:var(--ink)}
+.partb[aria-checked="true"]{border-color:var(--red);background:var(--red);color:#FFFFFF}
+.progress{margin-top:14px}
+.progress .bar{height:8px;border-radius:4px;background:var(--line2);overflow:hidden}
+.progress .bar i{display:block;height:100%;width:0;background:var(--ink);transition:width .3s ease}
+.progress .lbl{font-size:13px;font-weight:700;color:var(--ink2);margin-top:6px}
+
+/* ---------- done ---------- */
+.done{display:flex;gap:28px;align-items:stretch}
+.done .linecol{position:relative;width:72px;flex:0 0 72px;min-height:620px}
+.done .line-in{position:absolute;left:31px;top:0;height:74px;width:10px;border-radius:0 0 5px 5px}
+.done .train{position:absolute;left:26px;top:40px;width:20px;height:20px;border-radius:50%;background:#FFFFFF;opacity:0}
+.done .ring{position:absolute;left:0;top:52px;width:72px;height:72px;border-radius:50%;border:3px solid;opacity:0}
+.done .stopbig{position:absolute;left:0;top:52px;width:72px;height:72px;border-radius:50%;border:5px solid #FFFFFF;display:flex;align-items:center;justify-content:center;z-index:2}
+.done .line-out{position:absolute;left:31px;top:130px;bottom:0;width:10px}
+.done .bits{position:absolute;left:36px;top:88px;width:0;height:0}
+.done .bit{position:absolute;opacity:0}
+.done .body{flex:1 1 auto;min-width:0;padding-top:54px}
+.done .kick{margin:0;font-size:15px;font-weight:800;color:var(--green-ink)}
+.done h1{margin:4px 0 6px;line-height:1.05;font-weight:900;letter-spacing:-.02em;font-size:48px}
+@media (max-width:899px){.done{gap:14px}.done h1{font-size:30px}.done .linecol{width:60px;flex-basis:60px;margin-left:-6px}}
+.meter{background:#FFFFFF;border-radius:16px;padding:14px 16px}
+.meter .top{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.meter .top>span{font-size:14px;font-weight:700;color:var(--ink2)}
+.meter .num{font-size:26px;font-weight:900;letter-spacing:-.02em}
+.meter .num small{font-size:15px;font-weight:700;color:var(--muted)}
+.meter .track{position:relative;height:12px;margin-top:10px;border-radius:6px;background:var(--line2);overflow:hidden}
+.meter .track i{position:absolute;left:0;top:0;bottom:0;border-radius:6px;transition:width 1.1s cubic-bezier(.2,.8,.2,1)}
+.meter .nt{display:block;margin-top:8px;font-size:13px;font-weight:600;color:var(--green-ink)}
+.openlinks{margin-top:14px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:899px){.openlinks{display:flex;flex-direction:column;gap:8px}}
+.openlink{display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:14px;padding:12px 14px;text-decoration:none;color:var(--ink)}
+.openlink .ico{width:36px;height:36px;flex:0 0 36px;border-radius:9px;color:#FFFFFF;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center}
+.openlink b{font-size:15px;font-weight:800}
+.checks{list-style:none;margin:20px 0 0;padding:0;display:flex;flex-direction:column;gap:10px;font-size:14px;line-height:1.35}
+.checks li{display:flex;gap:10px;align-items:flex-start}
+.checks .tk{width:20px;height:20px;flex:0 0 20px;border-radius:50%;background:var(--green);color:#FFFFFF;font-size:11px;font-weight:900;display:inline-flex;align-items:center;justify-content:center}
+.donebtns{display:flex;gap:10px;margin-top:26px}
+@media (max-width:899px){.donebtns{flex-direction:column}}
+
+/* ---------- dashboard ---------- */
+.dh1{margin:0;font-size:56px;line-height:1;font-weight:900;letter-spacing:-.04em}
+.dlead{margin:16px 0 0;font-size:22px;line-height:1.65;max-width:940px;font-weight:500}
+.mk{padding:2px 8px;border-radius:6px;-webkit-box-decoration-break:clone;box-decoration-break:clone;font-weight:800}
+@media (max-width:899px){.dh1{font-size:36px}.dlead{font-size:17px;line-height:1.75;margin-top:12px}.mk{padding:1px 7px}}
+.board{margin-top:30px;background:#FFFFFF;border:2px solid var(--ink);border-radius:22px;padding:10px 0;box-shadow:6px 6px 0 var(--ink)}
+.wrow{display:flex;align-items:center;padding:8px 22px;border-bottom:1px solid #EEF0F1}
+.wrow .wl{flex:0 0 104px;display:block}
+.wlab{display:inline-block;font-size:15px;font-weight:900;padding:2px 8px;margin-left:-8px;border-radius:6px}
+.wlab.now{background:var(--ink);color:#FFFFFF}
+.wrow .wd{display:block;font-size:12px;font-weight:500;color:var(--muted);margin-top:2px}
+.wrow .wc{flex:1 1 auto;min-width:0;display:flex;flex-wrap:wrap;gap:6px;padding-left:18px;border-left:2px solid var(--line2)}
+.cb{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 9px 0 7px;border-radius:6px;font-size:14px;font-weight:700;border:0}
+.cb .cd{width:10px;height:10px;flex:0 0 10px;border-radius:50%;box-shadow:0 0 0 2px #FFFFFF}
+.cb.on{box-shadow:0 0 0 2px #FFFFFF,0 0 0 4px var(--blue)}
+.cb.st-removed{text-decoration:line-through}
+.keys{display:flex;flex-wrap:wrap;gap:8px 22px;margin:12px 22px 4px;font-size:13px;font-weight:700}
+.keys span{display:inline-flex;align-items:center;gap:6px}
+.keys .k{width:12px;height:12px;border-radius:50%}
+.keys .tap{margin-left:auto;font-weight:600;color:var(--muted)}
+.abbrs{margin:6px 22px 4px;font-size:13px;color:var(--muted);line-height:1.5}
+@media (max-width:899px){
+  .board{margin-top:22px;border-radius:20px;box-shadow:5px 5px 0 var(--ink);padding:6px 0}
+  .wrow{display:block;padding:10px 16px}
+  .wrow .wl{display:flex;align-items:baseline;gap:8px;margin-bottom:8px}
+  .wlab{font-size:14px;padding:1px 8px}
+  .wrow .wd{margin:0}
+  .wrow .wc{padding-left:0;border-left:0}
+  .cb{height:30px;padding:0 8px 0 6px;font-size:13px;gap:5px}
+  .cb .cd{width:8px;height:8px;flex-basis:8px;box-shadow:0 0 0 1.5px #FFFFFF}
+  .keys{margin:4px 16px 6px;gap:6px 16px;font-size:12px}
+  .keys .k{width:10px;height:10px}
+  .abbrs{margin:2px 16px 10px}
+}
+.tools{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;margin:44px 0 14px}
+.tools .l{display:flex;align-items:center;gap:10px}
+.tools h2{margin:0;font-size:26px;font-weight:900;letter-spacing:-.02em;min-width:330px}
+.tools .r{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.tsearch{display:flex;align-items:center;gap:8px;height:44px;padding:0 14px;border-radius:22px;background:#FFFFFF;border:2px solid var(--line);min-width:260px}
+.tsearch:focus-within{border-color:var(--ink)}
+.tsearch input{border:0;outline:none;background:transparent;font-size:15px;flex:1 1 auto;min-width:0}
+.tsel{height:44px;border-radius:22px;border:2px solid var(--line);background:#FFFFFF;padding:0 14px;font-size:15px;font-weight:600}
+.tablebox{overflow-x:auto;background:#FFFFFF;border-radius:22px}
+table.lt{width:100%;min-width:1000px;border-collapse:collapse;font-size:15px}
+table.lt th{text-align:left;color:var(--muted);font-size:13px;font-weight:700;padding:16px 12px 12px}
+table.lt th:first-child{padding-left:24px}
+table.lt td{padding:14px 12px;vertical-align:top}
+table.lt td:first-child{padding-left:24px}
+table.lt td:last-child{padding-right:24px}
+table.lt tr.row{border-top:1px solid var(--line2);transition:background-color .35s ease,box-shadow .35s ease}
+table.lt tr.row.newday{border-top:2px solid var(--ink)}
+table.lt tr.row.hl{background:var(--hl);box-shadow:inset 0 0 0 2px var(--blue)}
+.lname{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.lname .badge{width:34px;height:24px;flex:0 0 34px}
+.lname b{font-weight:800}
+.lname.rm b{text-decoration:line-through}
+.ltopic{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin:6px 0 0 44px}
+.ltopic .t{font-size:14px;color:var(--ink2)}
+.src{font-size:11px;font-weight:500;white-space:nowrap;color:var(--note)}
+.tin{flex:1 1 auto;min-width:0;max-width:420px;height:36px;border-radius:10px;border:2px dashed var(--line);background:#F8F9F8;padding:0 12px;font-size:14px;font-weight:600}
+.tin:focus{border-style:solid;border-color:var(--ink);background:#FFFFFF;outline:none}
+.who{font-weight:700}.who.none{font-weight:600;color:var(--faint)}
+.subnote{display:block;margin-top:5px;font-size:11px;color:var(--note)}
+.flinks{display:flex;flex-wrap:wrap;gap:6px 12px;font-weight:700;font-size:14px}
+.flinks a.pt{color:var(--muted)}
+.foot{margin:12px 4px 0;font-size:13px;color:var(--muted)}
+.drives{margin-top:30px}
+.drives h2{margin:0 0 12px;font-size:20px;font-weight:900;letter-spacing:-.01em}
+.dbtns{display:flex;flex-wrap:wrap;gap:10px}
+.dbtn{display:flex;align-items:center;gap:10px;min-height:56px;padding:8px 16px 8px 12px;border-radius:16px;background:#FFFFFF;border:2px solid var(--line);text-decoration:none;color:var(--ink)}
+.dbtn:hover{border-color:var(--ink);color:var(--ink)}
+.dbtn .dico{width:32px;height:32px;flex:0 0 32px;border-radius:9px;background:var(--ink);color:#FFFFFF;display:flex;align-items:center;justify-content:center}
+.dbtn .ddot{width:14px;height:14px;flex:0 0 14px;margin:0 9px;border-radius:50%;box-shadow:0 0 0 3px #FFFFFF,0 0 0 4px var(--line)}
+.dbtn b{display:block;font-size:15px;font-weight:800;line-height:1.2}
+.dbtn small{display:flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:var(--muted);margin-top:1px}
+@media (max-width:899px){.drives{margin-top:22px}.dbtns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.dbtn{padding:8px 10px;min-width:0;gap:8px}.dbtn b{font-size:14px}.dbtn .ddot{margin:0 4px}}
+@media (prefers-reduced-motion: no-preference){.dbtn:hover{transform:translateY(-1px)}}
+.dcards{display:flex;flex-direction:column;gap:10px}
+.dcard{border-radius:16px;padding:14px;background:#FFFFFF;transition:background-color .35s ease,box-shadow .35s ease}
+.dcard.hl{background:var(--hl);box-shadow:0 0 0 2px var(--blue)}
+.dcard .r1{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.dcard .tm{font-size:13px;font-weight:700;color:var(--muted)}
+.dcard .spill{height:26px;padding:0 10px;font-size:13px;border-radius:13px}
+.dcard .r2{display:flex;align-items:center;gap:8px;margin-top:6px}
+.dcard .r2 b{font-size:17px;font-weight:900}
+.dcard.rm .r2 b{text-decoration:line-through}
+.dcard .pf{font-size:14px;font-weight:600;margin-top:4px}
+.dcard .tp{font-size:14px;line-height:1.35;color:var(--ink2);margin-top:4px}
+.dcard .tin{width:100%;max-width:none;height:40px;margin-top:8px}
+.dcard .au{margin-top:10px;padding-top:10px;border-top:1px solid var(--line2)}
+.dcard .au>span:first-child{display:block;font-size:12px;font-weight:600;color:var(--faint)}
+.fpills{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.fpills a{display:inline-flex;align-items:center;height:36px;padding:0 14px;border-radius:18px;text-decoration:none;font-size:14px;font-weight:800;background:var(--bg);color:var(--ink)}
+.fpills a.pt{background:transparent;border:2px solid var(--line);color:var(--ink2)}
+.datehead{margin:18px 0 8px;font-size:15px;font-weight:900}
+.matchhead{display:flex;align-items:center;gap:12px;margin:34px 0 12px;flex-wrap:wrap}
+.matchhead h2{margin:0;font-size:22px;font-weight:900}
+.wnav-ph{display:flex;align-items:center;justify-content:space-between;margin:34px 0 12px}
+.wnav-ph h2{margin:0;font-size:20px;font-weight:900;text-align:center;line-height:1.15}
+.wnav-ph h2 span{display:block;font-size:14px;font-weight:600;color:var(--muted)}
+.ph-tools{display:flex;gap:8px;margin-bottom:14px}
+.ph-tools .tsearch{flex:1 1 auto;min-width:0}
+.ph-tools .tsel{padding:0 10px;max-width:130px}
+/* admin author chips (dashboard + admin) */
+.ae{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.ae .chip{height:32px;font-size:13px;padding:0 2px 0 11px}
+.ae .chipx{width:28px;height:28px;font-size:16px}
+.ae .add{height:32px;padding:0 12px;font-size:13px;border-radius:16px}
+.ae .addin{height:32px;width:180px;font-size:13px;padding:0 12px;border-radius:16px}
+
+/* ---------- sign in ---------- */
+.signin{max-width:1200px;margin:0 auto;padding:70px 40px 64px;display:flex;justify-content:center}
+.signin .box{width:100%;max-width:480px;background:#FFFFFF;border:2px solid var(--ink);border-radius:22px;box-shadow:6px 6px 0 var(--ink);padding:32px}
+.signin h1{margin:0 0 8px;line-height:1.05;font-weight:900;letter-spacing:-.02em;font-size:40px}
+.keyrow{display:flex;align-items:center;gap:6px;height:52px;border-radius:12px;border:2px solid var(--ink);background:#FFFFFF;padding:0 6px 0 14px}
+.keyrow input{flex:1 1 auto;min-width:0;border:0;outline:none;background:transparent;font-size:16px;font-weight:600;letter-spacing:.1em}
+.keyrow button{height:38px;padding:0 12px;border:0;border-radius:10px;background:var(--bg);font-size:14px;font-weight:700}
+.check{display:flex;align-items:center;gap:12px;margin-top:16px;font-size:15px;font-weight:600;min-height:44px;cursor:pointer;position:relative}
+.check .bx{width:24px;height:24px;flex:0 0 24px;border-radius:7px;border:2px solid var(--ink);background:#FFFFFF;color:#FFFFFF;font-size:14px;font-weight:900;display:flex;align-items:center;justify-content:center}
+.check input{position:absolute;opacity:0;width:1px;height:1px}
+.check input:checked+.bx{background:var(--ink)}
+.check input:focus-visible+.bx{outline:3px solid var(--blue);outline-offset:2px}
+@media (max-width:899px){.signin{padding:24px 20px 40px}.signin .box{border-radius:20px;box-shadow:5px 5px 0 var(--ink);padding:22px 18px}.signin h1{font-size:30px}}
+
+/* ---------- admin ---------- */
+.ah1{margin:0;line-height:1;font-weight:900;letter-spacing:-.04em;font-size:56px}
+@media (max-width:899px){.ah1{font-size:40px}}
+.secnav{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 30px;position:sticky;top:0;z-index:4;background:var(--bg);padding:8px 0}
+@media (max-width:899px){.secnav{flex-wrap:nowrap;overflow-x:auto;margin:18px -20px 26px;padding:8px 20px}}
+.secnav a{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 16px;border-radius:20px;border:2px solid var(--line);background:#FFFFFF;text-decoration:none;font-size:15px;font-weight:700;white-space:nowrap}
+.secnav a.on{background:var(--ink);border-color:var(--ink);color:#FFFFFF}
+.secnav a.dash{border-style:dashed;border-color:var(--ink)}
+.secnav .cnt{min-width:22px;height:22px;border-radius:11px;background:var(--red);color:#FFFFFF;font-size:13px;font-weight:900;display:inline-flex;align-items:center;justify-content:center;padding:0 6px}
+.asec{margin-top:52px;scroll-margin-top:70px}
+.asec:first-of-type{margin-top:0}
+.h2{margin:0 0 14px;font-size:30px;font-weight:900;letter-spacing:-.02em}
+.box{background:#FFFFFF;border-radius:22px;padding:22px}
+.h3{margin:0 0 12px;font-size:19px;font-weight:900}
+.loud{background:#FFFFFF;border:2px solid var(--ink);border-radius:22px;box-shadow:6px 6px 0 var(--ink);padding:22px}
+.loud h3{margin:0;font-size:22px;font-weight:900;line-height:1.15}
+.loud p{margin:6px 0 0;font-size:15px;line-height:1.5;color:var(--ink2)}
+.flagbox{margin-top:16px;display:flex;align-items:center;gap:12px;background:var(--red-bg);border-radius:14px;padding:12px 14px;font-size:15px;font-weight:700}
+.flag{width:20px;height:20px;flex:0 0 20px;border-radius:50%;background:var(--red);color:#FFFFFF;font-size:12px;font-weight:900;display:inline-flex;align-items:center;justify-content:center}
+.drow{border-top:1px solid var(--line2);padding:14px 0;display:grid;grid-template-columns:110px minmax(0,1.2fr) minmax(0,1fr) 240px;gap:14px;align-items:start;font-size:15px}
+@media (max-width:899px){.drow{display:flex;flex-direction:column;gap:8px}}
+.tpill{height:26px;padding:0 10px;border-radius:13px;font-size:13px;font-weight:800;display:inline-flex;align-items:center}
+.tpill.changed{background:var(--ink);color:#FFFFFF}
+.tpill.added{border:2px solid var(--ink)}
+.tpill.removed{border:2px dashed var(--faint);color:var(--muted)}
+.nb{font-size:11px;font-weight:900;height:22px;min-width:30px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;color:#FFFFFF;padding:0 4px}
+.meta{display:block;font-size:14px;color:var(--muted);margin-top:3px}
+.was{text-decoration:line-through;color:var(--faint)}
+.actrow{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:18px;padding-top:18px;border-top:1px solid var(--line2)}
+.two{display:flex;flex-wrap:wrap;gap:20px}
+.arow{border-top:1px solid var(--line2);padding:14px 0;display:grid;grid-template-columns:minmax(0,1fr) 460px;gap:14px;align-items:center}
+@media (max-width:899px){.arow{display:flex;flex-direction:column;align-items:stretch;gap:10px}}
+.frow{margin-top:12px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:center}
+.fhead{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px;font-size:13px;font-weight:700;color:var(--muted)}
+@media (max-width:899px){.frow{display:flex;flex-direction:column;align-items:stretch;gap:10px;padding-top:14px;border-top:1px solid var(--line2)}.fhead{display:none}}
+.mlab{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (max-width:899px){.mlab{position:static;width:auto;height:auto;clip:auto;font-size:13px;font-weight:700;color:var(--muted)}}
+.actv{border-top:1px solid var(--line2);padding:14px 0;display:grid;grid-template-columns:150px 130px minmax(0,1fr);gap:12px;font-size:15px}
+@media (max-width:899px){.actv{display:flex;flex-direction:column;gap:2px}}
+.stripe{background:repeating-linear-gradient(135deg,#1B1D1F 0 14px,#2E3134 14px 28px);color:#FFFFFF;border-radius:22px;padding:22px}
+.stripe p{margin:0;font-size:16px;line-height:1.5;max-width:760px}
+.wbtn{height:48px;padding:0 22px;border:0;border-radius:24px;background:#FFFFFF;color:var(--ink);font-size:16px;font-weight:800;display:inline-flex;align-items:center;text-decoration:none}
+.wbtn2{height:48px;padding:0 20px;border-radius:24px;border:2px solid #FFFFFF;background:transparent;color:#FFFFFF;font-size:15px;font-weight:800}
+.wbtn2.danger{border-color:#FFB4AB;color:#FFB4AB}
+.graybox{margin-top:16px;background:var(--bg);border-radius:14px;padding:14px 16px;font-size:14px;line-height:1.5}
+.keyshow{margin-top:12px;background:var(--bg);border-radius:12px;padding:12px 14px;font-family:'Courier New',monospace;font-size:18px;font-weight:700;letter-spacing:2px;word-break:break-all}
+.alinks{list-style:none;margin:18px 0 0;padding:0;display:flex;flex-direction:column;gap:10px;font-size:15px;font-weight:700}
+.adminli{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 0;border-top:1px solid var(--line2)}
+.adminli small{display:block;font-size:14px;color:var(--muted);font-weight:500}
+
+/* toast */
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#FFFFFF;padding:12px 18px;border-radius:14px;font-size:15px;font-weight:600;max-width:min(560px,calc(100% - 32px));box-shadow:0 8px 24px rgba(27,29,31,.25);opacity:0;pointer-events:none;z-index:50;transition:opacity .2s ease,transform .2s ease}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.bad{background:var(--red)}
+
+/* ---------- motion (only when people haven't asked for less) ---------- */
+@media (prefers-reduced-motion: no-preference){
+  button,a,input,select,textarea{transition:background-color .2s ease,color .2s ease,border-color .2s ease,box-shadow .2s ease,transform .18s cubic-bezier(.2,.8,.2,1)}
+  button:active:not(:disabled){transform:scale(.97)}
+  .knob{transition:transform .25s cubic-bezier(.3,1.4,.5,1)}
+  .rise{animation:rise .5s cubic-bezier(.2,.8,.2,1) both}
+  .drop{animation:drop .32s cubic-bezier(.2,.8,.2,1) both}
+  .pop{animation:pop .42s cubic-bezier(.2,.9,.25,1.2) both}
+  .cb:hover{transform:translateY(-2px);box-shadow:0 4px 10px rgba(27,29,31,.18)}
+  .cb.on:hover{box-shadow:0 0 0 2px #FFFFFF,0 0 0 4px var(--blue),0 4px 10px rgba(27,29,31,.18)}
+  .lcard,.dtab,.choice,.what,.joinbtn,.optb,.partb{transition:background-color .25s ease,color .25s ease,border-color .25s ease,box-shadow .25s ease,transform .18s cubic-bezier(.2,.8,.2,1)}
+  .lcard .tm,.lcard .tp,.lcard .sr2,.lcard .badge,.lcard .mini{transition:color .25s ease,border-color .25s ease,box-shadow .25s ease}
+  table.lt tr.row.flash{animation:flashrow 1.4s ease-out 2}
+  .dcard.flash{animation:flashcard 1.4s ease-out 2}
+  .done .line-in{transform-origin:top;animation:drawline .55s cubic-bezier(.5,0,.2,1) both}
+  .done .line-out{transform-origin:top;animation:drawline .7s cubic-bezier(.2,.8,.2,1) 1.25s both}
+  .done .train{animation:train .5s cubic-bezier(.6,0,.4,1) .35s both}
+  .done .stopbig{animation:arrive .7s cubic-bezier(.2,.9,.2,1.25) .8s both}
+  .done .tick{stroke-dasharray:40;stroke-dashoffset:40;animation:tick .45s ease-out 1.25s forwards}
+  .done .ring{animation:ring 1.2s cubic-bezier(.1,.6,.3,1) both}
+  .done .bit{animation:burst 1.9s cubic-bezier(.15,.7,.3,1) both}
+  .done .up{animation:rise .55s cubic-bezier(.2,.8,.2,1) both}
+  .done .tk{animation:pop .4s cubic-bezier(.2,.9,.25,1.4) both}
+  .done .glow{animation:rise .55s cubic-bezier(.2,.8,.2,1) both,glow 1.6s ease-in-out 2.4s 2}
+}
+@media (prefers-reduced-motion: reduce){
+  .view{transition:none}
+  .done .bit,.done .ring,.done .train{display:none}
+  .meter .track i,.hsteps .fill,.vsteps .vl i{transition:none}
+}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes drop{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+@keyframes pop{from{opacity:0;transform:scale(.55)}to{opacity:1;transform:none}}
+@keyframes flashrow{0%{box-shadow:inset 0 0 0 2px #2457D6,0 0 0 0 rgba(36,87,214,.45)}70%{box-shadow:inset 0 0 0 2px #2457D6,0 0 0 12px rgba(36,87,214,0)}100%{box-shadow:inset 0 0 0 2px #2457D6,0 0 0 0 rgba(36,87,214,0)}}
+@keyframes flashcard{0%{box-shadow:0 0 0 2px #2457D6,0 0 0 2px rgba(36,87,214,.45)}70%{box-shadow:0 0 0 2px #2457D6,0 0 0 14px rgba(36,87,214,0)}100%{box-shadow:0 0 0 2px #2457D6,0 0 0 2px rgba(36,87,214,0)}}
+@keyframes drawline{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes train{0%{transform:translateY(-70px);opacity:0}20%{opacity:1}100%{transform:translateY(0);opacity:0}}
+@keyframes arrive{0%{transform:scale(0)}55%{transform:scale(1.22)}75%{transform:scale(.92)}100%{transform:scale(1)}}
+@keyframes tick{to{stroke-dashoffset:0}}
+@keyframes ring{from{transform:scale(.5);opacity:.75}to{transform:scale(3.2);opacity:0}}
+@keyframes burst{0%{transform:translate(0,0) rotate(0) scale(.3);opacity:0}8%{opacity:1}55%{transform:translate(var(--dx),var(--dy)) rotate(var(--r)) scale(1);opacity:1}100%{transform:translate(calc(var(--dx) * 1.15),calc(var(--dy) + 180px)) rotate(calc(var(--r) * 2.2)) scale(.9);opacity:0}}
+@keyframes glow{0%,100%{box-shadow:0 0 0 0 rgba(43,168,74,0)}50%{box-shadow:0 0 0 6px rgba(43,168,74,.25)}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="hdr" id="hdr"></header>
+  <div id="banner"></div>
+  <div id="view" class="view"></div>
+</div>
+<datalist id="names-dl"></datalist>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<script>
+var BOOT = (function () {
+  var q = new URLSearchParams(location.search);
+  var pages = ['dashboard', 'upload', 'admin', 'signin'];
+  return { page: pages.indexOf(q.get('page')) >= 0 ? q.get('page') : 'dashboard', env: q.get('env') === 'test' ? 'test' : 'live',
+    url: location.origin + location.pathname, data: null, error: '' };
+})();
+(function () {
+  var ENDPOINT = "https://script.google.com/macros/s/AKfycbyzvgqPu4lHzLkeXqsGstP7E_G7Qn7NeffVOAGxpLakzixImu-df15zMPKzzY1ET7Im/exec";
+  var READ_ONLY = ['state', 'adminState', 'listFolders', 'schedulePdf', 'signIn', 'memberEmails'];
+  function call(fn, args, ok, fail) {
+    if (fn !== 'api') { if (fail) fail(new Error('Unknown server call ' + fn)); return; }
+    var attempt = 0;
+    (function go() {
+      fetch(ENDPOINT, { method: 'POST', credentials: 'omit', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ name: args[0], req: args[1] }) })
+        .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(function (v) { if (ok) ok(v); }, function (e) {
+          // one quiet retry for flaky connections, only for calls that change nothing
+          if (READ_ONLY.indexOf(args[0]) >= 0 && attempt++ < 1) return setTimeout(go, 1200);
+          if (fail) fail(e);
+        });
+    })();
+  }
+  function runner(ok, fail) {
+    return new Proxy({}, { get: function (_, k) {
+      if (k === 'withSuccessHandler') return function (f) { return runner(f, fail); };
+      if (k === 'withFailureHandler') return function (f) { return runner(ok, f); };
+      if (k === 'withUserObject') return function () { return runner(ok, fail); };
+      return function () { call(k, Array.prototype.slice.call(arguments), ok, fail); };
+    } });
+  }
+  var handler = null;
+  function loc() { var p = {}; new URLSearchParams(location.search).forEach(function (v, k) { p[k] = v; }); return { parameter: p, hash: location.hash.slice(1) }; }
+  window.google = { script: {
+    run: runner(null, null),
+    history: {
+      push: function (s, params, hash) { history.pushState(s, '', '?' + new URLSearchParams(params || {}).toString() + (hash ? '#' + hash : '')); },
+      replace: function (s, params, hash) { history.replaceState(s, '', '?' + new URLSearchParams(params || {}).toString() + (hash ? '#' + hash : '')); },
+      setChangeHandler: function (f) { handler = f; }
+    },
+    url: { getLocation: function (cb) { cb(loc()); } }
+  } };
+  window.addEventListener('popstate', function () { if (handler) handler({ location: loc() }); });
+})();
+</script>
+<script>var MODULES = {"INTERNAL MEDICINE":{"abbr":"IM","name":"Internal Medicine"},"NEUROLOGY":{"abbr":"Neuro","name":"Neurology"},"MENTAL HEALTH":{"abbr":"MH","name":"Mental Health"},"PHARMACOLOGY":{"abbr":"NeuroPharm","name":"Neuropharmacology"},"NEUROPHARMACOLOGY":{"abbr":"NeuroPharm","name":"Neuropharmacology"},"NEURORADIOLOGY":{"abbr":"NeuroRad","name":"Neuroradiology"},"REHABILITATION MEDICINE":{"abbr":"Rehab","name":"Rehabilitation Medicine"},"GENERAL SURGERY":{"abbr":"GenSurg","name":"General Surgery"},"CARDIAC SURGERY":{"abbr":"CardioSurg","name":"Cardiac Surgery"},"PLASTIC SURGERY":{"abbr":"Plastics","name":"Plastic Surgery"},"THORACIC SURGERY":{"abbr":"ThorSurg","name":"Thoracic Surgery"},"VASCULAR SURGERY":{"abbr":"VascSurg","name":"Vascular Surgery"},"NEUROSURGERY":{"abbr":"NeuroSurg","name":"Neurosurgery"},"MAXILLO-FACIAL SURGERY":{"abbr":"MaxFac","name":"Maxillofacial Surgery"},"MAXILLOFACIAL SURGERY":{"abbr":"MaxFac","name":"Maxillofacial Surgery"}};
+var COURSES = [{"key":"MEDICAL SCIENCE AND CLINICAL INVESTIGATION","code":"MS","name":"Medical Science and Clinical Investigation","color":"#2457D6"},{"key":"NEUROLOGICAL AND BEHAVIOURAL DISORDERS","code":"NB","name":"Neurological and Behavioural Disorders","color":"#8146D6"},{"key":"FUNDAMENTALS OF SURGERY","code":"FS","name":"Fundamentals of Surgery","color":"#0E8F92"}];
+var MAX_PARTS = 5;
+var WD_ = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+var MON_ = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+function titleCase_(s) {
+  return String(s || '').toLowerCase().replace(/(^|[\s\-'’(\/])([a-zà-ÿ])/g, function (m, a, b) { return a + b.toUpperCase(); });
+}
+function moduleKey_(m) {
+  return String(m || '').toUpperCase().replace(/\s+/g, ' ').trim();
+}
+function moduleInfo_(m) {
+  var k = moduleKey_(m);
+  if (MODULES[k]) return MODULES[k];
+  for (var key in MODULES) {
+    if (MODULES[key].name.toUpperCase() === k || key.replace(/[^A-Z]/g, '') === k.replace(/[^A-Z]/g, '')) return MODULES[key];
+  }
+  var name = /[a-z]/.test(String(m || '')) ? String(m).trim() : titleCase_(m);
+  return { abbr: name, name: name };
+}
+function courseInfo_(key) {
+  var k = String(key || '').toUpperCase().trim();
+  for (var i = 0; i < COURSES.length; i++) if (COURSES[i].key === k || COURSES[i].code === k || COURSES[i].name.toUpperCase() === k) return COURSES[i];
+  return { key: k, code: '', name: titleCase_(k), color: '#5F6368' };
+}
+function profDisplay_(p) {
+  return String(p || '').split('/').map(function (x) { return /[a-z]/.test(x) ? x.trim() : titleCase_(x.trim()); }).filter(String).join(' / ');
+}
+function profFile_(p) {
+  return profDisplay_(p).split(' / ').join(' & ');
+}
+function cutWords_(s, max) {
+  s = String(s || '').replace(/\s+/g, ' ').trim();
+  if (s.length <= max) return s;
+  var cut = s.slice(0, max + 1), i = cut.lastIndexOf(' ');
+  cut = i > max * 0.5 ? cut.slice(0, i) : s.slice(0, max);
+  return cut.replace(/[\s,;:.+\-–]+$/, '');
+}
+function safeName_(s) {
+  return String(s || '').replace(/[\\\/:*?"<>|]+/g, ' ').replace(/\s+/g, ' ').replace(/[\s.]+$/, '').trim();
+}
+function fileTopic_(t) {
+  t = String(t || '').replace(/\s+/g, ' ').trim();
+  var short = t.replace(/^the patient with\s+/i, '');
+  return short ? short.charAt(0).toUpperCase() + short.slice(1) : t;
+}
+function fileBase_(o) {
+  var nums = String(o.numbers || '').replace(/\s*[–—-]\s*/g, '-').replace(/\s+/g, '').trim() || '?';
+  if (o.part > 1) nums += '.' + o.part;
+  var seen = {}, ts = [];
+  (o.topics || []).forEach(function (t) {
+    t = fileTopic_(t);
+    if (t && !seen[t.toLowerCase()]) { seen[t.toLowerCase()] = 1; ts.push(t); }
+  });
+  var parts = [moduleInfo_(o.module).abbr + ' #' + nums];
+  var topic = ts.join(' + ');
+  if (topic) parts.push(topic);
+  var prof = profFile_(o.prof);
+  if (prof) parts.push(prof);
+  return safeName_(parts.join(' - ') + (o.slides ? ' (slides)' : ''));
+}
+function dayLabel_(iso, withYear) {
+  var m = String(iso || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!m) return String(iso || '');
+  var d = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3]));
+  return WD_[d.getUTCDay()] + ' ' + (+m[3]) + ' ' + MON_[+m[2] - 1] + (withYear ? ' ' + m[1] : '');
+}
+function lectureTitle_(module, numbers) {
+  return moduleInfo_(module).name + ' L' + String(numbers || '').replace(/\s*[-–]\s*/g, '–');
+}</script>
+<script>
+// Schedule parser — turns pdf.js text items into lecture rows.
+// Pure function; the same code is embedded in the web app's admin page.
+// pages: [{ items: [{ str, x, y, w }] }]  (y measured from the TOP of the page)
+function parseSchedule(pages) {
+  var MONTHS = { january:1, february:2, march:3, april:4, may:5, june:6, july:7,
+    august:8, september:9, october:10, november:11, december:12,
+    gennaio:1, febbraio:2, marzo:3, aprile:4, maggio:5, giugno:6, luglio:7,
+    agosto:8, settembre:9, ottobre:10, novembre:11, dicembre:12 };
+  var TIME_RE = /^(\d{1,2})[.:](\d{2})\s*[-‐-―]\s*(\d{1,2})[.:](\d{2})\s*(.*)$/;
+  var DATE_RE = /(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})/;
+  var COLS = { prof: 115, course: 178, module: 260, topic: 322, room: 452 };
+  var clean = function (s) { return String(s || '').replace(/[‐-―]/g, '-').replace(/\s+/g, ' ').trim(); };
+  var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+
+  var lectures = [], warnings = [], dayNotes = {};
+
+  pages.forEach(function (page, pi) {
+    var items = page.items.filter(function (it) { return clean(it.str); })
+      .map(function (it) { return { str: clean(it.str), x: it.x, y: it.y, w: it.w || 0 }; });
+
+    // Calibrate columns from the header row if present (layout may drift slightly)
+    var hdr = {};
+    items.forEach(function (it) { if (it.y < 90) hdr[it.str.toUpperCase()] = it.x; });
+    var shift = hdr.DATE !== undefined ? hdr.DATE - 69 : 0;
+    var col = {}; Object.keys(COLS).forEach(function (k) { col[k] = COLS[k] + shift; });
+
+    // 1) time rows
+    var rows = [];
+    items.forEach(function (it) {
+      if (it.x > col.prof + 10) return;
+      var m = it.str.match(TIME_RE);
+      if (!m) return;
+      rows.push({ y: it.y, start: pad(+m[1]) + ':' + m[2], end: pad(+m[3]) + ':' + m[4],
+        startMin: +m[1] * 60 + +m[2], profInline: clean(m[5]), cells: { prof: [], course: [], module: [], topic: [], room: [] } });
+    });
+    rows.sort(function (a, b) { return a.y - b.y; });
+
+    // 2) date labels (column left of time column); merge 2-line labels
+    var dl = items.filter(function (it) { return it.x < col.prof - 25 && !TIME_RE.test(it.str) && it.y > 85; })
+      .sort(function (a, b) { return a.y - b.y; });
+    var labels = [];
+    dl.forEach(function (it) {
+      var last = labels[labels.length - 1];
+      if (last && !DATE_RE.test(last.text) && it.y - last.y2 <= 9) { last.text += ' ' + it.str; last.y2 = it.y; }
+      else labels.push({ text: it.str, y1: it.y, y2: it.y });
+    });
+    var dates = [];
+    labels.forEach(function (l) {
+      var m = l.text.match(DATE_RE);
+      if (!m || !MONTHS[m[2].toLowerCase()]) return;
+      dates.push({ iso: m[3] + '-' + pad(MONTHS[m[2].toLowerCase()]) + '-' + pad(+m[1]), y: (l.y1 + l.y2) / 2 - 3.5, used: false });
+    });
+
+    // 3) group rows into days (start time goes back down => new day)
+    var days = [], cur = null;
+    rows.forEach(function (r) {
+      if (!cur || r.startMin <= cur.rows[cur.rows.length - 1].startMin || r.y - cur.rows[cur.rows.length - 1].y > 30) {
+        cur = { rows: [] }; days.push(cur);
+      }
+      cur.rows.push(r);
+    });
+    days.forEach(function (d) {
+      var c = (d.rows[0].y + d.rows[d.rows.length - 1].y) / 2, best = null, bd = 1e9;
+      dates.forEach(function (dt) { var dist = Math.abs(dt.y - c); if (dist < bd) { bd = dist; best = dt; } });
+      if (!best || bd > 30) { warnings.push('Page ' + (pi + 1) + ': could not match a date to slots near y=' + Math.round(c)); return; }
+      if (best.used) warnings.push('Page ' + (pi + 1) + ': date ' + best.iso + ' matched twice');
+      best.used = true; d.date = best.iso; d.yTop = d.rows[0].y - 12; d.yBot = d.rows[d.rows.length - 1].y + 4;
+    });
+
+    // 4) distribute cell text to rows
+    items.forEach(function (it) {
+      if (it.x < col.prof - 25 || it.y < 85) return;            // date column / header
+      if (it.x <= col.prof + 10 && TIME_RE.test(it.str)) return; // time cell
+      if (/^CLERKSHIP/i.test(it.str)) {                           // day-level note
+        var d = days.filter(function (d) { return d.date && it.y >= d.yTop - 30 && it.y <= d.yBot + 30; })
+          .sort(function (a, b) { return Math.abs((a.yTop + a.yBot) / 2 - it.y) - Math.abs((b.yTop + b.yBot) / 2 - it.y); })[0];
+        if (d) dayNotes[d.date] = it.str;
+        return;
+      }
+      // nearest row; multi-line cells are vertically centred about 3pt above the time baseline
+      var row = null, bd = 1e9;
+      rows.forEach(function (r) { var dist = Math.abs(r.y - 3 - it.y); if (dist < bd) { bd = dist; row = r; } });
+      if (!row || bd > 9.5) return;
+      var k = it.x >= col.room ? 'room' : it.x >= col.topic ? 'topic' : it.x >= col.module ? 'module' : it.x >= col.course ? 'course' : 'prof';
+      row.cells[k].push(it);
+    });
+
+    days.forEach(function (d) {
+      if (!d.date) return;
+      d.rows.forEach(function (r) {
+        var j = function (k) { return clean(r.cells[k].sort(function (a, b) { return a.y - b.y || a.x - b.x; }).map(function (i) { return i.str; }).join(' ')); };
+        var prof = clean([r.profInline, j('prof')].join(' '));
+        if (!prof) return; // empty slot
+        var room = j('room'), topic = j('topic'), module = j('module');
+        // "MAXILLO-FACIAL SURGERY traumatology": lowercase tail spilled into module column = topic
+        var mm = module.match(/^([A-Z0-9 \-\/&']+?)\s+([a-z].*)$/);
+        if (mm) { module = mm[1]; topic = clean(mm[2] + ' ' + topic); }
+        lectures.push({ id: d.date + 'T' + r.start, date: d.date, start: r.start, end: r.end,
+          professor: prof, course: j('course'), module: module, topic: topic, room: room });
+      });
+    });
+  });
+
+  lectures.sort(function (a, b) { return a.id < b.id ? -1 : a.id > b.id ? 1 : 0; });
+  // lecture number = order within module
+  var cnt = {};
+  lectures.forEach(function (l) { cnt[l.module] = (cnt[l.module] || 0) + 1; l.number = cnt[l.module]; });
+  return { lectures: lectures, dayNotes: dayNotes, warnings: warnings };
+}
+if (typeof module !== 'undefined') module.exports = parseSchedule;
+</script>
+
+<script>
+(function () {
+'use strict';
+
+// =====================================================================================
+// Basics
+// =====================================================================================
+// reqEnv: what the address asks for. env: what the server actually serves (universal test mode can turn live into test).
+var S = { page: BOOT.page, reqEnv: BOOT.env, env: BOOT.env, url: BOOT.url, data: BOOT.data, admin: null, adminState: null, signinNote: '', universal: { on: false } };
+var $ = function (s, r) { return (r || document).querySelector(s); };
+var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+var reduceMq = window.matchMedia('(prefers-reduced-motion: reduce)');
+var deskMq = window.matchMedia('(min-width: 900px)');
+var reduced = function () { return reduceMq.matches; };
+var desk = function () { return deskMq.matches; };
+var DAY = 86400000;
+var CC = { MS: '#2457D6', NB: '#8146D6', FS: '#0E8F92' };
+var ccol = function (cc) { return CC[cc] || '#5F6368'; };
+var ST = {
+  submitted: { glyph: '✓', label: 'Submitted' },
+  reused: { glyph: '✓', label: "Last year's, minor edits" },
+  'reused-asis': { glyph: '✓', label: "Last year's, no edits" },
+  writing: { glyph: '~', label: 'Being written' },
+  assigned: { glyph: '', label: 'To be held' },
+  open: { glyph: '?', label: 'No authors yet' },
+  overdue: { glyph: '!', label: 'Overdue' }
+};
+var STOPFILL = { submitted: '#2BA84A', reused: '#2BA84A', 'reused-asis': '#2BA84A', writing: '#E8A600', overdue: '#D93025', open: '#BDC1C6' };
+var green = function (st) { return st === 'submitted' || st === 'reused' || st === 'reused-asis'; };
+
+function h(s) {
+  return String(s === undefined || s === null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+function pad(n) { return (n < 10 ? '0' : '') + n; }
+function pl(n, one, many) { return n === 1 ? one : many; }
+function firstName(n) { return String(n || '').trim().split(/\s+/)[0]; }
+function shortName(n) { var p = String(n || '').trim().split(/\s+/); return p.length > 1 ? p[0] + ' ' + p[p.length - 1].charAt(0) + '.' : p[0]; }
+function andList(a) { a = a.filter(Boolean); return a.length < 2 ? (a[0] || '') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1]; }
+function mb(bytes) { return (bytes / 1048576).toFixed(bytes < 10485760 ? 1 : 0) + ' MB'; }
+var store = {
+  get: function (k) { var v = null; try { v = window.sessionStorage.getItem(k); } catch (e) {} if (v === null) { try { v = window.localStorage.getItem(k); } catch (e) {} } return v; },
+  set: function (k, v, persist) { try { (persist ? window.localStorage : window.sessionStorage).setItem(k, v); } catch (e) {} },
+  del: function (k) { try { window.sessionStorage.removeItem(k); } catch (e) {} try { window.localStorage.removeItem(k); } catch (e) {} }
+};
+function toast(msg, bad) {
+  var t = $('#toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (bad ? ' bad' : '');
+  clearTimeout(toast.t);
+  toast.t = setTimeout(function () { t.className = 'toast' + (bad ? ' bad' : ''); }, bad ? 6000 : 3200);
+}
+var ICON = {
+  left: '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1B1D1F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>',
+  right: '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1B1D1F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"></path></svg>',
+  search: '<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5F6368" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>',
+  doc: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5"></path><path d="M9 13h6M9 17h6"></path></svg>',
+  screen: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"></rect><path d="M12 16v4M8 20h8"></path></svg>'
+};
+
+// =====================================================================================
+// Server calls
+// =====================================================================================
+function api(name, req) {
+  return new Promise(function (resolve, reject) {
+    var r = Object.assign({ env: S.reqEnv, key: S.admin ? S.admin.key : '' }, req || {});
+    google.script.run.withSuccessHandler(function (res) {
+      if (res && res.ok) return resolve(res.data);
+      var e = new Error((res && res.error) || 'The server didn\'t answer. Check your connection and try again.');
+      e.code = res && res.code;
+      if (e.code === 'auth' && S.admin) authLost(e.message);
+      reject(e);
+    }).withFailureHandler(function (err) {
+      reject(new Error(err && err.message ? 'Connection problem: ' + err.message : 'Connection problem. Try again.'));
+    }).api(name, r);
+  });
+}
+function authLost(msg) {
+  signOut(true);
+  S.signinNote = msg;
+  if (S.page === 'admin' || (S.reqEnv === 'test' && !S.universal.on)) go('signin');
+  else renderHeader();
+}
+
+// =====================================================================================
+// Data helpers: semester weeks, lectures
+// =====================================================================================
+var byId = {};
+var SEM = { start: 0, weeks: 1 };
+function isoMs(iso) { var p = iso.split('-'); return Date.UTC(+p[0], +p[1] - 1, +p[2]); }
+function msIso(ms) { var d = new Date(ms); return d.getUTCFullYear() + '-' + pad(d.getUTCMonth() + 1) + '-' + pad(d.getUTCDate()); }
+function mondayMs(iso) { var ms = isoMs(iso), wd = (new Date(ms).getUTCDay() + 6) % 7; return ms - wd * DAY; }
+function weekOf(iso) { return Math.round((mondayMs(iso) - SEM.start) / (7 * DAY)); }
+function weekdayOf(iso) { return (new Date(isoMs(iso)).getUTCDay() + 6) % 7; }
+function weekDays(k) { var out = []; for (var i = 0; i < 5; i++) out.push(msIso(SEM.start + k * 7 * DAY + i * DAY)); return out; }
+function curWeek() { return Math.max(0, Math.min(SEM.weeks - 1, weekOf(S.data.today))); }
+var MONL = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+var WDL = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+function rangeLabel(k, longMonths) {
+  var d = weekDays(k), a = new Date(isoMs(d[0])), b = new Date(isoMs(d[4]));
+  var M = longMonths ? MONL : MON_;
+  return a.getUTCDate() + (a.getUTCMonth() === b.getUTCMonth() ? '' : ' ' + M[a.getUTCMonth()]) + ' – ' + b.getUTCDate() + ' ' + M[b.getUTCMonth()];
+}
+function setData(d) {
+  S.data = d;
+  byId = {};
+  d.lectures.forEach(function (l) { byId[l.id] = l; });
+  var dates = d.lectures.map(function (l) { return l.date; }).sort();
+  var first = dates[0] || d.today, last = dates[dates.length - 1] || d.today;
+  SEM.start = mondayMs(first);
+  SEM.weeks = Math.max(1, Math.round((mondayMs(last) - SEM.start) / (7 * DAY)) + 1);
+  $('#names-dl').innerHTML = (d.names || []).map(function (n) { return '<option value="' + h(n) + '">'; }).join('');
+  if (d.admin && S.admin) S.admin.name = d.admin.name;
+  S.env = d.env || S.env;
+  S.universal = d.universal || { on: false };
+}
+function lecturesOn(iso) { return S.data.lectures.filter(function (l) { return l.date === iso; }); }
+function lecTitle(l) { return lectureTitle_(l.module, l.n); }
+function statusLabel(l) { return l.removed ? 'Removed from schedule' : ST[l.st].label; }
+function srcNote(l) {
+  if (l.src === 'submission') return 'Details obtained from the ' + (l.srcKind === 'slides' ? 'slides' : 'sbobina');
+  if (l.src === 'schedule') return 'Details obtained from the schedule';
+  return 'Details added by hand';
+}
+function updateLecture(dto, counts, names) {
+  if (!dto) return;
+  var i = S.data.lectures.findIndex(function (l) { return l.id === dto.id; });
+  if (i >= 0) S.data.lectures[i] = dto; else S.data.lectures.push(dto);
+  byId[dto.id] = dto;
+  if (counts) S.data.counts = counts;
+  if (names) { S.data.names = names; $('#names-dl').innerHTML = names.map(function (n) { return '<option value="' + h(n) + '">'; }).join(''); }
+}
+function stampIn(s) { return stampLabel(s).replace(/^Today/, 'today').replace(/^Yesterday/, 'yesterday'); }
+function stampLabel(s) {
+  if (!s) return '';
+  var d = String(s).slice(0, 10), t = String(s).slice(11, 16), today = S.data ? S.data.today : '';
+  if (d === today) return 'Today ' + t;
+  if (today && msIso(isoMs(today) - DAY) === d) return 'Yesterday ' + t;
+  return dayLabel_(d).replace(/^\w+ /, '') + ' ' + t;
+}
+
+// =====================================================================================
+// Routing, header, banner
+// =====================================================================================
+function pageHref(page, env) {
+  var e = env === undefined ? S.reqEnv : env;
+  return S.url ? S.url + '?page=' + page + (e === 'test' ? '&env=test' : '') : '#';
+}
+function go(page, opt) {
+  opt = opt || {};
+  if (page === 'admin' && !S.admin) { S.signinNote = ''; page = 'signin'; }
+  S.page = page;
+  try {
+    var params = { page: page };
+    if (S.reqEnv === 'test') params.env = 'test';
+    google.script.history.push({ page: page }, params, opt.hash || '');
+  } catch (e) {}
+  swap(function () { renderPage(opt); });
+}
+function swap(fn) {
+  var v = $('#view');
+  if (reduced() || !v.innerHTML) { fn(); window.scrollTo(0, 0); return; }
+  v.classList.add('out');
+  setTimeout(function () { fn(); window.scrollTo(0, 0); v.classList.remove('out'); }, 140);
+}
+function renderHeader() {
+  var p = S.page, a = S.admin;
+  var pill;
+  if (a) {
+    pill = '<span class="apill' + (S.env === 'test' || p === 'admin' ? ' on' : '') + '"><a href="' + h(pageHref('admin')) + '" data-go="admin">Admin: ' + h(shortName(a.name)) + '</a> · <a href="#" data-act="signout">Sign out</a></span>';
+  } else {
+    pill = '<a class="apill' + (p === 'signin' ? ' on' : '') + '" href="' + h(pageHref('signin')) + '" data-go="signin"' + (p === 'signin' ? ' aria-current="page"' : '') + '>Admin sign in</a>';
+  }
+  $('#hdr').innerHTML =
+    '<div class="brand"><span class="wm">STUDY TRACKER</span><span class="yr">IMS · 5th Year</span></div>' +
+    '<div class="hdr-r"><nav class="navpill" aria-label="Pages">' +
+    '<a href="' + h(pageHref('dashboard')) + '" data-go="dashboard"' + (p === 'dashboard' ? ' class="on" aria-current="page"' : '') + '>Dashboard</a>' +
+    '<a href="' + h(pageHref('upload')) + '" data-go="upload"' + (p === 'upload' ? ' class="on" aria-current="page"' : '') + '>Upload</a>' +
+    '</nav>' + pill + '</div>';
+  var b = $('#banner'), kind = '', html = '';
+  if (S.env === 'test' && S.universal.on && !S.admin) {
+    kind = 'universal';
+    html = '<span class="tag">Test mode</span><span class="txt">The portal is being tried out, so everything here is test data. Uploads go to the test folders and emails to the test list. Nothing here is real yet.</span>';
+  } else if (S.env === 'test') {
+    kind = 'test';
+    html = '<span class="tag">Test mode</span><span class="txt">Uploads go to the test folders and emails to the test list. Nothing here touches the real portal.</span><a href="' + h(pageHref(S.page === 'signin' ? 'dashboard' : S.page, 'live')) + '">Leave test mode</a>';
+  } else if (S.admin && S.universal.on) {
+    kind = 'uniadmin';
+    html = '<span class="tag">Test mode for everyone</span><span class="txt">Everyone who isn\'t signed in as an admin sees the test portal. You\'re seeing the real one.</span><button class="linkbtn" data-act="uni-off" style="color:#FFFFFF;font-size:14px;font-weight:800">Turn it off</button>';
+  }
+  if (b.dataset.kind !== kind) { b.dataset.kind = kind; b.innerHTML = kind ? '<div class="banner-wrap"><div role="status" class="banner drop">' + html + '</div></div>' : ''; }
+}
+function setUniversal(on, btn) {
+  if (btn) btn.disabled = true;
+  return api('setUniversal', { on: on }).then(function (u) {
+    S.universal = u;
+    if (S.data) S.data.universal = u;
+    if (S.adminState) S.adminState.settings.universal = u;
+    renderHeader();
+    if ($('#testbox')) renderTest();
+    toast(on ? 'Universal test mode is on. Everyone else now sees the test portal.' : 'Universal test mode is off. Everyone sees the real portal again.');
+  }, function (e) { if (btn) btn.disabled = false; toast(e.message, true); });
+}
+function signOut(silent) {
+  store.del('sb.key'); store.del('sb.name');
+  S.admin = null; S.adminState = null;
+  if (S.data) S.data.admin = null;
+  if (!silent) {
+    toast('Signed out.');
+    if (S.reqEnv === 'test') { window.open(pageHref('dashboard', 'live'), '_top'); return; }
+    S.data = null;
+    if (S.page === 'admin') go('dashboard'); else { renderHeader(); renderPage({ keep: true }); }
+  }
+}
+function renderPage(opt) {
+  opt = opt || {};
+  renderHeader();
+  var v = $('#view');
+  v.onclick = v.oninput = v.onchange = v.onkeydown = null;
+  if (S.page === 'admin' && !S.admin) { S.page = 'signin'; renderHeader(); }
+  if (S.page === 'signin') return renderSignin(v);
+  if (!S.data) {
+    v.innerHTML = '<div class="wrap"><div class="loading">Loading the semester…</div></div>';
+    api('state').then(function (d) { setData(d); renderPage(opt); }, function (e) {
+      if (e.code === 'auth') { S.signinNote = 'Test mode is for admins. Sign in first.'; S.page = 'signin'; return renderPage(opt); }
+      v.innerHTML = '<div class="wrap"><div class="err-box">' + h(e.message) + '</div></div>';
+    });
+    return;
+  }
+  if (S.page === 'upload') return renderUpload(v, opt);
+  if (S.page === 'admin') return renderAdmin(v, opt);
+  return renderDashboard(v, opt);
+}
+
+document.addEventListener('click', function (e) {
+  var g = e.target.closest('[data-go]');
+  if (g) { e.preventDefault(); var to = g.getAttribute('data-go'); if (to !== S.page || to === 'upload') { if (to === 'upload' && S.page === 'upload' && U.step === 'done') resetUpload(); go(to); } return; }
+  var so = e.target.closest('[data-act="signout"]');
+  if (so) { e.preventDefault(); signOut(); }
+  var uo = e.target.closest('[data-act="uni-off"]');
+  if (uo) { e.preventDefault(); setUniversal(false, uo); }
+});
+try {
+  google.script.history.setChangeHandler(function (ev) {
+    var p = ev.location && ev.location.parameter && ev.location.parameter.page;
+    if (p && p !== S.page) { S.page = p; swap(function () { renderPage(); }); }
+  });
+} catch (e) {}
+
+// =====================================================================================
+// Shared bits: status, chips, names editor
+// =====================================================================================
+function badge(cc, extra) { return '<span class="badge"' + ' style="background:' + ccol(cc) + (extra || '') + '">' + h(cc || '?') + '</span>'; }
+function spill(l, cls) { return '<span class="spill ' + (l.removed ? 'st-removed' : 'st-' + l.st) + (cls ? ' ' + cls : '') + '">' + h(statusLabel(l)) + '</span>'; }
+
+// Admin-only author chips. The server re-checks the key on every change.
+function authorEditor(l) {
+  return '<span class="ae" data-ae="' + h(l.id) + '">' + l.asg.map(function (n) {
+    return '<span class="chip">' + h(n) + '<button class="chipx" data-unassign="' + h(l.id) + '" data-name="' + h(n) + '" aria-label="Remove ' + h(n) + ' from ' + h(lecTitle(l)) + '">×</button></span>';
+  }).join('') + '<button class="add" data-addname="' + h(l.id) + '" aria-label="Add an author to ' + h(lecTitle(l)) + '">+ Add</button></span>';
+}
+function wireAuthorEditors(root, onChange) {
+  root.addEventListener('click', function (e) {
+    var add = e.target.closest('[data-addname]');
+    if (add) {
+      var id = add.getAttribute('data-addname'), l = byId[id];
+      var inp = document.createElement('input');
+      inp.className = 'addin'; inp.setAttribute('list', 'names-dl'); inp.setAttribute('aria-label', 'Add an author to ' + lecTitle(l));
+      inp.placeholder = 'Name and surname'; inp.autocomplete = 'off';
+      add.replaceWith(inp);
+      inp.focus();
+      var done = false;
+      var finish = function (save) {
+        if (done) return; done = true;
+        var name = inp.value.trim();
+        if (!save || !name) { onChange(id); return; }
+        inp.disabled = true;
+        api('assign', { lectureId: id, name: name }).then(function (r) { updateLecture(r.lecture, r.counts, r.names); onChange(id); toast('Added ' + name + ' to ' + lecTitle(r.lecture) + '.'); },
+          function (err) { toast(err.message, true); onChange(id); });
+      };
+      inp.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); finish(true); } if (ev.key === 'Escape') finish(false); });
+      inp.addEventListener('blur', function () { finish(true); });
+      return;
+    }
+    var rm = e.target.closest('[data-unassign]');
+    if (rm) {
+      var lid = rm.getAttribute('data-unassign'), nm = rm.getAttribute('data-name');
+      rm.disabled = true;
+      api('unassign', { lectureId: lid, name: nm }).then(function (r) { updateLecture(r.lecture, r.counts, r.names); onChange(lid); toast('Removed ' + nm + ' from ' + lecTitle(r.lecture) + '.'); },
+        function (err) { toast(err.message, true); onChange(lid); });
+    }
+  });
+}
+
+// Dashboard topic field: open to everyone, saves on Enter or when leaving the field
+function wireTopicInputs(root, onChange) {
+  var save = function (inp) {
+    var id = inp.getAttribute('data-topic'), v = inp.value.trim(), l = byId[id];
+    if (!l || v === (l.manual || '')) return;
+    inp.disabled = true;
+    api('setTopic', { lectureId: id, topic: v }).then(function (r) { updateLecture(r.lecture, r.counts); onChange(id); toast(v ? 'Topic saved.' : 'Topic cleared.'); },
+      function (err) { inp.disabled = false; toast(err.message, true); });
+  };
+  root.addEventListener('keydown', function (e) {
+    if (e.target.matches && e.target.matches('[data-topic]') && e.key === 'Enter') { e.preventDefault(); e.target.blur(); }
+  });
+  root.addEventListener('focusout', function (e) { if (e.target.matches && e.target.matches('[data-topic]')) save(e.target); });
+}
+
+// =====================================================================================
+// Dashboard
+// =====================================================================================
+var D = { week: null, day: null, hl: null, q: '', filter: 'all', allWeeks: false, first: true };
+
+function overviewSentence(k, phone) {
+  var w = k.written, ov = k.overdue === 0 ? 'none are overdue' : k.overdue + (k.overdue === 1 ? ' is overdue' : ' are overdue');
+  if (phone) {
+    return '<span class="mk st-submitted">' + w + ' written up</span> out of ' + k.held + ' held. <span class="mk st-writing">' + k.writing + ' being written</span>, <span class="mk st-overdue">' + k.overdue + ' overdue</span>. ' +
+      '<span class="mk st-assigned">' + k.assigned + ' to be held ' + pl(k.assigned, 'has', 'have') + ' authors</span>, <span class="mk st-open">' + k.open + ' ' + pl(k.open, 'has', 'have') + ' no authors yet</span>.';
+  }
+  return '<span class="mk st-submitted">' + w + ' ' + pl(w, 'lecture', 'lectures') + ' written up</span> out of ' + k.held + ' held. ' +
+    '<span class="mk st-writing">' + k.writing + ' ' + pl(k.writing, 'is', 'are') + ' being written</span> right now and <span class="mk st-overdue">' + ov + '</span>. ' +
+    '<span class="mk st-assigned">' + k.assigned + ' ' + pl(k.assigned, 'lecture', 'lectures') + ' still to be held ' + pl(k.assigned, 'has', 'have') + ' authors</span>, and ' +
+    '<span class="mk st-open">' + k.open + ' ' + pl(k.open, 'has', 'have') + ' no authors yet</span>.';
+}
+
+function boardHtml(animate) {
+  var cw = curWeek(), out = '', phone = !desk();
+  for (var k = 0; k < SEM.weeks; k++) {
+    if (phone && !D.allWeeks && (k < cw - 1 || k > cw + 1)) continue;
+    var days = weekDays(k), n = 0, chips = '';
+    S.data.lectures.forEach(function (l) {
+      if (l.date < days[0] || l.date > days[4]) return;
+      var delay = phone ? 0.15 + n * 0.015 : 0.15 + k * 0.05 + n * 0.012;
+      chips += '<button class="cb' + (animate ? ' pop' : '') + ' ' + (l.removed ? 'st-removed' : 'st-' + l.st) + (D.hl === l.id ? ' on' : '') + '" data-jump="' + h(l.id) + '" ' +
+        'aria-label="' + h(lecTitle(l) + ', ' + dayLabel_(l.date) + ', ' + statusLabel(l)) + '" style="animation-delay:' + delay.toFixed(3) + 's">' +
+        '<span aria-hidden="true" class="cd" style="background:' + ccol(l.cc) + '"></span>' + h(l.abbr + ' ' + l.n) + '</button>';
+      n++;
+    });
+    var mon = new Date(isoMs(days[0]));
+    out += '<div class="wrow"><span class="wl"><span class="wlab' + (k === cw ? ' now' : '') + '">Week ' + (k + 1) + '</span><span class="wd">' + mon.getUTCDate() + ' ' + MON_[mon.getUTCMonth()] + '</span></span>' +
+      '<span class="wc">' + (chips || '<span class="muted" style="font-size:13px;padding:5px 0">No lectures</span>') + '</span></div>';
+  }
+  return out;
+}
+
+function abbrText() {
+  var seen = {}, list = [];
+  Object.keys(MODULES).forEach(function (k) { var m = MODULES[k]; if (!seen[m.abbr]) { seen[m.abbr] = 1; list.push(m.abbr + ' ' + m.name); } });
+  return list.join(', ');
+}
+
+function renderDashboard(v, opt) {
+  if (D.week === null) { D.week = curWeek(); D.day = Math.min(4, weekdayOf(S.data.today)); if (weekOf(S.data.today) !== D.week) D.day = 0; }
+  var phone = !desk(), anim = !opt.keep;
+  v.innerHTML =
+    '<main class="wrap" id="dash">' +
+    '<h1 class="dh1' + (anim ? ' rise' : '') + '">Our semester so far</h1>' +
+    '<p class="dlead' + (anim ? ' rise' : '') + '" id="dlead" style="animation-delay:.08s">' + overviewSentence(S.data.counts, phone) + '</p>' +
+    '<section class="board" aria-label="Every lecture of the semester, week by week. Choose a lecture to jump to it.">' +
+    '<div id="board">' + boardHtml(anim) + '</div>' +
+    (phone ? '<button class="btn2 wide" data-act="allweeks" style="width:calc(100% - 32px);margin:10px 16px 8px;height:44px">' + (D.allWeeks ? 'Show fewer weeks' : 'Show all ' + SEM.weeks + ' weeks') + '</button>' : '') +
+    '<div class="keys">' + COURSES.map(function (c) { return '<span><span aria-hidden="true" class="k" style="background:' + c.color + '"></span>' + (phone ? h(c.code === 'MS' ? 'Medical Science' : c.code === 'NB' ? 'Neuro and Behavioural' : 'Surgery') : h(c.code + ', ' + c.name)) + '</span>'; }).join('') +
+    (phone ? '' : '<span class="tap">Tap a lecture to jump to it</span>') + '</div>' +
+    (phone ? '<p class="abbrs" style="font-weight:600">Tap a lecture to jump to it. <button class="linkbtn" data-act="abbr" style="color:#5F6368">What the abbreviations mean</button></p><p class="abbrs" id="abbr" hidden>' + h(abbrText()) + '</p>'
+      : '<p class="abbrs">' + h(abbrText()) + '</p>') +
+    '</section>' +
+    drivesHtml() +
+    '<div id="weekpart"></div>' +
+    '</main>';
+  renderWeekPart();
+  var dash = $('#dash');
+  dash.addEventListener('click', function (e) {
+    var j = e.target.closest('[data-jump]');
+    if (j) return jump(j.getAttribute('data-jump'));
+    var a = e.target.closest('[data-act]');
+    if (!a) return;
+    var act = a.getAttribute('data-act');
+    if (act === 'allweeks') { D.allWeeks = !D.allWeeks; $('#board').innerHTML = boardHtml(false); a.textContent = D.allWeeks ? 'Show fewer weeks' : 'Show all ' + SEM.weeks + ' weeks'; }
+    if (act === 'abbr') { var p = $('#abbr'); p.hidden = !p.hidden; }
+    if (act === 'prev') { D.week = Math.max(0, D.week - 1); D.day = 0; renderWeekPart(); }
+    if (act === 'next') { D.week = Math.min(SEM.weeks - 1, D.week + 1); D.day = 0; renderWeekPart(); }
+    if (act === 'thisweek') { D.week = curWeek(); D.day = Math.min(4, weekdayOf(S.data.today)); renderWeekPart(); }
+    if (act === 'day') { D.day = +a.getAttribute('data-day'); renderWeekPart(); }
+    if (act === 'clear') { D.q = ''; D.filter = 'all'; renderWeekPart(); }
+  });
+  dash.addEventListener('input', function (e) {
+    if (e.target.id === 'dq') { D.q = e.target.value; renderWeekList(); }
+  });
+  dash.addEventListener('change', function (e) {
+    if (e.target.id === 'df') { D.filter = e.target.value; renderWeekList(); }
+  });
+  var refresh = function () { renderWeekList(); refreshOverview(); };
+  wireAuthorEditors(dash, refresh);
+  wireTopicInputs(dash, refresh);
+}
+
+var FOLDER_SVG = '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>';
+var LOCK_SVG = '<svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>';
+function drivesHtml() {
+  var f = S.data.folders;
+  if (!f) return '';
+  var t = S.env === 'test' ? ' (test)' : '';
+  var shortName = { MS: 'Medical Science', NB: 'Neuro & Behaviour', FS: 'Surgery' };
+  var btn = function (url, label, sub, dot) {
+    if (!url) return '';
+    return '<a class="dbtn" href="' + h(url) + '" target="_blank" rel="noopener">' + (dot ? '<span aria-hidden="true" class="ddot" style="background:' + dot + '"></span>' : '<span class="dico">' + FOLDER_SVG + '</span>') +
+      '<span class="dtx"><b>' + h(label) + '</b><small>' + sub + '</small></span></a>';
+  };
+  return '<section class="drives" aria-labelledby="h-drives"><h2 id="h-drives">Google Drive' + t + '</h2><div class="dbtns">' +
+    btn(f.year5, 'Year 5 Drive', 'The whole year') +
+    btn(f.slides, 'Slides', 'Open to everyone') +
+    f.sbobine.map(function (x) { return btn(x.url, shortName[x.cc] || x.name, LOCK_SVG + ' Sbobine, group', ccol(x.cc)); }).join('') +
+    '</div><p class="foot" style="margin:10px 2px 0">Sbobine folders open only if they\'ve been shared with your Google account.</p></section>';
+}
+
+function refreshOverview() {
+  var lead = $('#dlead');
+  if (lead) lead.innerHTML = overviewSentence(S.data.counts, !desk());
+  var b = $('#board');
+  if (b) b.innerHTML = boardHtml(false);
+}
+
+function matches(l) {
+  if (D.filter === 'open' && !(l.st === 'open' && !l.removed)) return false;
+  if (D.filter === 'overdue' && l.st !== 'overdue') return false;
+  if (D.filter === 'writing' && l.st !== 'writing') return false;
+  if (D.filter === 'assigned' && l.st !== 'assigned') return false;
+  if (D.filter === 'submitted' && !green(l.st)) return false;
+  if (D.filter === 'slides' && !l.sl.length) return false;
+  var q = D.q.trim().toLowerCase();
+  if (!q) return true;
+  var hay = [l.module, l.abbr, l.prof, l.topic, l.who.join(' '), l.asg.join(' '), courseInfo_(l.course).name, 'l' + l.n, dayLabel_(l.date)].join(' | ').toLowerCase();
+  return q.split(/\s+/).every(function (w) { return hay.indexOf(w) >= 0; });
+}
+var FILTERS = [['all', 'All lectures'], ['open', 'No authors yet'], ['overdue', 'Overdue'], ['writing', 'Being written'], ['assigned', 'To be held'], ['submitted', 'Submitted'], ['slides', 'Has slides']];
+
+function renderWeekPart() {
+  var wp = $('#weekpart');
+  if (!wp) return;
+  var phone = !desk(), k = D.week;
+  var filterSel = '<select class="tsel" id="df" aria-label="Show">' + FILTERS.map(function (f) { return '<option value="' + f[0] + '"' + (D.filter === f[0] ? ' selected' : '') + '>' + (phone && f[0] === 'all' ? 'All' : f[1]) + '</option>'; }).join('') + '</select>';
+  var search = '<label class="tsearch">' + ICON.search + '<span class="sr">Search</span><input type="search" id="dq" value="' + h(D.q) + '" placeholder="' + (phone ? 'Author, professor, topic' : 'Author, professor or topic') + '" autocomplete="off"></label>';
+  if (phone) {
+    var days = weekDays(k);
+    wp.innerHTML =
+      '<div id="week-table" class="wnav-ph"><button class="round" data-act="prev" aria-label="Previous week"' + (k <= 0 ? ' disabled' : '') + '>' + ICON.left + '</button>' +
+      '<h2 aria-live="polite">Week ' + (k + 1) + '<span>' + rangeLabel(k, true) + '</span></h2>' +
+      '<button class="round" data-act="next" aria-label="Next week"' + (k >= SEM.weeks - 1 ? ' disabled' : '') + '>' + ICON.right + '</button></div>' +
+      '<div class="days" role="tablist" aria-label="Day" id="ddays" style="margin-bottom:14px">' + days.map(function (iso, i) {
+        var n = lecturesOn(iso).length, on = i === D.day;
+        return '<button class="dtab" role="tab" data-act="day" data-day="' + i + '" aria-selected="' + on + '" style="height:70px;padding:4px 0"><span class="wd">' + WD_[(i + 1) % 7] + '</span><span class="dn" style="font-size:19px">' + new Date(isoMs(iso)).getUTCDate() + '</span><span class="dc">' + (n ? n + ' lect.' : 'none') + '</span></button>';
+      }).join('') + '</div>' +
+      '<div class="ph-tools">' + search + '<label><span class="sr">Show</span>' + filterSel + '</label></div>' +
+      '<div id="wlist"></div>';
+  } else {
+    wp.innerHTML =
+      '<div id="week-table" class="tools"><div class="l">' +
+      '<button class="round" data-act="prev" aria-label="Previous week"' + (k <= 0 ? ' disabled' : '') + '>' + ICON.left + '</button>' +
+      '<h2 aria-live="polite">Week ' + (k + 1) + ', ' + rangeLabel(k, true) + '</h2>' +
+      '<button class="round" data-act="next" aria-label="Next week"' + (k >= SEM.weeks - 1 ? ' disabled' : '') + '>' + ICON.right + '</button>' +
+      '<button class="pillbtn" data-act="thisweek">This week</button></div>' +
+      '<div class="r">' + search + '<label style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700">Show ' + filterSel + '</label></div></div>' +
+      '<div id="wlist"></div>';
+  }
+  renderWeekList();
+}
+
+function renderWeekList() {
+  var box = $('#wlist');
+  if (!box) return;
+  var phone = !desk(), searching = !!D.q.trim() || D.filter !== 'all';
+  var list;
+  if (searching) list = S.data.lectures.filter(matches);
+  else {
+    var days = weekDays(D.week);
+    list = S.data.lectures.filter(function (l) { return l.date >= days[0] && l.date <= days[4]; });
+    if (phone) list = list.filter(function (l) { return l.date === days[D.day]; });
+  }
+  var dd = $('#ddays');
+  if (dd) dd.style.display = searching ? 'none' : '';
+  var head = searching ? '<div class="matchhead"><h2 aria-live="polite">' + list.length + ' ' + pl(list.length, 'lecture matches', 'lectures match') + '</h2><button class="pillbtn" data-act="clear">Clear</button></div>' : '';
+  var admin = !!S.admin;
+  if (phone) {
+    var prevD = '', html = head;
+    if (!list.length) html += '<div class="empty" style="margin:0">' + (searching ? 'Nothing matches.' : 'No lectures on this day.') + '</div>';
+    html += '<div class="dcards">';
+    list.forEach(function (l, i) {
+      if (searching && l.date !== prevD) { html += '<div class="datehead">' + h(dayLabel_(l.date)) + '</div>'; prevD = l.date; }
+      html += dashCard(l, i, admin);
+    });
+    box.innerHTML = html + '</div>';
+  } else {
+    var rows = '', prev = '';
+    list.forEach(function (l) {
+      var nd = l.date !== prev; prev = l.date;
+      rows += dashRow(l, nd, searching, admin);
+    });
+    box.innerHTML = head + '<div class="tablebox"><table class="lt"><thead><tr><th scope="col" style="width:' + (searching ? 130 : 110) + 'px">When</th><th scope="col">Lecture</th><th scope="col" style="width:' + (admin ? 250 : 170) + 'px">Authors</th><th scope="col" style="width:170px">Status</th><th scope="col" style="width:170px">Files</th></tr></thead><tbody>' +
+      (rows || '<tr><td colspan="5" style="padding:28px 24px;color:#5F6368">' + (searching ? 'Nothing matches.' : 'No lectures this week.') + '</td></tr>') + '</tbody></table></div>' +
+      '<p class="foot">Slides open for the whole class. Sbobine open only for classmates they\'ve been shared with.</p>';
+  }
+}
+
+function topicBlock(l, phone) {
+  var locked = l.topic && (l.src === 'submission' || l.src === 'schedule');
+  if (locked) {
+    return phone ? '<div class="tp">' + h(l.topic) + '</div><div class="src">' + h(srcNote(l)) + '</div>'
+      : '<span class="ltopic"><span class="t">' + h(l.topic) + '</span><span class="src">' + h(srcNote(l)) + '</span></span>';
+  }
+  var inp = '<input class="tin" data-topic="' + h(l.id) + '" value="' + h(l.manual) + '" placeholder="Add the topic" aria-label="Topic of ' + h(lecTitle(l)) + '" maxlength="200">';
+  var note = l.manual ? '<span class="src">Details added by hand</span>' : '';
+  return phone ? inp + (note ? '<div>' + note + '</div>' : '') : '<span class="ltopic" style="align-items:center">' + inp + note + '</span>';
+}
+function whoHtml(l, admin) {
+  if (admin) return authorEditor(l) + (green(l.st) && l.who.join() !== l.asg.join() ? '<span class="subnote">Written by ' + h(l.who.join(', ')) + '</span>' : '');
+  return l.who.length ? '<span class="who">' + h(l.who.join(', ')) + '</span>' : '<span class="who none">Nobody yet</span>';
+}
+function statusExtras(l) {
+  var s = '';
+  if (green(l.st) && l.unrev) s += '<span class="subnote">Not reviewed yet</span>';
+  if (l.together.length) s += '<span class="subnote">Covered together with ' + h(l.together.join(', ')) + '</span>';
+  if (l.removed) s += '<span class="subnote">Removed from the schedule, kept because it has ' + (l.who.length ? 'authors' : 'files') + '</span>';
+  return s;
+}
+function filesHtml(l, pills) {
+  return l.files.map(function (f) {
+    return '<a href="' + h(f.u) + '" target="_blank" rel="noopener"' + (/ pt\d/.test(f.l) ? ' class="pt"' : '') + ' aria-label="' + h(f.l + ' of ' + lecTitle(l)) + '">' + h(f.l) + '</a>';
+  }).join('');
+}
+function dashRow(l, newDay, searching, admin) {
+  var note = S.data.dayNotes[l.date];
+  return '<tr id="lec-' + h(l.id) + '" class="row' + (newDay ? ' newday' : '') + (D.hl === l.id ? ' hl' : '') + '">' +
+    '<td><span style="display:block;font-weight:800">' + (newDay ? h(searching ? dayLabel_(l.date) : dayLabel_(l.date).replace(/ \w+$/, '')) : '') + '</span>' +
+    (newDay && note ? '<span class="daynote" style="margin:4px 0 4px">' + h(note) + '</span>' : '') +
+    '<span style="display:block;font-size:13px;color:#5F6368">' + h(l.start + '–' + l.end) + '</span></td>' +
+    '<td><span class="lname' + (l.removed ? ' rm' : '') + '">' + badge(l.cc) + '<b>' + h(lecTitle(l)) + '</b><span style="color:#3C4043">Prof. ' + h(l.prof) + '</span></span>' + topicBlock(l, false) + '</td>' +
+    '<td>' + whoHtml(l, admin) + '</td>' +
+    '<td style="padding-top:12px">' + spill(l) + statusExtras(l) + '</td>' +
+    '<td><span class="flinks">' + filesHtml(l) + '</span></td></tr>';
+}
+function dashCard(l, i, admin) {
+  return '<article id="lec-' + h(l.id) + '" class="dcard' + (l.removed ? ' rm' : '') + (D.hl === l.id ? ' hl' : '') + '">' +
+    '<div class="r1"><span class="tm">' + h(l.start + '–' + l.end) + '</span>' + spill(l) + '</div>' +
+    '<div class="r2">' + badge(l.cc) + '<b>' + h(lecTitle(l)) + '</b></div>' +
+    '<div class="pf">Prof. ' + h(l.prof) + '</div>' + topicBlock(l, true) +
+    '<div class="au"><span>Authors</span>' + whoHtml(l, admin) + statusExtras(l) + '</div>' +
+    (l.files.length ? '<div class="fpills">' + filesHtml(l) + '</div>' : '') + '</article>';
+}
+
+function jump(id) {
+  var l = byId[id];
+  if (!l) return;
+  D.week = weekOf(l.date); D.day = weekdayOf(l.date); D.hl = id; D.q = ''; D.filter = 'all';
+  $$('#board .cb.on').forEach(function (b) { b.classList.remove('on'); });
+  var chip = $('#board [data-jump="' + id + '"]');
+  if (chip) chip.classList.add('on');
+  renderWeekPart();
+  var el = document.getElementById('lec-' + id);
+  if (!el) return;
+  setTimeout(function () {
+    try { el.scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth', block: 'center' }); } catch (e) { el.scrollIntoView(); }
+    el.classList.add('flash');
+  }, 30);
+}
+
+deskMq.addEventListener && deskMq.addEventListener('change', function () {
+  if (S.page === 'dashboard' && S.data) renderPage({ keep: true });
+});
+
+// =====================================================================================
+// Upload: state
+// =====================================================================================
+var U;
+function resetUpload() {
+  U = { step: 1, week: null, day: null, sel: null, join: true, custom: false, kind: 'sbobina', q: '', f: null, fKey: '', files: { word: null, pdf: null, slides: null },
+    choice: { mode: null, part: null }, busy: false, result: null, lastStep: 1 };
+}
+resetUpload();
+
+function dayList(iso) { return lecturesOn(iso).filter(function (l) { return !l.removed; }); }
+// Another block on the same day, right before or after, with the same professor and module: one lecture split in two
+function pairOf(id) {
+  var l = byId[id];
+  if (!l) return null;
+  var list = dayList(l.date), i = list.findIndex(function (x) { return x.id === id; });
+  var same = function (x) { return x && x.prof === l.prof && x.mkey === l.mkey; };
+  if (same(list[i + 1])) return list[i + 1];
+  if (same(list[i - 1])) return list[i - 1];
+  return null;
+}
+function selIds() {
+  if (U.custom || !U.sel) return [];
+  var p = pairOf(U.sel);
+  var ids = U.join && p ? [U.sel, p.id] : [U.sel];
+  return ids.sort();
+}
+function selLecs() { return selIds().map(function (id) { return byId[id]; }); }
+function numbersOf(lecs) {
+  if (!lecs.length) return '';
+  var ns = lecs.map(function (l) { return l.n; }).sort(function (a, b) { return a - b; });
+  return ns.length > 1 ? ns[0] + '–' + ns[ns.length - 1] : String(ns[0]);
+}
+function timeOf(lecs) { return lecs.length ? lecs[0].start + '–' + lecs[lecs.length - 1].end : ''; }
+function summaryOf() {
+  if (U.custom) {
+    var f = U.f || {};
+    var cc = courseInfo_(f.course || '').code;
+    if (!f.module) return { cc: cc || '?', title: 'Lecture not on the schedule', sub: 'You fill in the details next' };
+    return { cc: cc, title: lectureTitle_(f.module, f.numbers || '?'), sub: (f.date ? dayLabel_(normIso(f.date)) + ', ' : '') + (f.time || '') + (f.professor ? ', Prof. ' + f.professor : '') };
+  }
+  var lecs = selLecs();
+  if (!lecs.length) return null;
+  var l = lecs[0];
+  return { cc: l.cc, title: lectureTitle_(l.module, numbersOf(lecs)), sub: dayLabel_(l.date) + ', ' + timeOf(lecs) + ', Prof. ' + l.prof };
+}
+function normIso(s) {
+  var m = String(s || '').trim().match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{4})$/);
+  if (m) return m[3] + '-' + pad(+m[2]) + '-' + pad(+m[1]);
+  m = String(s || '').trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  return m ? s.trim() : '';
+}
+function isoToDmy(iso) { var p = String(iso || '').split('-'); return p.length === 3 ? p[2] + '/' + p[1] + '/' + p[0] : ''; }
+
+function stepLabels() { return ['Lecture', U.step === 2 ? 'Type' : (U.kind === 'slides' ? 'Slides' : 'Sbobina'), 'Details', 'Upload']; }
+function hsteps(step) {
+  var from = Math.min(U.lastStep, step);
+  return '<ol class="hsteps ph" aria-label="Steps"><span aria-hidden="true" class="track"></span><span aria-hidden="true" class="fill" style="width:' + ((from - 1) * 25) + '%" data-to="' + ((step - 1) * 25) + '"></span>' +
+    stepLabels().map(function (lab, i) {
+      var n = i + 1, cls = n < step ? 'done' : n === step ? 'cur' : '';
+      return '<li' + (n === step ? ' aria-current="step"' : '') + '><span class="sdot ' + cls + '">' + (n < step ? '✓' : '') + '</span><span class="slab' + (n === step ? ' cur' : '') + '">' + lab + '</span></li>';
+    }).join('') + '</ol>';
+}
+function vsteps(step) {
+  var from = U.lastStep;
+  return '<ol class="vsteps" aria-label="Steps">' + stepLabels().map(function (lab, i) {
+    var n = i + 1, cls = n < step ? 'done' : n === step ? 'cur' : '';
+    var vl = n < 4 ? '<span aria-hidden="true" class="vl' + (n < Math.min(from, step) ? ' done' : '') + '" data-done="' + (n < step) + '"><i></i></span>' : '';
+    return '<li' + (n === step ? ' aria-current="step"' : '') + '>' + vl + '<span class="sdot ' + cls + '">' + (n < step ? '✓' : '') + '</span><span class="slab' + (n === step ? ' cur' : '') + '">' + lab + '</span></li>';
+  }).join('') + '</ol>';
+}
+// The filled part of the progress line grows to the new step
+function growSteps() {
+  requestAnimationFrame(function () {
+    requestAnimationFrame(function () {
+      $$('.hsteps .fill').forEach(function (f) { f.style.width = f.getAttribute('data-to') + '%'; });
+      $$('.vsteps .vl').forEach(function (v) { v.classList.toggle('done', v.getAttribute('data-done') === 'true'); });
+    });
+  });
+}
+function summaryHtml(extra) {
+  var s = summaryOf();
+  if (!s) return '';
+  return '<div class="summary">' + badge(s.cc, ';margin-top:2px') + '<div style="flex:1 1 auto;min-width:0"><div class="t">' + h(s.title) + (U.step >= 3 && U.kind === 'slides' ? ', slides' : '') + '</div><div class="s">' + h(s.sub) + '</div>' + (extra || '') + '</div>' +
+    (U.step === 2 ? '<button class="linkbtn" data-u="change" style="font-size:14px">Change</button>' : '') + '</div>';
+}
+
+function renderUpload(v, opt) {
+  if (U.step === 'done') return renderDone(v);
+  if (U.step === 1) renderPick(v);
+  else if (U.step === 2) renderType(v);
+  else if (U.step === 3) renderDetails(v);
+  else renderFiles(v);
+  growSteps();
+  U.lastStep = U.step;
+}
+function toStep(n) {
+  U.step = n;
+  swap(function () { renderPage(); });
+}
+
+// =====================================================================================
+// Upload step 1: pick the lecture
+// =====================================================================================
+function renderPick(v) {
+  if (U.week === null) { U.week = curWeek(); U.day = weekOf(S.data.today) === U.week ? Math.min(4, weekdayOf(S.data.today)) : 0; }
+  v.innerHTML =
+    '<div class="wrap"><div class="cols"><div class="main">' +
+    '<h1 class="big rise">Which lecture did you write up or bring slides for?</h1>' +
+    '<label class="searchbox">' + ICON.search + '<span class="sr">Search all weeks</span><input type="search" id="uq" value="' + h(U.q) + '" placeholder="Search every week: professor, module or topic" autocomplete="off"></label>' +
+    '<div id="pickbody"></div>' +
+    '<p class="customlink">Lecture not on the schedule? <button class="linkbtn" data-u="custom">Enter it yourself</button></p>' +
+    '</div><aside class="aside dk" aria-label="Your selection" id="pickaside"></aside></div></div>' +
+    '<div class="bottombar ph" id="pickbar"></div>';
+  renderPickBody();
+  renderPickCta();
+  v.oninput = function (e) { if (e.target.id === 'uq') { U.q = e.target.value; renderPickBody(); } };
+  v.onclick = function (e) {
+    var t = e.target.closest('[data-u]');
+    if (!t) return;
+    var a = t.getAttribute('data-u');
+    if (a === 'prev') { U.week = Math.max(0, U.week - 1); U.day = 0; renderPickBody(); }
+    else if (a === 'next') { U.week = Math.min(SEM.weeks - 1, U.week + 1); U.day = 0; renderPickBody(); }
+    else if (a === 'today') { U.week = curWeek(); U.day = Math.min(4, weekdayOf(S.data.today)); renderPickBody(); }
+    else if (a === 'day') { U.day = +t.getAttribute('data-day'); updateDayTabs(); renderPickList(); }
+    else if (a === 'pick') {
+      var id = t.getAttribute('data-id'), fromSearch = !!U.q.trim();
+      U.sel = id; U.join = true; U.custom = false; U.f = null;
+      if (fromSearch) { var l = byId[id]; U.q = ''; $('#uq').value = ''; U.week = weekOf(l.date); U.day = weekdayOf(l.date); renderPickBody(); }
+      else updatePickSelection();
+      renderPickCta();
+    }
+    else if (a === 'join') { U.join = !U.join; updatePickSelection(); renderPickCta(); }
+    else if (a === 'custom') { U.custom = true; U.sel = null; U.f = null; toStep(2); }
+    else if (a === 'continue') { if (U.sel) toStep(2); }
+  };
+}
+
+function renderPickBody() {
+  var body = $('#pickbody');
+  if (!body) return;
+  if (U.q.trim()) {
+    var q = U.q.trim().toLowerCase();
+    var res = S.data.lectures.filter(function (l) {
+      if (l.removed) return false;
+      var hay = [l.module, l.abbr, l.prof, l.topic, courseInfo_(l.course).name, 'l' + l.n, l.who.join(' ')].join(' | ').toLowerCase();
+      return q.split(/\s+/).every(function (w) { return hay.indexOf(w) >= 0; });
+    });
+    var html = '<div class="dayhead" style="margin-left:40px"><h2 aria-live="polite">' + res.length + ' ' + pl(res.length, 'lecture', 'lectures') + ' found</h2></div>', prev = '';
+    if (!res.length) html += '<div class="empty">Nothing matches. Try a professor\'s surname or the module name.</div>';
+    html += '<ol class="metro">';
+    res.slice(0, 60).forEach(function (l, i) {
+      if (l.date !== prev) { html += '<li class="reshead">' + h(dayLabel_(l.date)) + '</li>'; prev = l.date; }
+      html += stopItem(l, i === 0 || res[i - 1].date !== l.date, i === res.length - 1 || res[i + 1].date !== l.date, false);
+    });
+    body.innerHTML = html + '</ol>';
+    return;
+  }
+  var k = U.week, days = weekDays(k), todayIso = S.data.today;
+  body.innerHTML =
+    '<div class="weeknav"><button class="round" data-u="prev" aria-label="Previous week"' + (k <= 0 ? ' disabled' : '') + '>' + ICON.left + '</button>' +
+    '<div class="mid"><b>' + rangeLabel(k, true) + '</b><span>Week ' + (k + 1) + ' of ' + SEM.weeks + (days.indexOf(todayIso) < 0 || U.day !== weekdayOf(todayIso) ? ' · <button class="linkbtn" data-u="today" style="color:#5F6368;font-weight:700">Today</button>' : '') + '</span></div>' +
+    '<button class="round" data-u="next" aria-label="Next week"' + (k >= SEM.weeks - 1 ? ' disabled' : '') + '>' + ICON.right + '</button></div>' +
+    '<div class="days" role="tablist" aria-label="Day" id="udays">' + days.map(function (iso, i) {
+      return '<button class="dtab" role="tab" data-u="day" data-day="' + i + '" aria-selected="' + (i === U.day) + '"><span class="wd">' + WD_[(i + 1) % 7] + '</span><span class="dn">' + new Date(isoMs(iso)).getUTCDate() + '</span><span class="dd" data-today="' + (iso === todayIso) + '"></span></button>';
+    }).join('') + '</div>' +
+    '<div id="picklist"></div>';
+  updateDayTabs();
+  renderPickList();
+}
+function updateDayTabs() {
+  $$('#udays .dtab').forEach(function (b, i) {
+    var on = i === U.day;
+    b.setAttribute('aria-selected', on);
+    var dot = $('.dd', b);
+    dot.style.background = dot.getAttribute('data-today') === 'true' ? (on ? '#FFFFFF' : '#2457D6') : 'transparent';
+  });
+}
+function statusText(l) {
+  var who = l.who.join(', ');
+  if (l.st === 'submitted') return 'Submitted by ' + who;
+  if (l.st === 'reused') return "Last year's sbobina, minor edits" + (who ? ', by ' + who : '');
+  if (l.st === 'reused-asis') return "Last year's sbobina, used as is" + (who ? ', by ' + who : '');
+  if (l.st === 'writing') return who + (l.who.length > 1 ? ' are' : ' is') + ' writing it';
+  if (l.st === 'assigned') return 'To be held, ' + pl(l.who.length, 'author', 'authors') + ': ' + who;
+  if (l.st === 'overdue') return 'Overdue, ' + pl(l.who.length, 'author', 'authors') + ': ' + who;
+  return 'No authors yet';
+}
+function stopItem(l, first, last, withJoinSlot) {
+  var c = ccol(l.cc), hollow = l.st === 'assigned', g = ST[l.st].glyph;
+  var stop = 'color:' + (hollow ? c : '#FFFFFF') + ';background:' + (hollow ? '#FFFFFF' : c) + ';border-color:' + (hollow ? c : '#FFFFFF') + ';box-shadow:0 0 0 2px ' + c;
+  return '<li data-li="' + h(l.id) + '"><div class="stoprow"><div class="rail"><span aria-hidden="true" class="bar" style="background:' + c + ';top:' + (first ? '30px' : '0') + ';bottom:' + (last ? 'calc(100% - 34px)' : '0') + '"></span>' +
+    '<span aria-hidden="true" class="stop" style="' + stop + '">' + g + '</span></div>' +
+    '<button class="lcard" data-u="pick" data-id="' + h(l.id) + '" aria-pressed="false">' +
+    '<span class="r1"><span class="tm">' + h(l.start + '–' + l.end) + '</span>' + badge(l.cc) + '</span>' +
+    '<span class="tt">' + h(lecTitle(l)) + '</span><span class="pf">Prof. ' + h(l.prof) + '</span>' +
+    (l.topic ? '<span class="tp">' + h(l.topic) + '</span>' : '') +
+    '<span class="sr2' + (l.st === 'overdue' ? ' overdue' : '') + '"><span aria-hidden="true" class="mini st-' + l.st + '">' + g + '</span><span>' + h(statusText(l)) + '</span></span></button></div>' +
+    (withJoinSlot ? '<div class="joinslot"></div>' : '') + '</li>';
+}
+function renderPickList() {
+  var box = $('#picklist');
+  if (!box) return;
+  var iso = weekDays(U.week)[U.day], list = dayList(iso), note = S.data.dayNotes[iso], d = new Date(isoMs(iso));
+  var title = WDL[U.day] + ' ' + d.getUTCDate() + ' ' + MONL[d.getUTCMonth()] + (iso === S.data.today ? ', today' : '');
+  box.innerHTML = '<div class="dayhead"><h2>' + h(title) + (note ? '<span class="daynote">' + h(note) + '</span>' : '') + '</h2><span>' + list.length + ' ' + pl(list.length, 'lecture', 'lectures') + '</span></div>' +
+    (list.length ? '<ol class="metro">' + list.map(function (l, i) { return stopItem(l, i === 0, i === list.length - 1, true); }).join('') + '</ol>'
+      : '<div class="empty" style="margin-left:0">No lectures on this day' + (note ? ' (' + h(note) + ')' : '') + '.</div>');
+  updatePickSelection();
+}
+// Selection changes in place, so the colours cross-fade instead of jumping
+function updatePickSelection() {
+  var ids = selIds();
+  $$('#pickbody .lcard').forEach(function (b) {
+    var on = ids.indexOf(b.getAttribute('data-id')) >= 0;
+    b.classList.toggle('sel', on);
+    b.setAttribute('aria-pressed', on);
+  });
+  $$('#pickbody .joinslot').forEach(function (s) { s.innerHTML = ''; });
+  var p = U.sel && pairOf(U.sel);
+  if (!p) return;
+  var a = byId[U.sel], firstId = a.id < p.id ? a.id : p.id;
+  var li = $('#pickbody li[data-li="' + firstId + '"] .joinslot');
+  if (!li) return;
+  var joined = U.join, nums = numbersOf([a, p]);
+  li.innerHTML = '<div class="stoprow"><div class="rail"><span aria-hidden="true" class="bar" style="background:' + ccol(a.cc) + '"></span></div>' +
+    '<button class="joinbtn drop" data-u="join" aria-pressed="' + joined + '"><span aria-hidden="true" class="bx">' + (joined ? '✓' : '+') + '</span><span>' +
+    '<b>' + (joined ? 'Both blocks selected' : 'Same lecture continues') + '</b>' +
+    '<small>' + (joined ? 'One upload for L' + nums + '. Tap to select only one block.' : 'Prof. ' + h(p.prof) + ' again at ' + (p.id > a.id ? p.start : a.start) + '. Tap to select both blocks.') + '</small></span></button></div>';
+}
+function futureNote(lecs) {
+  var f = lecs.filter(function (l) { return l.date > S.data.today; })[0];
+  return f ? '<p style="margin:10px 0 0;font-size:13px;line-height:1.4;font-weight:700;color:#5F6368">This lecture is on ' + h(dayLabel_(f.date)) + '. You can upload the slides now; the sbobina opens that day.</p>' : '';
+}
+function existingNote(lecs) {
+  var sb = lecs.some(function (l) { return l.sb.length; }), sl = lecs.some(function (l) { return l.sl.length; });
+  if (!sb && !sl) return '';
+  return '<p class="note-warn">Already has ' + (sb && sl ? 'a sbobina and slides' : sb ? 'a sbobina' : 'slides') + '. You can replace it or add yours as another part on the last step.</p>';
+}
+function renderPickCta() {
+  var s = summaryOf(), lecs = selLecs(), aside = $('#pickaside'), bar = $('#pickbar');
+  if (aside) {
+    aside.innerHTML = s ? '<span style="display:block;font-size:13px;font-weight:700;color:#5F6368">You picked</span>' +
+      '<div style="display:flex;align-items:center;gap:10px;margin-top:8px">' + badge(s.cc, ';height:24px;min-width:32px') + '<span style="font-size:22px;font-weight:900">' + h(s.title) + '</span></div>' +
+      '<span style="display:block;font-size:15px;color:#3C4043;margin-top:6px">' + h(s.sub) + '</span>' + existingNote(lecs) + futureNote(lecs) +
+      '<button class="btn wide" data-u="continue" style="margin-top:20px">Continue</button>' +
+      '<p style="margin:14px 0 0;font-size:13px;line-height:1.45;color:#5F6368">Next you choose between a sbobina and slides, then confirm the details.</p>'
+      : '<span style="display:block;font-size:13px;font-weight:700;color:#5F6368">Nothing picked yet</span><p style="margin:8px 0 0;font-size:15px;line-height:1.45;color:#3C4043">Tap the lecture you wrote up or brought slides for. Use the search to find one from another week.</p>' +
+      '<button class="btn wide" disabled style="margin-top:20px">Continue</button>';
+  }
+  if (bar) {
+    bar.innerHTML = s ? '<button class="btn" data-u="continue">' + badge(s.cc, ';height:24px;min-width:32px') + '<span>Continue with ' + h(s.title) + '</span></button>'
+      : '<button class="btn" disabled>Pick a lecture to continue</button>';
+  }
+}
+
+// =====================================================================================
+// Upload step 2: sbobina or slides
+// =====================================================================================
+function futureLecture() {
+  var lecs = U.custom ? [] : selLecs();
+  return lecs.filter(function (l) { return l.date > S.data.today; })[0] || null;
+}
+function renderType(v) {
+  var fut = futureLecture();
+  if (fut && U.kind === 'sbobina') U.kind = 'slides';
+  var s = summaryOf() || { cc: '?', title: '', sub: '' }, k = U.kind;
+  var cta = k === 'sbobina' ? 'Continue with the sbobina' : 'Continue with the slides';
+  v.innerHTML =
+    '<div class="wrap"><div class="cols"><div class="main">' + hsteps(2) +
+    '<div class="darksum ph">' + badge(s.cc) + '<div style="flex:1 1 auto;min-width:0"><div class="t">' + h(s.title) + '</div><div class="s">' + h(s.sub) + '</div></div><button class="linkbtn" data-u="change">Change</button></div>' +
+    '<h1 class="big rise" style="margin-top:' + (desk() ? '4px' : '26px') + '">What are you uploading?</h1>' +
+    '<div role="radiogroup" aria-label="What are you uploading?" class="choices">' +
+    choice('sbobina', 'Sbobina', fut ? 'Opens on ' + dayLabel_(fut.date) + ', the day of the lecture. You can upload the slides now.' : 'The written-up lecture, as a Word file, a PDF or both. Just the Word file is fine: we make the PDF. Shared with the group only.', ICON.doc, !!fut) +
+    choice('slides', 'Slides', 'The professor\'s slides, as a PDF or PowerPoint. A PowerPoint is fine: we make the PDF. Open to the whole class.', ICON.screen) + '</div>' +
+    '<p style="margin:16px 2px 0;font-size:14px;line-height:1.45;color:#5F6368">Have both? Upload one, then come back for the other. Slides don\'t count as the sbobina.</p>' +
+    '</div><aside class="aside dk" aria-label="Your upload">' + vsteps(2) + summaryHtml() +
+    '<button class="btn wide" data-u="next" style="margin-top:20px" id="typecta">' + cta + '</button><button class="btn2 wide" data-u="back" style="margin-top:10px">Back</button></aside></div></div>' +
+    '<div class="bottombar ph"><button class="btn2" data-u="back">Back</button><button class="btn" data-u="next" id="typecta2">' + cta + '</button></div>';
+  v.onclick = function (e) {
+    var t = e.target.closest('[data-u]');
+    if (!t) return;
+    var a = t.getAttribute('data-u');
+    if (a === 'kind') {
+      U.kind = t.getAttribute('data-k');
+      $$('.choice', v).forEach(function (b) { b.setAttribute('aria-checked', b.getAttribute('data-k') === U.kind); });
+      var txt = U.kind === 'sbobina' ? 'Continue with the sbobina' : 'Continue with the slides';
+      $('#typecta').textContent = txt; $('#typecta2').textContent = txt;
+    }
+    if (a === 'next') toStep(3);
+    if (a === 'back' || a === 'change') toStep(1);
+  };
+  function choice(k2, title, desc, icon, off) {
+    return '<button class="choice" role="radio" data-u="kind" data-k="' + k2 + '" aria-checked="' + (k === k2) + '"' + (off ? ' disabled aria-disabled="true"' : '') + '><span aria-hidden="true" class="ic">' + icon + '</span><span class="tx"><b>' + title + '</b><span>' + desc + '</span></span><span aria-hidden="true" class="radio"></span></button>';
+  }
+}
+
+// =====================================================================================
+// Upload step 3: confirm the details
+// =====================================================================================
+function myName() { return store.get('sb.me') || ''; }
+function prefill() {
+  var key = (U.custom ? 'custom' : selIds().join(',')) + '|' + U.kind;
+  if (U.f && U.fKey === key) return;
+  var lecs = selLecs(), old = U.f;
+  U.fKey = key;
+  if (U.custom) {
+    U.f = { course: '', module: '', numbers: '', date: '', time: '', professor: '', topics: { custom: '' }, authors: myName() ? [myName()] : [], reviewed: false, reviewers: [], uploadedBy: myName(), notes: '', reused: false, reuseEdits: '', reuseSource: '' };
+  } else {
+    var l = lecs[0], topics = {};
+    lecs.forEach(function (x) { topics[x.id] = x.topic || ''; });
+    var asg = [];
+    lecs.forEach(function (x) { asg = asg.concat(x.asg); });
+    asg = asg.filter(function (n, i) { return asg.indexOf(n) === i; });
+    U.f = { course: l.course, module: l.module, numbers: numbersOf(lecs), date: isoToDmy(l.date), time: timeOf(lecs), professor: l.prof, topics: topics,
+      authors: asg.length ? asg : (myName() ? [myName()] : []), reviewed: false, reviewers: [], uploadedBy: myName(), notes: '', reused: false, reuseEdits: '', reuseSource: '' };
+  }
+  if (old) { U.f.notes = old.notes; }
+}
+function topicKeys() { return U.custom ? ['custom'] : selIds(); }
+function renderDetails(v) {
+  prefill();
+  var f = U.f, sb = U.kind === 'sbobina', lecs = selLecs();
+  var courseOpts = '<option value="">Choose the course</option>' + COURSES.map(function (c) { return '<option value="' + h(c.key) + '"' + (f.course === c.key ? ' selected' : '') + '>' + h(c.name) + '</option>'; }).join('');
+  var topicsHtml = topicKeys().map(function (id) {
+    var l = byId[id], lab = U.custom || topicKeys().length === 1 ? 'Topic' : 'Topic of L' + l.n + ', ' + l.start + '–' + l.end;
+    return '<label class="fld">' + h(lab) + (topicKeys().length === 1 ? ' <span class="opt">Required</span>' : '') +
+      '<textarea class="ta" rows="2" data-f="topic" data-id="' + h(id) + '" maxlength="200" placeholder="What the lecture was about">' + h(f.topics[id] || '') + '</textarea></label>';
+  }).join('');
+  var lead = U.custom ? 'This lecture isn\'t on the schedule, so fill in everything. It will be added to the dashboard.'
+    : sb ? 'Filled in from the schedule. Fix anything that\'s off before you upload.'
+      : 'Slides go into the course\'s public Slides folder, so anyone in the class with the link can open them. They don\'t change the lecture\'s status.';
+  var people = sb ? (
+    '<section aria-labelledby="sec-people" class="card"><h2 id="sec-people">Who worked on it</h2>' +
+    '<div style="display:flex;flex-direction:column;gap:8px"><span id="lbl-au" style="font-size:14px;font-weight:700">Authors</span><div id="list-authors"></div></div>' +
+    '<div style="border-top:1px solid #E8EAED;padding-top:14px;display:flex;flex-direction:column;gap:10px">' +
+    '<div class="swrow"><span id="lbl-rev">This sbobina has been reviewed</span><button class="sw" role="switch" aria-labelledby="lbl-rev" aria-checked="' + f.reviewed + '" data-sw="reviewed"><span class="knob"></span></button></div>' +
+    '<div id="revbox"></div></div></section>' +
+    '<section aria-labelledby="sec-old" class="card"><h2 id="sec-old">Last year\'s sbobina</h2>' +
+    '<div class="swrow"><span id="lbl-old">This lecture matched last year\'s, so the old sbobina applies</span><button class="sw" role="switch" aria-labelledby="lbl-old" aria-checked="' + f.reused + '" data-sw="reused"><span class="knob"></span></button></div>' +
+    '<div id="oldbox" style="display:flex;flex-direction:column;gap:14px"></div></section>' +
+    '<section class="card"><label class="fld">Notes for the group <span class="opt">Optional, shown in the email</span><textarea class="ta" rows="3" data-f="notes" maxlength="1000" style="font-weight:500" placeholder="e.g. Audio cut out for the last 10 minutes">' + h(f.notes) + '</textarea></label></section>'
+  ) : (
+    '<section aria-label="About the slides" class="card">' + topicsHtml +
+    '<label class="fld">Uploaded by<input class="inp" data-f="uploadedBy" value="' + h(f.uploadedBy) + '" list="names-dl" autocomplete="name" placeholder="Your name and surname"></label>' +
+    '<label class="fld">Notes <span class="opt">Optional, shown in the email</span><textarea class="ta" rows="2" data-f="notes" maxlength="1000" style="font-weight:500" placeholder="e.g. Updated version the professor sent after class">' + h(f.notes) + '</textarea></label></section>'
+  );
+  v.innerHTML =
+    '<div class="wrap" style="padding-bottom:36px"><div class="cols"><div class="main">' + hsteps(3) +
+    '<h1 class="big rise" style="margin-bottom:6px">Confirm the details</h1><p class="lead">' + lead + '</p>' +
+    '<section aria-labelledby="sec-lecture" class="card"><h2 id="sec-lecture">Lecture</h2>' +
+    '<label class="fld">Course<select class="inp" data-f="course">' + courseOpts + '</select></label>' +
+    '<div class="dgrid">' +
+    '<label class="fld">Module<input class="inp" data-f="module" value="' + h(f.module) + '" placeholder="e.g. Neurology"></label>' +
+    '<label class="fld">' + (lecs.length > 1 ? 'Lecture numbers' : 'Lecture number') + '<input class="inp" data-f="numbers" value="' + h(f.numbers) + '" inputmode="numeric" placeholder="e.g. 12"></label>' +
+    '<label class="fld">Date<input class="inp" data-f="date" value="' + h(f.date) + '" placeholder="dd/mm/yyyy" inputmode="numeric"></label>' +
+    '<label class="fld">Time<input class="inp" data-f="time" value="' + h(f.time) + '" placeholder="08:30–10:30"></label>' +
+    '<label class="fld">Professor<input class="inp" data-f="professor" value="' + h(f.professor) + '" placeholder="Surname"></label>' +
+    '</div></section>' +
+    (sb ? '<section aria-labelledby="sec-topics" class="card"><div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px"><h2 id="sec-topics">' + (topicKeys().length > 1 ? 'Topics' : 'Topic') + '</h2><span style="font-size:13px;font-weight:600;color:#5F6368">' + (topicKeys().length > 1 ? 'Required, one per block' : 'Required') + '</span></div>' + topicsHtml + '</section>' : '') +
+    people +
+    '<div id="derr"></div>' +
+    '<div class="ph" style="margin-top:24px"><div style="display:flex;gap:10px"><button class="btn2" data-u="back" style="height:56px;font-size:16px">Back</button><button class="btn" data-u="next" style="flex:1 1 auto">Continue to upload</button></div></div>' +
+    '</div><aside class="aside dk" aria-label="Your upload">' + vsteps(3) + '<div id="dsum">' + summaryHtml() + '</div>' +
+    '<button class="btn wide" data-u="next" style="margin-top:20px">Continue to upload</button><button class="btn2 wide" data-u="back" style="margin-top:10px">Back</button></aside></div></div>';
+  if (sb) { renderNameList('authors'); renderRevBox(false); renderOldBox(false); }
+  v.oninput = function (e) {
+    var t = e.target, k = t.getAttribute('data-f');
+    if (!k) return;
+    if (k === 'topic') f.topics[t.getAttribute('data-id')] = t.value;
+    else f[k] = t.value;
+    t.classList.remove('bad');
+    if (U.custom && ['course', 'module', 'numbers', 'date', 'time', 'professor'].indexOf(k) >= 0) $('#dsum').innerHTML = summaryHtml();
+  };
+  v.onchange = v.oninput;
+  v.onclick = function (e) {
+    var sw = e.target.closest('[data-sw]');
+    if (sw) {
+      var key = sw.getAttribute('data-sw');
+      f[key] = !f[key];
+      sw.setAttribute('aria-checked', f[key]);
+      if (key === 'reviewed') renderRevBox(true); else renderOldBox(true);
+      return;
+    }
+    var t = e.target.closest('[data-u]');
+    if (!t) return;
+    var a = t.getAttribute('data-u');
+    if (a === 'edits') { f.reuseEdits = t.getAttribute('data-v'); $$('[data-u="edits"]', v).forEach(function (b) { b.setAttribute('aria-checked', b.getAttribute('data-v') === f.reuseEdits); }); }
+    if (a === 'back') toStep(2);
+    if (a === 'next') { if (validateDetails()) { if (!sb) store.set('sb.me', f.uploadedBy.trim(), true); toStep(4); } }
+  };
+}
+function renderRevBox(animate) {
+  var f = U.f, box = $('#revbox');
+  if (!box) return;
+  if (f.reviewed) {
+    box.innerHTML = '<div class="' + (animate ? 'drop' : '') + '" style="display:flex;flex-direction:column;gap:8px"><span id="lbl-revs" style="font-size:14px;font-weight:700">Reviewers</span><div id="list-reviewers"></div></div>';
+    renderNameList('reviewers', animate && !f.reviewers.length);
+  } else {
+    box.innerHTML = '<p class="' + (animate ? 'drop' : '') + '" style="margin:0;font-size:14px;line-height:1.4;color:#5F6368">It will be marked "Not reviewed yet" in the Drive. A reviewed version can be uploaded later.</p>';
+  }
+}
+function renderOldBox(animate) {
+  var f = U.f, box = $('#oldbox');
+  if (!box) return;
+  box.style.display = f.reused ? 'flex' : 'none';
+  if (!f.reused) { box.innerHTML = ''; return; }
+  box.innerHTML = '<div class="opt2' + (animate ? ' drop' : '') + '" role="radiogroup" aria-label="Edits to last year\'s sbobina">' +
+    '<button class="optb" role="radio" data-u="edits" data-v="no edits" aria-checked="' + (f.reuseEdits === 'no edits') + '">Used as is</button>' +
+    '<button class="optb" role="radio" data-u="edits" data-v="minor edits" aria-checked="' + (f.reuseEdits === 'minor edits') + '">Minor edits made</button></div>' +
+    '<label class="fld' + (animate ? ' drop' : '') + '">Original sbobina <span class="opt">Year or author, optional</span><input class="inp" data-f="reuseSource" value="' + h(f.reuseSource) + '" placeholder="e.g. 2025/26, Rossi" maxlength="120"></label>';
+}
+// One or more names as chips, with "+ Add another …"
+function renderNameList(which, focus) {
+  var box = $('#list-' + which);
+  if (!box) return;
+  var list = U.f[which], noun = which === 'authors' ? 'author' : 'reviewer';
+  box.innerHTML = '<div style="display:flex;flex-wrap:wrap;gap:8px' + (list.length ? ';margin-bottom:8px' : '') + '" aria-labelledby="' + (which === 'authors' ? 'lbl-au' : 'lbl-revs') + '">' + list.map(function (n, i) {
+    return '<span class="chip">' + h(n) + '<button class="chipx" data-rm="' + i + '" aria-label="Remove ' + h(n) + '">×</button></span>';
+  }).join('') + '</div>' +
+    (list.length ? '<button class="add" data-addlist>+ Add another ' + noun + '</button>'
+      : '<input class="addin" data-newname list="names-dl" autocomplete="off" placeholder="Name and surname" aria-label="Add ' + (which === 'authors' ? 'an author' : 'a reviewer') + '" style="width:100%;max-width:340px">');
+  box.onclick = function (e) {
+    var rm = e.target.closest('[data-rm]');
+    if (rm) { U.f[which].splice(+rm.getAttribute('data-rm'), 1); renderNameList(which, true); return; }
+    if (e.target.closest('[data-addlist]')) {
+      var btn = e.target.closest('[data-addlist]'), inp = document.createElement('input');
+      inp.className = 'addin drop'; inp.setAttribute('data-newname', ''); inp.setAttribute('list', 'names-dl'); inp.autocomplete = 'off';
+      inp.placeholder = 'Name and surname'; inp.setAttribute('aria-label', 'Add another ' + noun);
+      btn.replaceWith(inp); inp.focus();
+    }
+  };
+  box.onkeydown = function (e) {
+    if (e.target.hasAttribute('data-newname') && (e.key === 'Enter' || e.key === ',')) { e.preventDefault(); addListName(which, e.target, false); }
+  };
+  if (!box.dataset.wired) {
+    box.dataset.wired = '1';
+    box.addEventListener('focusout', function (e) { if (e.target.hasAttribute && e.target.hasAttribute('data-newname') && e.target.value.trim()) addListName(which, e.target, true); });
+  }
+  if (focus) { var i = $('[data-newname]', box); if (i) i.focus(); }
+}
+function addListName(which, inp, blur) {
+  var n = inp.value.replace(/,/g, ' ').replace(/\s+/g, ' ').trim(), list = U.f[which];
+  inp.value = '';
+  if (!n) return;
+  if (!list.some(function (x) { return x.toLowerCase() === n.toLowerCase(); })) list.push(n);
+  renderNameList(which, false);
+  if (!blur) { var b = $('#list-' + which + ' [data-addlist]'); if (b) b.focus(); }
+}
+function validateDetails() {
+  var f = U.f, sb = U.kind === 'sbobina', miss = [], v = $('#view');
+  $$('.bad', v).forEach(function (x) { x.classList.remove('bad'); });
+  var bad = function (sel, what) { var el = $(sel, v); if (el) el.classList.add('bad'); miss.push(what); };
+  // a half-typed name counts
+  $$('[data-newname]', v).forEach(function (inp) { if (inp.value.trim()) { var which = inp.closest('#list-authors') ? 'authors' : 'reviewers'; var n = inp.value.trim(); if (f[which].indexOf(n) < 0) f[which].push(n); } });
+  if (!f.course) bad('[data-f="course"]', 'the course');
+  if (!String(f.module).trim()) bad('[data-f="module"]', 'the module');
+  if (!String(f.numbers).trim()) bad('[data-f="numbers"]', 'the lecture number');
+  if (!normIso(f.date)) bad('[data-f="date"]', 'the date as dd/mm/yyyy');
+  else if (sb && U.custom && normIso(f.date) > S.data.today) bad('[data-f="date"]', 'a date that isn\'t in the future (a sbobina can be uploaded from the day of the lecture)');
+  if (!/^\s*\d{1,2}[:.]\d{2}\s*[-–—]\s*\d{1,2}[:.]\d{2}\s*$/.test(f.time)) bad('[data-f="time"]', 'the time like 08:30–10:30');
+  if (!String(f.professor).trim()) bad('[data-f="professor"]', 'the professor');
+  topicKeys().forEach(function (id) { if (!String(f.topics[id] || '').trim()) bad('[data-f="topic"][data-id="' + id + '"]', 'the topic'); });
+  if (sb) {
+    if (!f.authors.length) bad('#list-authors [data-newname]', 'at least one author');
+    if (f.reviewed && !f.reviewers.length) bad('#list-reviewers [data-newname]', 'at least one reviewer');
+    if (f.reused && !f.reuseEdits) miss.push('whether last year\'s sbobina was edited');
+  } else if (!String(f.uploadedBy).trim()) bad('[data-f="uploadedBy"]', 'who is uploading the slides');
+  var box = $('#derr');
+  if (!miss.length) { box.innerHTML = ''; return true; }
+  var uniq = miss.filter(function (m, i) { return miss.indexOf(m) === i; });
+  box.innerHTML = '<div class="err-box drop" role="alert">Before you upload, add ' + h(andList(uniq)) + '.</div>';
+  var first = $('.bad', v);
+  if (first) { first.focus(); try { first.scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth', block: 'center' }); } catch (e) {} }
+  else box.scrollIntoView();
+  return false;
+}
+
+// =====================================================================================
+// Upload step 4: files, existing parts, upload
+// =====================================================================================
+var ACCEPT = { word: ['docx', 'doc', 'odt'], pdf: ['pdf'], slides: ['pptx', 'ppt', 'pdf'] };
+var MAXMB = { word: 25, pdf: 25, slides: 50 };
+function ext(name) { var m = String(name).toLowerCase().match(/\.([a-z0-9]+)$/); return m ? m[1] : ''; }
+function existingParts() {
+  var key = U.kind === 'slides' ? 'sl' : 'sb', parts = {};
+  selLecs().forEach(function (l) {
+    l[key].forEach(function (p) {
+      var e = parts[p.part] || (parts[p.part] = { part: p.part, by: [], at: p.at, url: p.url, ids: {} });
+      if (!e.ids[p.id]) { e.ids[p.id] = 1; e.by = e.by.concat(p.by); }
+    });
+  });
+  return Object.keys(parts).map(Number).sort(function (a, b) { return a - b; }).map(function (n) { return parts[n]; });
+}
+function partFor(parts) {
+  if (!parts.length) return 1;
+  if (U.choice.mode === 'replace') return U.choice.part || 1;
+  if (U.choice.mode === 'add') return parts[parts.length - 1].part + 1;
+  return 1;
+}
+function fileNamePreview(parts) {
+  var f = U.f;
+  return fileBase_({ module: f.module, numbers: f.numbers, part: partFor(parts), topics: topicKeys().map(function (id) { return f.topics[id]; }), prof: f.professor, slides: U.kind === 'slides' });
+}
+function renderFiles(v) {
+  var sb = U.kind === 'sbobina', parts = U.custom ? [] : existingParts(), f = U.f, course = courseInfo_(f.course);
+  if (parts.length >= MAX_PARTS && U.choice.mode === 'add') U.choice.mode = null;
+  var lt = lectureTitle_(f.module, f.numbers);
+  var alert = '', what = '';
+  if (parts.length) {
+    alert = '<div role="alert" class="alert drop"><div class="row1"><span aria-hidden="true" class="bang">!</span><div style="flex:1 1 auto;min-width:0">' +
+      '<h3>' + h(lt) + ' already has ' + (sb ? 'a sbobina' : 'slides') + '</h3><p>Replacing one of these makes your file the live version for everyone.</p>' +
+      parts.map(function (p) { return '<div class="pt"><span><strong>Part ' + p.part + '</strong>, ' + (sb ? 'by ' : 'uploaded by ') + h(p.by.join(', ') || 'someone') + (p.at ? ', ' + h(p.at) : '') + '</span>' + (p.url ? '<a href="' + h(p.url) + '" target="_blank" rel="noopener">Open</a>' : '') + '</div>'; }).join('') +
+      '</div></div></div>';
+    var next = parts[parts.length - 1].part + 1, full = parts.length >= MAX_PARTS || next > MAX_PARTS;
+    what = '<h2 style="margin:22px 0 10px;font-size:18px;font-weight:900">What should happen?</h2><div role="radiogroup" aria-label="What should happen?" class="whatgrid" id="whatgrid">' +
+      '<button class="what red" role="radio" data-u="mode" data-m="replace" aria-checked="' + (U.choice.mode === 'replace') + '" style="order:1"><span aria-hidden="true" class="radio"></span><span><b>Replace a part</b><span class="d">The part you pick moves to the Superseded folder. The group gets ' + (sb ? 'a "Sbobine updated"' : 'a "Slides updated"') + ' email.</span></span></button>' +
+      '<div id="partpanel" style="display:contents"></div>' +
+      '<button class="what addopt" role="radio" data-u="mode" data-m="add" aria-checked="' + (U.choice.mode === 'add') + '"' + (full ? ' disabled' : '') + '><span aria-hidden="true" class="radio"></span><span><b>' + (full ? 'Add as another part' : 'Add as part ' + next) + '</b><span class="d">' +
+      (full ? 'This lecture already has ' + MAX_PARTS + ' parts, the limit. Replace one instead.' : 'Everything stays. Yours shows as ' + (sb ? 'PDF pt' : 'Slides pt') + next + ' on the dashboard. Up to ' + MAX_PARTS + ' parts per lecture.') + '</span></span></button></div>';
+  }
+  var slots = sb ? '<div class="files2"><div class="slot"><span>Word file' + (U.files.pdf ? ' <span class="muted" style="font-weight:500">optional</span>' : '') + '</span><div id="slot-word"></div></div>' +
+    '<div class="slot"><span>PDF' + (U.files.word || !U.files.pdf ? ' <span class="muted" style="font-weight:500">optional</span>' : '') + '</span><div id="slot-pdf"></div></div></div>'
+    : '<span style="display:block;font-size:14px;font-weight:700;margin-bottom:8px">PowerPoint or PDF</span><div id="slot-slides"></div><p style="margin:8px 2px 0;font-size:13px;line-height:1.4;color:#5F6368">Only have a PDF? Upload that instead, no PowerPoint needed.</p>';
+  var people = sb ? 'Authors: ' + h(f.authors.join(', ')) + '<br>' + (f.reviewed ? 'Reviewed by ' + h(f.reviewers.join(', ')) : 'Not reviewed yet') : 'Uploaded by ' + h(f.uploadedBy);
+  v.innerHTML =
+    '<div class="wrap"><div class="cols"><div class="main">' + hsteps(4) +
+    '<h1 class="big rise" style="margin-bottom:16px">' + (sb ? 'Upload the sbobina' : 'Upload the slides') + '</h1>' + slots + alert + what +
+    '<div class="savedas"><span class="k">Saved to ' + h(course.name) + (sb ? ' (group only)' : ' slides (public)') + ' as</span><span class="v" id="fname"></span><span class="e" id="fext"></span></div>' +
+    '<p style="margin:14px 2px 0;font-size:13px;color:#5F6368">' + (S.env === 'test' ? 'The test list gets an email as soon as it\'s uploaded.' : 'The group gets an email as soon as it\'s uploaded.') + '</p>' +
+    '<div id="uperr"></div><div class="progress" id="prog" hidden><div class="bar"><i></i></div><div class="lbl" aria-live="polite"></div></div>' +
+    '<div class="ph" style="margin-top:22px"><div style="display:flex;gap:10px"><button class="btn2" data-u="back" style="height:56px;font-size:16px">Back</button><button class="btn" data-u="upload" id="cta2" style="flex:1 1 auto;min-height:56px;height:auto;padding:8px 14px"></button></div></div>' +
+    '</div><aside class="aside dk" aria-label="Your upload">' + vsteps(4) + summaryHtml('<div class="x">' + people + '</div>') +
+    '<button class="btn wide" data-u="upload" id="cta1" style="margin-top:20px;min-height:56px;height:auto;padding:8px 14px"></button><button class="btn2 wide" data-u="back" style="margin-top:10px">Back</button></aside></div></div>';
+  ['word', 'pdf', 'slides'].forEach(renderSlot);
+  renderPartPanel(false);
+  refreshUploadState();
+  v.onclick = function (e) {
+    var t = e.target.closest('[data-u]');
+    if (!t || U.busy) return;
+    var a = t.getAttribute('data-u');
+    if (a === 'mode') {
+      U.choice.mode = t.getAttribute('data-m');
+      if (U.choice.mode === 'add') U.choice.part = null;
+      $$('[data-u="mode"]', v).forEach(function (b) { b.setAttribute('aria-checked', b.getAttribute('data-m') === U.choice.mode); });
+      renderPartPanel(true);
+      refreshUploadState();
+    }
+    if (a === 'part') {
+      U.choice.part = +t.getAttribute('data-p');
+      $$('[data-u="part"]', v).forEach(function (b) { b.setAttribute('aria-checked', +b.getAttribute('data-p') === U.choice.part); });
+      refreshUploadState();
+    }
+    if (a === 'back') toStep(3);
+    if (a === 'upload') doUpload();
+    if (a === 'pickfile') $('#fi-' + t.getAttribute('data-slot')).click();
+    if (a === 'rmfile') { U.files[t.getAttribute('data-slot')] = null; renderSlot(t.getAttribute('data-slot')); refreshUploadState(); relabelSlots(); }
+  };
+}
+function relabelSlots() {
+  if (U.kind !== 'sbobina') return;
+  var labs = $$('.files2 .slot > span');
+  if (labs.length !== 2) return;
+  labs[0].innerHTML = 'Word file' + (U.files.pdf ? ' <span class="muted" style="font-weight:500">optional</span>' : '');
+  labs[1].innerHTML = 'PDF' + (U.files.word || !U.files.pdf ? ' <span class="muted" style="font-weight:500">optional</span>' : '');
+}
+function renderPartPanel(animate) {
+  var holder = $('#partpanel');
+  if (!holder) return;
+  if (U.choice.mode !== 'replace') { holder.innerHTML = ''; return; }
+  var parts = existingParts(), sb = U.kind === 'sbobina';
+  holder.innerHTML = '<div class="partpanel' + (animate ? ' drop' : '') + '"><span class="lb" id="lbl-part">Which part should yours replace?</span><div class="partbtns" role="radiogroup" aria-labelledby="lbl-part">' +
+    parts.map(function (p) { return '<button class="partb" role="radio" data-u="part" data-p="' + p.part + '" aria-checked="' + (U.choice.part === p.part) + '">Part ' + p.part + ', ' + h((p.by[0] ? shortName(p.by[0]) : '') + (p.by.length > 1 ? ' +' + (p.by.length - 1) : '')) + '</button>'; }).join('') +
+    '</div></div>';
+  if (parts.length === 1 && !U.choice.part) { U.choice.part = parts[0].part; $('[data-u="part"]').setAttribute('aria-checked', 'true'); }
+}
+function slotInfo(slot) {
+  if (slot === 'word') return { title: 'Add a Word file', hint: U.files.pdf ? 'Optional. Without it, the dashboard shows Word as not available.' : '.docx, .doc or .odt, up to 25 MB. We make the PDF from it.' };
+  if (slot === 'pdf') return { title: 'Add a PDF', hint: U.files.word ? 'Skip it and we\'ll make the PDF from your Word file.' : 'Not needed if you add a Word file: we make the PDF from it. Up to 25 MB.' };
+  return { title: 'Add the slides', hint: '.pptx, .ppt or .pdf, up to 50 MB. We make a PDF from a PowerPoint.' };
+}
+function renderSlot(slot) {
+  var box = $('#slot-' + slot);
+  if (!box) return;
+  var file = U.files[slot];
+  if (file) {
+    var e = ext(file.name), isP = e === 'ppt' || e === 'pptx';
+    var ico = slot === 'word' ? ['W', '#2457D6', 14] : e === 'pdf' ? ['PDF', '#1B1D1F', 11] : ['PPTX', '#1B1D1F', 11];
+    var note = slot === 'slides' && isP ? ', ready. We\'ll make a PDF from it.' : ', ready';
+    box.innerHTML = '<div class="ff"><span aria-hidden="true" class="ico" style="background:' + ico[1] + ';font-size:' + ico[2] + 'px">' + ico[0] + '</span><span class="nm"><b>' + h(file.name) + '</b><small>' + mb(file.size) + note + '</small></span>' +
+      '<button class="rm" data-u="rmfile" data-slot="' + slot + '" aria-label="Remove ' + h(file.name) + '">×</button></div>';
+  } else {
+    var si = slotInfo(slot);
+    box.innerHTML = '<button class="fz" data-u="pickfile" data-slot="' + slot + '"><span aria-hidden="true" class="ico">+</span><span style="flex:1 1 auto"><b>' + si.title + '</b><small>' + si.hint + ' Or drop it here.</small></span></button>' +
+      '<input type="file" id="fi-' + slot + '" hidden accept="' + ACCEPT[slot].map(function (x) { return '.' + x; }).join(',') + '">';
+    var inp = $('#fi-' + slot);
+    inp.onchange = function () { if (inp.files[0]) takeFile(inp.files[0], slot); };
+    var zone = $('.fz', box);
+    zone.addEventListener('dragover', function (e) { e.preventDefault(); zone.classList.add('over'); });
+    zone.addEventListener('dragleave', function () { zone.classList.remove('over'); });
+    zone.addEventListener('drop', function (e) { e.preventDefault(); zone.classList.remove('over'); if (e.dataTransfer.files[0]) takeFile(e.dataTransfer.files[0], slot); });
+  }
+}
+// A dropped file goes to the slot its type belongs to
+function takeFile(file, slot) {
+  var e = ext(file.name);
+  if (U.kind === 'sbobina') slot = e === 'pdf' ? 'pdf' : ACCEPT.word.indexOf(e) >= 0 ? 'word' : slot;
+  if (ACCEPT[slot].indexOf(e) < 0) { toast((U.kind === 'sbobina' ? 'Use a Word file (.docx, .doc, .odt) or a PDF.' : 'Use a PowerPoint (.pptx, .ppt) or a PDF.'), true); return; }
+  if (file.size > MAXMB[slot] * 1048576) { toast(file.name + ' is ' + mb(file.size) + '. The limit is ' + MAXMB[slot] + ' MB.', true); return; }
+  if (!file.size) { toast('That file is empty.', true); return; }
+  U.files[slot] = file;
+  renderSlot(slot);
+  ['word', 'pdf'].forEach(function (s) { if (s !== slot && !U.files[s]) renderSlot(s); });
+  relabelSlots();
+  refreshUploadState();
+}
+document.addEventListener('dragover', function (e) { if (S.page === 'upload' && U.step === 4) e.preventDefault(); });
+document.addEventListener('drop', function (e) {
+  if (S.page !== 'upload' || U.step !== 4 || e.defaultPrevented) return;
+  e.preventDefault();
+  var f = e.dataTransfer && e.dataTransfer.files[0];
+  if (f && !U.busy) takeFile(f, U.kind === 'slides' ? 'slides' : (ext(f.name) === 'pdf' ? 'pdf' : 'word'));
+});
+function refreshUploadState() {
+  var sb = U.kind === 'sbobina', parts = U.custom ? [] : existingParts();
+  var hasFile = sb ? !!(U.files.word || U.files.pdf) : !!U.files.slides;
+  var cta, red = false, blocked = !hasFile;
+  if (parts.length && !U.choice.mode) { cta = 'Choose what should happen'; blocked = true; }
+  else if (parts.length && U.choice.mode === 'replace' && !U.choice.part) { cta = 'Choose which part to replace'; blocked = true; }
+  else if (parts.length && U.choice.mode === 'replace') { cta = 'Replace part ' + U.choice.part + ' and upload'; red = true; }
+  else if (parts.length && U.choice.mode === 'add') cta = 'Upload as part ' + partFor(parts);
+  else cta = S.env === 'test' ? 'Upload and notify the test list' : 'Upload and notify the group';
+  if (!hasFile && !(parts.length && !U.choice.mode)) cta = sb ? 'Add a Word file or a PDF' : 'Add the slides file';
+  if (U.busy) { cta = 'Uploading…'; blocked = true; }
+  ['#cta1', '#cta2'].forEach(function (s) { var b = $(s); if (!b) return; b.textContent = cta; b.disabled = blocked; b.classList.toggle('red', red && !blocked); });
+  var fn = $('#fname');
+  if (fn) {
+    fn.textContent = fileNamePreview(parts);
+    var e = [];
+    if (sb) {
+      if (U.files.word) e.push('.' + ext(U.files.word.name));
+      if (U.files.pdf || U.files.word) e.push('.pdf');
+      $('#fext').textContent = (e.length ? e.join(' and ') + '. ' : '') + (U.files.word && !U.files.pdf ? 'The PDF is made from your Word file. ' : '') + (!U.files.word && U.files.pdf ? 'Word marked as not available. ' : '') + 'Authors and reviewers go in the file description.';
+    } else {
+      var x = U.files.slides ? ext(U.files.slides.name) : '';
+      $('#fext').textContent = x && x !== 'pdf' ? '.pdf for everyone to open, with the .' + x + ' kept beside it' : '.pdf for everyone to open';
+    }
+  }
+}
+function toBase64(blob) {
+  return new Promise(function (res, rej) {
+    var r = new FileReader();
+    r.onload = function () { var s = String(r.result); res(s.slice(s.indexOf(',') + 1)); };
+    r.onerror = function () { rej(new Error('Couldn\'t read the file from your device.')); };
+    r.readAsDataURL(blob);
+  });
+}
+function progress(frac, label) {
+  var p = $('#prog');
+  if (!p) return;
+  p.hidden = false;
+  $('.bar i', p).style.width = Math.round(frac * 100) + '%';
+  $('.lbl', p).textContent = label;
+}
+function uploadOne(slot, file, done, total, onBytes) {
+  return api('beginUpload', { slot: slot, name: file.name, size: file.size }).then(function (b) {
+    var start = 0;
+    var next = function () {
+      if (start >= file.size) return b.token;
+      var end = Math.min(file.size, start + b.chunk);
+      return toBase64(file.slice(start, end)).then(function (data) {
+        return api('uploadChunk', { token: b.token, start: start, data: data });
+      }).then(function () { onBytes(end - start); start = end; return next(); });
+    };
+    return next();
+  });
+}
+function doUpload() {
+  var sb = U.kind === 'sbobina', slots = sb ? ['word', 'pdf'] : ['slides'];
+  var todo = slots.filter(function (s) { return U.files[s]; });
+  if (!todo.length) return;
+  U.busy = true;
+  refreshUploadState();
+  $('#uperr').innerHTML = '';
+  var total = todo.reduce(function (a, s) { return a + U.files[s].size; }, 0), sent = 0, tokens = {};
+  var chain = Promise.resolve();
+  todo.forEach(function (s, i) {
+    chain = chain.then(function () {
+      return uploadOne(s, U.files[s], i, todo.length, function (n) {
+        sent += n;
+        progress(0.85 * sent / total, 'Uploading ' + (todo.length > 1 ? 'file ' + (i + 1) + ' of ' + todo.length : 'your file') + '… ' + Math.round(100 * sent / total) + '%');
+      });
+    }).then(function (tok) { tokens[s] = tok; });
+  });
+  chain.then(function () {
+    var needPdf = sb ? (U.files.word && !U.files.pdf) : ext(U.files.slides.name) !== 'pdf';
+    progress(0.92, (needPdf ? 'Making the PDF, naming the files and ' : 'Naming the files and ') + (S.env === 'test' ? 'emailing the test list…' : 'emailing the group…'));
+    var f = U.f, topics = {};
+    topicKeys().forEach(function (id) { topics[id] = f.topics[id]; });
+    return api('submit', {
+      kind: U.kind, lectureIds: selIds(), custom: U.custom, choice: U.choice, files: tokens,
+      details: { course: f.course, module: f.module, numbers: f.numbers, date: normIso(f.date), time: f.time, professor: f.professor, topics: topics,
+        authors: f.authors, reviewed: f.reviewed, reviewers: f.reviewers, uploadedBy: f.uploadedBy, notes: f.notes, reused: f.reused, reuseEdits: f.reuseEdits, reuseSource: f.reuseSource }
+    });
+  }).then(function (res) {
+    progress(1, 'Done');
+    setData(res.state);
+    if (sb && f0()) store.set('sb.me', U.f.authors[0], true);
+    U.result = res; U.busy = false; U.step = 'done';
+    D.hl = null;
+    swap(function () { renderPage(); });
+  }, function (err) {
+    U.busy = false;
+    refreshUploadState();
+    $('#prog').hidden = true;
+    $('#uperr').innerHTML = '<div class="err-box drop" role="alert">' + h(err.message) + (err.code === 'parts' ? ' <button class="linkbtn" data-u="back">Go back</button>' : '') + '</div>';
+    if (err.code === 'parts') { api('state').then(setData); }
+  });
+  function f0() { return !myName() && U.f.authors.length; }
+}
+
+// =====================================================================================
+// Done: the big moment
+// =====================================================================================
+function renderDone(v) {
+  var r = U.result, c = ccol(r.cc), slides = r.kind === 'slides', D2 = desk();
+  var COLS = [c, '#2457D6', '#0E8F92', '#2BA84A', '#E8A600', c, '#2BA84A'], bits = '';
+  for (var i = 0; i < 30; i++) {
+    var a = (-160 + (i * 137.5) % 320) * Math.PI / 180, dist = (D2 ? 150 : 95) + (i * 53) % (D2 ? 160 : 110);
+    var dx = Math.round(Math.cos(a) * dist + (D2 ? 120 : 70)), dy = Math.round(Math.sin(a) * dist * 0.8 - 40);
+    var w = i % 3 === 0 ? 10 : 14, hh = i % 3 === 0 ? 10 : 7;
+    bits += '<span class="bit" style="left:' + (-w / 2) + 'px;top:' + (-hh / 2) + 'px;width:' + w + 'px;height:' + hh + 'px;border-radius:' + (i % 3 === 0 ? '50%' : '2px') + ';background:' + COLS[i % COLS.length] +
+      ';--dx:' + dx + 'px;--dy:' + dy + 'px;--r:' + ((i * 97) % 540 - 270) + 'deg;animation-delay:' + (1.0 + (i % 6) * 0.03).toFixed(2) + 's"></span>';
+  }
+  var names = r.names.map(firstName);
+  var thanks = 'Thanks, ' + andList(names) + '. ' + (slides ? 'Anyone in the class with the link can open them now.' : (S.env === 'test' ? 'It\'s in the test folders.' : 'Everyone in the group can open it now.'));
+  var links = [];
+  if (slides) {
+    if (r.links.pdf) links.push(['PDF', '#1B1D1F', 'Open the slides (PDF)', r.links.pdf]);
+    if (r.links.slides) links.push(['PPT', '#D24726', 'Open the PowerPoint', r.links.slides]);
+  } else {
+    if (r.links.pdf) links.push(['PDF', '#1B1D1F', 'Open the PDF', r.links.pdf]);
+    if (r.links.word) links.push(['W', '#2457D6', 'Open the Word file', r.links.word]);
+  }
+  var held = Math.max(r.held, 1), before = Math.min(r.before, r.after);
+  var meter = slides
+    ? '<div class="meter up glow" style="animation-delay:1.75s"><div class="top"><span>Slides added</span><span class="num" style="font-size:20px">' + (r.mode === 'add' ? 'Part ' + r.part : r.mode === 'replace' ? 'Part ' + r.part + ' replaced' : 'Live') + '</span></div><span class="nt">Slides don\'t change the lecture\'s status, but they help everyone revise.</span></div>'
+    : '<div class="meter up glow" style="animation-delay:1.75s"><div class="top"><span>Held lectures written up</span><span class="num" aria-live="polite"><span id="cnt">' + (reduced() ? r.after : before) + '</span><small> / ' + r.held + '</small></span></div>' +
+      '<div class="track" aria-hidden="true"><i id="mfill" style="width:' + (100 * (reduced() ? r.after : before) / held).toFixed(2) + '%;background:linear-gradient(90deg,#2BA84A 0 ' + (r.after ? (100 * before / Math.max(r.after, 1)).toFixed(2) : 100) + '%,#6DD38B ' + (r.after ? (100 * before / Math.max(r.after, 1)).toFixed(2) : 100) + '% 100%)"></i></div>' +
+      '<span class="nt" id="mnote">' + (reduced() || r.after === before ? noteFor(r.after - before) : 'Adding yours…') + '</span></div>';
+  v.innerHTML =
+    '<div class="wrap"><div class="done">' +
+    '<div aria-hidden="true" class="linecol">' +
+    '<span class="line-in" style="background:' + c + '"></span>' +
+    '<span class="train" style="box-shadow:0 0 0 4px ' + c + ',0 0 18px 6px ' + c + '80"></span>' +
+    '<span class="ring" style="border-color:' + c + ';animation-delay:1.05s"></span><span class="ring" style="border-color:#2BA84A;animation-delay:1.3s"></span>' +
+    '<span class="bits">' + bits + '</span>' +
+    '<span class="stopbig" style="background:' + c + ';box-shadow:0 0 0 3px ' + c + '"><svg width="34" height="34" viewBox="0 0 24 24" fill="none"><path class="tick" d="M5 12.5l4.5 4.5L19 7.5" stroke="#FFFFFF" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>' +
+    '<span class="line-out" style="background:repeating-linear-gradient(' + c + ' 0 10px,transparent 10px 18px)"></span></div>' +
+    '<div class="body">' +
+    '<p class="kick up" style="animation-delay:1.35s">Uploaded</p>' +
+    '<h1 class="up" style="animation-delay:1.45s">' + h(r.title + (slides ? ' slides are' : ' is')) + ' in the Drive</h1>' +
+    '<p class="up" style="margin:0 0 18px;font-size:15px;line-height:1.45;color:#3C4043;animation-delay:1.6s">' + h(thanks) + '</p>' + meter +
+    '<div class="openlinks">' + links.map(function (l, i) {
+      return '<a href="' + h(l[3]) + '" target="_blank" rel="noopener" class="openlink up" style="animation-delay:' + (1.95 + i * 0.1).toFixed(2) + 's"><span aria-hidden="true" class="ico" style="background:' + l[1] + '">' + l[0] + '</span><b>' + l[2] + '</b></a>';
+    }).join('') + '</div>' +
+    '<ul class="checks">' + r.steps.map(function (t, i) {
+      return '<li class="up" style="animation-delay:' + (2.2 + i * 0.16).toFixed(2) + 's"><span aria-hidden="true" class="tk" style="animation-delay:' + (2.3 + i * 0.16).toFixed(2) + 's">✓</span><span>' + h(t) + '</span></li>';
+    }).join('') + '</ul>' +
+    '<div class="donebtns up" style="animation-delay:' + (2.3 + r.steps.length * 0.16).toFixed(2) + 's"><button class="btn" data-u="again">Upload something else</button><a class="btn2" href="' + h(pageHref('dashboard')) + '" data-go="dashboard" style="height:52px;font-size:16px">See the dashboard</a></div>' +
+    '</div></div></div>';
+  v.onclick = function (e) { if (e.target.closest('[data-u="again"]')) { resetUpload(); swap(function () { renderPage(); }); } };
+  if (!slides && !reduced() && r.after > before) {
+    var n = before, step = 0, cnt = $('#cnt'), fill = $('#mfill');
+    var tick = function () {
+      n++; step++;
+      cnt.textContent = n;
+      fill.style.width = (100 * n / held).toFixed(2) + '%';
+      if (n < r.after) setTimeout(tick, 350); else $('#mnote').textContent = noteFor(r.after - before);
+    };
+    setTimeout(tick, 2200);
+  }
+  function noteFor(d) { return d > 0 ? '+' + d + ' just now, thanks to you' : (r.mode === 'replace' ? 'Updated version, same count' : 'Counted once the lecture has been held'); }
+}
+
+// =====================================================================================
+// Admin sign in
+// =====================================================================================
+function renderSignin(v) {
+  var note = S.signinNote;
+  v.innerHTML = '<main class="signin"><div class="box">' +
+    '<h1 class="rise">Admin sign in</h1>' +
+    (note ? '<div class="err-box drop" role="alert" style="margin:0 0 14px">' + h(note) + '</div>' : '') +
+    '<p style="margin:0 0 20px;font-size:15px;line-height:1.5;color:#3C4043">Paste the key you were emailed when you were made an admin. Admins can assign authors, approve schedule changes and manage the Drive.</p>' +
+    '<form id="sform"><label style="display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:700">Your admin key' +
+    '<span class="keyrow"><input type="password" id="skey" autocomplete="current-password" spellcheck="false" autocapitalize="off" required><button type="button" id="sshow" aria-pressed="false">Show</button></span></label>' +
+    '<label class="check"><input type="checkbox" id="skeep"><span aria-hidden="true" class="bx">✓</span>Keep me signed in on this device</label>' +
+    '<button class="btn wide" id="sbtn" style="margin-top:16px">Sign in</button></form>' +
+    '<p style="margin:18px 0 0;font-size:14px;line-height:1.5;color:#5F6368">Lost your key? Ask another admin to send you a new one from the admin page. Only use this on your own phone or laptop.</p>' +
+    '</div></main>';
+  $('#sshow').onclick = function () { var i = $('#skey'), on = i.type === 'password'; i.type = on ? 'text' : 'password'; this.textContent = on ? 'Hide' : 'Show'; this.setAttribute('aria-pressed', on); };
+  $('#skey').focus();
+  $('#sform').onsubmit = function (e) {
+    e.preventDefault();
+    var key = $('#skey').value.trim(), keep = $('#skeep').checked, btn = $('#sbtn');
+    if (!key) return;
+    btn.disabled = true; btn.textContent = 'Checking…';
+    google.script.run.withSuccessHandler(function (res) {
+      if (!res || !res.ok) { btn.disabled = false; btn.textContent = 'Sign in'; S.signinNote = (res && res.error) || 'That key didn\'t work.'; renderSignin(v); $('#skey').value = key; return; }
+      store.del('sb.key'); store.del('sb.name');
+      store.set('sb.key', key, keep); store.set('sb.name', res.data.name, keep);
+      S.admin = { key: key, name: res.data.name };
+      S.signinNote = '';
+      S.data = null;
+      toast('Signed in as ' + res.data.name + '.');
+      go(S.reqEnv === 'test' ? 'dashboard' : 'admin');
+    }).withFailureHandler(function (err) { btn.disabled = false; btn.textContent = 'Sign in'; toast('Connection problem: ' + (err && err.message || err), true); })
+      .api('signIn', { env: S.env, key: key });
+  };
+}
+
+// =====================================================================================
+// Admin page
+// =====================================================================================
+var A = { authFilter: 'week', authWeek: null, authDay: 0, folders: null, emailsText: '', newKey: '', confirmReset: false, removing: '' };
+function renderAdmin(v, opt) {
+  if (!S.adminState) {
+    v.innerHTML = '<div class="wrap"><div class="loading">Loading the admin page…</div></div>';
+    api('adminState').then(function (st) { S.adminState = st; renderAdmin(v, opt); }, function (e) { v.innerHTML = '<div class="wrap"><div class="err-box">' + h(e.message) + '</div></div>'; });
+    return;
+  }
+  var st = S.adminState, pend = st.schedule.pending;
+  v.innerHTML = '<main class="wrap" id="admin" style="padding-bottom:80px">' +
+    '<h1 class="ah1 rise">Admin' + (S.env === 'test' ? ' <span style="font-size:.4em;letter-spacing:0;vertical-align:middle" class="daynote">TEST DATA</span>' : '') + '</h1>' +
+    '<p style="margin:10px 0 0;font-size:16px;color:#3C4043">Everything you change here is logged with your name.</p>' +
+    '<nav aria-label="Admin sections" class="secnav" id="secnav">' +
+    [['schedule', 'Schedule changes'], ['authors', 'Authors'], ['drive', 'Drive folders'], ['members', 'Members and email'], ['admins', 'Admins and settings'], ['test', 'Test mode'], ['activity', 'Activity']].map(function (s) {
+      return '<a href="#' + s[0] + '" data-sec="' + s[0] + '"' + (s[0] === 'test' ? ' class="dash"' : '') + '>' + s[1] + (s[0] === 'schedule' && pend ? ' <span class="cnt">1</span>' : '') + '</a>';
+    }).join('') + '</nav>' +
+    '<section id="schedule" class="asec" aria-labelledby="h-schedule"><h2 id="h-schedule" class="h2">Schedule changes</h2><div id="sched"></div></section>' +
+    '<section id="authors" class="asec" aria-labelledby="h-authors"><h2 id="h-authors" class="h2" style="margin-bottom:6px">Authors</h2><p style="margin:0 0 14px;font-size:15px;line-height:1.45;color:#3C4043">Add one or more authors per lecture. Lectures without authors stay grey and never turn overdue.</p><div id="authpills" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px"></div><div id="authlist"></div><p style="margin:10px 4px 0;font-size:13px;color:#5F6368">Changes save as you make them. The same chips appear on the dashboard while you\'re signed in.</p></section>' +
+    '<section id="drive" class="asec" aria-labelledby="h-drive"><h2 id="h-drive" class="h2">Drive folders</h2><div class="box" id="drivebox"></div></section>' +
+    '<section id="members" class="asec" aria-labelledby="h-members"><h2 id="h-members" class="h2">Members and email</h2><div class="two" id="membox"></div></section>' +
+    '<section id="admins" class="asec" aria-labelledby="h-admins"><h2 id="h-admins" class="h2">Admins and settings</h2><div class="two" id="adminbox"></div></section>' +
+    '<section id="test" class="asec" aria-labelledby="h-test"><h2 id="h-test" class="h2">Test mode</h2><div id="testbox"></div></section>' +
+    '<section id="activity" class="asec" aria-labelledby="h-activity"><h2 id="h-activity" class="h2">Activity</h2><div class="box" style="padding:6px 22px" id="actbox"></div></section>' +
+    '</main>';
+  renderSched(); renderAuthPills(); renderAuthList(); renderDrive(); renderMembers(); renderAdmins(); renderTest(); renderActivity();
+  var root = $('#admin');
+  root.addEventListener('click', adminClick);
+  wireAuthorEditors($('#authlist'), function () { renderAuthList(); renderAuthPills(); });
+  wireTopicInputs($('#authlist'), function () { renderAuthList(); });
+  $('#secnav').addEventListener('click', function (e) {
+    var a = e.target.closest('[data-sec]');
+    if (!a) return;
+    e.preventDefault();
+    var t = document.getElementById(a.getAttribute('data-sec'));
+    if (t) t.scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth', block: 'start' });
+  });
+  // the pill of the section in view is filled
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (ents) {
+      ents.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        $$('#secnav a').forEach(function (a) { a.classList.toggle('on', a.getAttribute('data-sec') === en.target.id); });
+      });
+    }, { rootMargin: '-30% 0px -60% 0px' });
+    $$('.asec', root).forEach(function (s) { io.observe(s); });
+  }
+  if (!A.folders) api('listFolders').then(function (r) { A.folders = r.folders; renderDrive(); }, function (e) { A.folders = []; A.foldersErr = e.message; renderDrive(); });
+  if (pend && pend.needsParse) parsePending(pend);
+  var hash = opt && opt.hash;
+  if (!hash) { try { google.script.url.getLocation(function (loc) { if (loc.hash) scrollToSec(loc.hash); }); } catch (e) {} } else scrollToSec(hash);
+}
+function scrollToSec(id) { setTimeout(function () { var t = document.getElementById(String(id).replace('#', '')); if (t) t.scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth' }); }, 150); }
+function busy(btn, on, label) { if (!btn) return; if (on) { btn.dataset.label = btn.textContent; btn.textContent = label || 'Working…'; btn.disabled = true; } else { btn.textContent = btn.dataset.label || btn.textContent; btn.disabled = false; } }
+
+// ----- schedule
+function diffRowHtml(it) {
+  var type = '<span><span class="tpill ' + it.type + '">' + (it.type === 'changed' ? 'Changed' : it.type === 'added' ? 'Added' : 'Removed') + '</span></span>';
+  var lec = '<span><span style="display:flex;align-items:center;gap:8px"><span class="nb" style="background:' + ccol(it.cc) + '">' + h(it.cc) + '</span><strong style="font-weight:800' + (it.type === 'removed' ? ';text-decoration:line-through' : '') + '">' + h(it.module + ' L' + it.number) + '</strong></span><span class="meta">' + h(it.day + (it.type === 'changed' ? ', ' + it.time : ', ' + it.time + ', Prof. ' + it.prof)) + '</span></span>';
+  var what = it.type === 'added' ? '<span>New lecture</span>' : it.type === 'removed' ? '<span>No longer in the schedule</span>'
+    : '<span>' + it.fields.map(function (f) { return h(f.label) + ': <span class="was">' + h(f.from || '(empty)') + '</span> → <strong>' + h(f.to || '(empty)') + '</strong>'; }).join('<br>') + '</span>';
+  var who = it.touched ? '<span><span style="display:inline-flex;align-items:center;gap:8px;font-weight:700"><span aria-hidden="true" class="flag">!</span>' + h(it.who.join(', ') || 'Has files') + '</span><span class="meta">' + (it.type === 'removed' ? 'Kept on the dashboard as "Removed from schedule"' : 'They keep the lecture after approval') + '</span></span>'
+    : '<span style="color:#80868B">No authors or files yet</span>';
+  return '<div class="drow">' + type + lec + what + who + '</div>';
+}
+function renderSched() {
+  var box = $('#sched'), sc = S.adminState.schedule, p = sc.pending, s = S.adminState.settings, html = '';
+  if (p) {
+    var k = p.counts;
+    html += '<div class="loud"><h3>A new schedule is waiting for approval</h3>';
+    if (p.needsParse) html += '<p id="parsenote">Found ' + h(stampIn(p.detectedAt)) + ' in ' + h(p.fileName) + '. Reading the PDF to show what changed…</p>';
+    else {
+      html += '<p>Found ' + h(stampIn(p.detectedAt)) + ' in ' + h(p.fileName) + ': ' + k.added + ' added, ' + k.changed + ' changed, ' + k.removed + ' removed. Nothing changes on the website until an admin approves it.</p>';
+      if (k.touched) html += '<div class="flagbox"><span aria-hidden="true" class="flag" style="width:26px;height:26px;flex-basis:26px;font-size:15px">!</span><span>' + k.touched + ' ' + pl(k.touched, 'change touches a lecture', 'changes touch lectures') + ' that already ' + pl(k.touched, 'has', 'have') + ' authors or files. They\'re marked below.</span></div>';
+      html += '<div style="margin-top:14px">' + (p.items.length ? p.items.map(diffRowHtml).join('') : '<p style="color:#5F6368">The PDF changed but no lecture details did. Approving just records this version.</p>') + '</div>';
+      if (p.warnings && p.warnings.length) html += '<p style="font-size:13px;color:#B3261E">The reader had trouble with part of the PDF: ' + h(p.warnings.join('; ')) + '. Check those days by hand.</p>';
+    }
+    html += '<div class="actrow"><button class="btn" data-a="approve"' + (p.needsParse ? ' disabled' : '') + ' style="height:52px">Approve and publish</button><button class="btn2" data-a="dismiss" style="height:52px;font-size:16px">Dismiss</button><span style="font-size:14px;color:#5F6368">Approving updates the website for everyone and lets the other admins know.</span></div></div>';
+  } else {
+    html += '<div class="box"><h3 class="h3" style="margin-bottom:4px">The live schedule is up to date</h3><p style="margin:0;font-size:15px;line-height:1.5;color:#3C4043">No new version of the PDF is waiting. Admins get an email as soon as one shows up.</p></div>';
+  }
+  var hist = sc.history.map(function (x) {
+    var c = x.counts;
+    return '<li><strong style="font-weight:800">' + h(x.state.charAt(0).toUpperCase() + x.state.slice(1)) + '</strong>' + (x.by ? ' by ' + h(shortName(x.by)) : '') + ', ' + h(stampLabel(x.at)) +
+      '<span style="display:block;color:#5F6368">' + (c ? [c.changed ? c.changed + ' changed' : '', c.added ? c.added + ' added' : '', c.removed ? c.removed + ' removed' : ''].filter(Boolean).join(', ') || 'No lecture changes' : x.state === 'superseded' ? 'Replaced by a newer version' : h(x.fileName)) + '</span></li>';
+  }).join('');
+  html += '<div class="two" style="margin-top:22px"><div class="box" style="flex:2 1 480px"><h3 class="h3">Where the schedule comes from</h3>' +
+    '<div style="display:flex;flex-direction:column;gap:12px"><label class="fld">Unimibox link<input class="inp" id="slink" value="' + h(s.link) + '"></label>' +
+    '<label class="fld">File name in that folder <span class="opt">or part of it</span><input class="inp" id="spat" value="' + h(s.pattern) + '"></label></div>' +
+    '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:16px"><button class="sbtn" data-a="savesrc">Save</button><button class="sbtn2" data-a="check">Check now</button><button class="sbtn2 soft" data-a="uploadpdf">Upload a PDF instead</button><input type="file" id="spdf" accept=".pdf" hidden></div>' +
+    '<div id="checkres"></div>' +
+    '<p style="margin:14px 0 0;font-size:14px;line-height:1.5;color:#5F6368">Checked every hour from 07:00 to 22:00' + (S.env === 'test' ? ' (live portal only; use Check now in test mode)' : '') + '. ' +
+    (sc.lastApproved ? 'Live schedule approved ' + h(stampIn(sc.lastApproved)) + (sc.approvedBy ? ' by ' + h(shortName(sc.approvedBy)) : '') + '.' : 'Live schedule: the one loaded at setup.') + (sc.approvedAt ? ' Last checked ' + h(stampIn(sc.approvedAt)) + '.' : '') + '</p></div>' +
+    '<div class="box" style="flex:1 1 280px"><h3 class="h3">Earlier changes</h3>' + (hist ? '<ul style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px;font-size:14px;line-height:1.4">' + hist + '</ul>' : '<p style="margin:0;color:#5F6368;font-size:14px">None yet.</p>') + '</div></div>';
+  box.innerHTML = html;
+}
+function loadPdfJs() {
+  return new Promise(function (res, rej) {
+    if (window.pdfjsLib) return res(window.pdfjsLib);
+    var s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    s.onload = function () { window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; res(window.pdfjsLib); };
+    s.onerror = function () { rej(new Error('Couldn\'t load the PDF reader (pdf.js).')); };
+    document.head.appendChild(s);
+  });
+}
+function parsePdfBytes(bytes) {
+  return loadPdfJs().then(function (lib) { return lib.getDocument({ data: bytes }).promise; }).then(function (doc) {
+    var pages = [], chain = Promise.resolve();
+    for (var n = 1; n <= doc.numPages; n++) (function (pn) {
+      chain = chain.then(function () { return doc.getPage(pn); }).then(function (pg) {
+        var vp = pg.getViewport({ scale: 1 });
+        return pg.getTextContent().then(function (tc) { pages.push({ items: tc.items.map(function (it) { return { str: it.str, x: it.transform[4], y: vp.height - it.transform[5], w: it.width }; }) }); });
+      });
+    })(n);
+    return chain.then(function () { return parseSchedule(pages); });
+  });
+}
+function b64ToBytes(b64) { var bin = atob(b64), out = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i); return out; }
+function parsePending(p) {
+  api('schedulePdf', { row: p.row }).then(function (r) { return parsePdfBytes(b64ToBytes(r.base64)); })
+    .then(function (parsed) { return api('saveScheduleParse', { row: p.row, parsed: parsed }); })
+    .then(function (r) { S.adminState.schedule = r.schedule; renderSched(); }, function (e) {
+      var n = $('#parsenote');
+      if (n) n.innerHTML = 'Couldn\'t read the new PDF: ' + h(e.message) + ' Try "Upload a PDF instead" below with the file from unimibox.';
+    });
+}
+function adminClick(e) {
+  var t = e.target.closest('[data-a]');
+  if (!t) return;
+  var a = t.getAttribute('data-a'), st = S.adminState;
+  var fail = function (err) { busy(t, false); toast(err.message, true); };
+  if (a === 'approve') {
+    busy(t, true, 'Publishing…');
+    api('approveSchedule', { row: st.schedule.pending.row }).then(function (r) { st.schedule = r.schedule; setData(r.state); renderSched(); renderAuthList(); refreshSecnav(); toast('The new schedule is live.'); }, fail);
+  }
+  if (a === 'dismiss') {
+    busy(t, true, 'Dismissing…');
+    api('dismissSchedule', { row: st.schedule.pending.row }).then(function (r) { st.schedule = r.schedule; renderSched(); refreshSecnav(); toast('Dismissed. The live schedule stays as it is.'); }, fail);
+  }
+  if (a === 'savesrc') {
+    busy(t, true, 'Saving…');
+    api('saveScheduleSource', { link: $('#slink').value, pattern: $('#spat').value }).then(function (r) { st.settings.link = r.link; st.settings.pattern = r.pattern; busy(t, false); toast('Saved.'); }, fail);
+  }
+  if (a === 'check') {
+    busy(t, true, 'Checking…');
+    api('checkSchedule').then(function (r) {
+      busy(t, false);
+      st.schedule = r.schedule;
+      renderSched(); refreshSecnav();
+      $('#checkres').innerHTML = '<div class="graybox drop' + (r.result === 'error' ? '" style="color:#B3261E' : '') + '"><strong>' + h(r.message) + '</strong>' +
+        (r.result === 'error' ? '<br>Check the link and file name, or use "Upload a PDF instead".' : '') + '</div>';
+      if (r.schedule.pending && r.schedule.pending.needsParse) parsePending(r.schedule.pending);
+    }, fail);
+  }
+  if (a === 'uploadpdf') {
+    var inp = $('#spdf');
+    inp.onchange = function () {
+      var file = inp.files[0];
+      if (!file) return;
+      busy(t, true, 'Reading the PDF…');
+      file.arrayBuffer().then(function (buf) {
+        var bytes = new Uint8Array(buf);
+        return parsePdfBytes(bytes.slice()).then(function (parsed) {
+          var bin = ''; for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+          return api('uploadSchedulePdf', { base64: btoa(bin), fileName: file.name, parsed: parsed });
+        });
+      }).then(function (r) { busy(t, false); st.schedule = r.schedule; renderSched(); refreshSecnav(); toast(r.message); }, fail);
+      inp.value = '';
+    };
+    inp.click();
+  }
+  if (a === 'allact') { A.allActivity = true; renderActivity(); }
+  if (a === 'authf') { A.authFilter = t.getAttribute('data-f'); renderAuthPills(); renderAuthList(); }
+  if (a === 'aw-prev') { A.authWeek = Math.max(0, A.authWeek - 1); A.authDay = 0; renderAuthList(); }
+  if (a === 'aw-next') { A.authWeek = Math.min(SEM.weeks - 1, A.authWeek + 1); A.authDay = 0; renderAuthList(); }
+  if (a === 'aw-this') { A.authWeek = curWeek(); A.authDay = weekOf(S.data.today) === A.authWeek ? Math.min(4, weekdayOf(S.data.today)) : 0; renderAuthList(); }
+  if (a === 'aw-day') { A.authDay = +t.getAttribute('data-day'); renderAuthList(); }
+  if (a === 'savefolders') {
+    var map = {};
+    COURSES.forEach(function (c) { map[c.key] = { sbobine: $('#fs-' + c.code).value, slides: $('#fl-' + c.code).value }; });
+    busy(t, true, 'Saving…');
+    api('saveFolders', { folders: map, root: $('#froot') ? $('#froot').value : '' }).then(function () {
+      busy(t, false); st.settings.folders = map; A.folders = null; S.adminState = null; toast('Drive folders saved.'); renderAdmin($('#view'), { hash: 'drive' });
+    }, fail);
+  }
+  if (a === 'changeroot') { var r0 = $('#rootedit'); r0.hidden = !r0.hidden; if (!r0.hidden) $('#froot').focus(); }
+  if (a === 'sync') {
+    busy(t, true, 'Syncing…');
+    api('syncAccess').then(function (r) { busy(t, false); st.members.lastSync = r.summary; renderMembers(); toast('Drive access synced.'); }, fail);
+  }
+  if (a === 'savegroup') {
+    busy(t, true, 'Saving…');
+    api('saveGroupEmail', { email: $('#gmail').value }).then(function (r) { busy(t, false); st.settings.groupEmail = r.groupEmail; toast('Group address saved.'); }, fail);
+  }
+  if (a === 'copyemails') {
+    busy(t, true, 'Getting emails…');
+    api('memberEmails').then(function (list) {
+      busy(t, false);
+      var text = list.join(', ');
+      A.emailsText = text;
+      var shown = function () { renderMembers(); var ta = $('#emailsta'); if (ta) { ta.focus(); ta.select(); } };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function () { toast(list.length + ' emails copied.'); shown(); }, function () { shown(); toast('Select the emails below and copy them.'); });
+      else { shown(); toast('Select the emails below and copy them.'); }
+    }, fail);
+  }
+  if (a === 'testemail') {
+    busy(t, true, 'Sending…');
+    api('sendTestEmail').then(function (r) { busy(t, false); st.mail.quota = r.quota; renderMembers(); toast(r.status === 'sent' ? 'Test email sent into the thread.' : 'Queued: the daily email limit is used up. It goes out within the hour.'); }, fail);
+  }
+  if (a === 'addadmin') {
+    busy(t, true, 'Adding…');
+    api('addAdmin', { name: $('#nan').value, email: $('#nae').value }).then(function (r) { busy(t, false); st.admins = r.admins; renderAdmins(); toast('Added. Their key is on its way by email.'); }, fail);
+  }
+  if (a === 'rmadmin') {
+    var em = t.getAttribute('data-email');
+    if (A.removing !== em) { A.removing = em; renderAdmins(); return; }
+    busy(t, true, 'Removing…');
+    api('removeAdmin', { email: em }).then(function (r) { A.removing = ''; st.admins = r.admins; renderAdmins(); toast('Removed. Their key stopped working.'); }, fail);
+  }
+  if (a === 'rmcancel') { A.removing = ''; renderAdmins(); }
+  if (a === 'newkey') {
+    busy(t, true, 'Making a key…');
+    api('newKey').then(function (r) {
+      var keep = false;
+      try { keep = window.localStorage.getItem('sb.key') !== null; } catch (x) {}
+      store.del('sb.key'); store.set('sb.key', r.key, keep);
+      S.admin.key = r.key; A.newKey = r.key; renderAdmins(); toast('New key made and emailed to you. The old one no longer works.');
+    }, fail);
+  }
+  if (a === 'savegrace') {
+    busy(t, true, 'Saving…');
+    api('saveGrace', { days: $('#grace').value }).then(function (r) { busy(t, false); st.settings.grace = r.grace; S.data = null; api('state').then(setData); toast('Saved: ' + r.grace + ' days.'); }, fail);
+  }
+  if (a === 'copyurl') {
+    var u = st.settings.portalUrl;
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(u).then(function () { toast('Portal link copied.'); }, function () { prompt('Copy the portal link:', u); });
+    else prompt('Copy the portal link:', u);
+  }
+  if (a === 'reset') {
+    if (!A.confirmReset) { A.confirmReset = true; renderTest(); return; }
+    busy(t, true, 'Resetting…');
+    api('resetTest').then(function (r) {
+      A.confirmReset = false;
+      renderTest();
+      if (S.env === 'test') { S.data = null; api('state').then(setData); }
+      toast('Test data reset: ' + r.trashed + ' ' + pl(r.trashed, 'file', 'files') + ' trashed.');
+    }, fail);
+  }
+  if (a === 'resetcancel') { A.confirmReset = false; renderTest(); }
+  if (a === 'uni') {
+    if (st.settings.universal && st.settings.universal.on) { A.confirmUni = false; setUniversal(false, t); }
+    else { A.confirmUni = true; renderTest(); }
+  }
+  if (a === 'uni-yes') { A.confirmUni = false; setUniversal(true, t); }
+  if (a === 'uni-cancel') { A.confirmUni = false; renderTest(); }
+  if (a === 'addtestmail') {
+    var inp2 = document.createElement('input');
+    inp2.className = 'addin'; inp2.type = 'email'; inp2.placeholder = 'name@example.com'; inp2.setAttribute('aria-label', 'Add a test email');
+    t.replaceWith(inp2); inp2.focus();
+    var save = function () {
+      var v2 = inp2.value.trim();
+      if (!v2) { renderTest(); return; }
+      api('saveTestEmails', { emails: st.settings.testEmails.concat([v2]) }).then(function (r) { st.settings.testEmails = r.testEmails; renderTest(); toast('Added to the test list.'); }, function (err) { toast(err.message, true); renderTest(); });
+    };
+    inp2.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); inp2.blur(); } if (ev.key === 'Escape') { inp2.value = ''; inp2.blur(); } });
+    inp2.addEventListener('blur', save, { once: true });
+  }
+  if (a === 'rmtestmail') {
+    var rest = st.settings.testEmails.filter(function (x) { return x !== t.getAttribute('data-email'); });
+    api('saveTestEmails', { emails: rest }).then(function (r) { st.settings.testEmails = r.testEmails; renderTest(); }, fail);
+  }
+}
+function refreshSecnav() {
+  var a = $('#secnav [data-sec="schedule"]');
+  if (a) a.innerHTML = 'Schedule changes' + (S.adminState.schedule.pending ? ' <span class="cnt">1</span>' : '');
+}
+
+// ----- authors
+function authBuckets() {
+  var cw = curWeek(), days = weekDays(cw), L = S.data.lectures.filter(function (l) { return !l.removed; });
+  return {
+    week: L.filter(function (l) { return l.date >= days[0] && l.date <= days[4]; }),
+    open: L.filter(function (l) { return l.st === 'open'; }),
+    assigned: L.filter(function (l) { return l.st === 'assigned'; }),
+    all: L
+  };
+}
+function renderAuthPills() {
+  var b = authBuckets(), cw = curWeek();
+  $('#authpills').innerHTML = [['week', 'Week by week'], ['open', 'No authors yet (' + b.open.length + ')'], ['assigned', 'To be held (' + b.assigned.length + ')'], ['all', 'Whole semester']].map(function (p) {
+    return '<button class="pillbtn' + (A.authFilter === p[0] ? ' on' : '') + '" data-a="authf" data-f="' + p[0] + '" aria-pressed="' + (A.authFilter === p[0]) + '">' + p[1] + '</button>';
+  }).join('');
+}
+// The same schedule view as the dashboard's bottom half: week by week, or one list across the semester
+function renderAuthList() {
+  var box = $('#authlist');
+  if (!box) return;
+  if (A.authWeek === null) {
+    A.authWeek = curWeek();
+    A.authDay = weekOf(S.data.today) === A.authWeek ? Math.min(4, weekdayOf(S.data.today)) : 0;
+  }
+  var phone = !desk(), weekly = A.authFilter === 'week', k = A.authWeek, days = weekDays(k), head = '', list;
+  if (weekly) {
+    list = S.data.lectures.filter(function (l) { return l.date >= days[0] && l.date <= days[4]; });
+    if (phone) {
+      head = '<div class="wnav-ph" style="margin:0 0 12px"><button class="round" data-a="aw-prev" aria-label="Previous week"' + (k <= 0 ? ' disabled' : '') + '>' + ICON.left + '</button>' +
+        '<h2 aria-live="polite">Week ' + (k + 1) + '<span>' + rangeLabel(k, true) + '</span></h2>' +
+        '<button class="round" data-a="aw-next" aria-label="Next week"' + (k >= SEM.weeks - 1 ? ' disabled' : '') + '>' + ICON.right + '</button></div>' +
+        '<div class="days" role="tablist" aria-label="Day" style="margin-bottom:14px">' + days.map(function (iso, i) {
+          var n = lecturesOn(iso).length, open = lecturesOn(iso).filter(function (l) { return l.st === 'open' && !l.removed; }).length;
+          return '<button class="dtab" role="tab" data-a="aw-day" data-day="' + i + '" aria-selected="' + (i === A.authDay) + '" style="height:70px;padding:4px 0"><span class="wd">' + WD_[(i + 1) % 7] + '</span><span class="dn" style="font-size:19px">' + new Date(isoMs(iso)).getUTCDate() + '</span><span class="dc">' + (n ? (open ? open + ' open' : n + ' lect.') : 'none') + '</span></button>';
+        }).join('') + '</div>';
+      list = list.filter(function (l) { return l.date === days[A.authDay]; });
+    } else {
+      head = '<div class="tools" style="margin:0 0 14px"><div class="l">' +
+        '<button class="round" data-a="aw-prev" aria-label="Previous week"' + (k <= 0 ? ' disabled' : '') + '>' + ICON.left + '</button>' +
+        '<h2 aria-live="polite">Week ' + (k + 1) + ', ' + rangeLabel(k, true) + '</h2>' +
+        '<button class="round" data-a="aw-next" aria-label="Next week"' + (k >= SEM.weeks - 1 ? ' disabled' : '') + '>' + ICON.right + '</button>' +
+        '<button class="pillbtn" data-a="aw-this">This week</button></div></div>';
+    }
+  } else {
+    list = authBuckets()[A.authFilter];
+    head = '<div class="matchhead" style="margin:0 0 12px"><h2 aria-live="polite">' + list.length + ' ' + pl(list.length, 'lecture', 'lectures') + '</h2></div>';
+  }
+  var empty = weekly ? (phone ? 'No lectures on this day.' : 'No lectures this week.') : 'Nothing here.';
+  if (phone) {
+    var prevD = '', cards = '';
+    list.forEach(function (l, i) {
+      if (!weekly && l.date !== prevD) { cards += '<div class="datehead">' + h(dayLabel_(l.date)) + '</div>'; prevD = l.date; }
+      cards += dashCard(l, i, true);
+    });
+    box.innerHTML = head + (list.length ? '<div class="dcards">' + cards + '</div>' : '<div class="empty" style="margin:0">' + empty + '</div>');
+  } else {
+    var rows = '', prev = '';
+    list.forEach(function (l) { var nd = l.date !== prev; prev = l.date; rows += dashRow(l, nd, !weekly, true); });
+    box.innerHTML = head + '<div class="tablebox"><table class="lt"><thead><tr><th scope="col" style="width:' + (weekly ? 110 : 130) + 'px">When</th><th scope="col">Lecture</th><th scope="col" style="width:250px">Authors</th><th scope="col" style="width:170px">Status</th><th scope="col" style="width:170px">Files</th></tr></thead><tbody>' +
+      (rows || '<tr><td colspan="5" style="padding:28px 24px;color:#5F6368">' + empty + '</td></tr>') + '</tbody></table></div>';
+  }
+}
+
+// ----- drive
+function renderDrive() {
+  var s = S.adminState.settings, box = $('#drivebox');
+  if (!box) return;
+  var opts = function (sel) {
+    if (!A.folders) return '<option>Loading folders…</option>';
+    var found = A.folders.some(function (f) { return f.id === sel; });
+    return (found ? '' : '<option value="' + h(sel || '') + '" selected>' + (sel ? 'Current folder (' + h(sel.slice(0, 8)) + '…)' : 'Not set') + '</option>') +
+      A.folders.map(function (f) { return '<option value="' + h(f.id) + '"' + (f.id === sel ? ' selected' : '') + '>' + h(f.path) + '</option>'; }).join('');
+  };
+  box.innerHTML = '<div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;padding-bottom:16px;border-bottom:1px solid #E8EAED">' +
+    '<span><span style="display:block;font-size:13px;font-weight:700;color:#5F6368">Main folder</span><strong style="font-size:17px;font-weight:800">' + h(s.root ? s.root.name : 'Not set') + '</strong></span>' +
+    '<span style="display:flex;gap:16px;font-size:15px;font-weight:700">' + (s.root && s.root.url ? '<a href="' + h(s.root.url) + '" target="_blank" rel="noopener">Open</a>' : '') + '<button class="linkbtn" data-a="changeroot">Change</button></span></div>' +
+    '<div id="rootedit" hidden style="margin-top:14px"><label class="fld">Main folder link<input class="inp" id="froot" placeholder="https://drive.google.com/drive/folders/…"></label></div>' +
+    (A.foldersErr ? '<div class="err-box">' + h(A.foldersErr) + '</div>' : '') +
+    '<div class="fhead"><span></span><span>Sbobine, group only</span><span>Slides, anyone with the link</span></div>' +
+    COURSES.map(function (c) {
+      var m = s.folders[c.key] || {};
+      return '<div class="frow"><span style="display:flex;align-items:center;gap:10px;font-weight:800"><span aria-hidden="true" style="width:12px;height:12px;flex:0 0 12px;border-radius:50%;background:' + c.color + '"></span>' + h(c.name) + '</span>' +
+        '<label class="fld"><span class="mlab">Sbobine, group only</span><select class="inp" id="fs-' + c.code + '" aria-label="Sbobine folder for ' + h(c.name) + '">' + opts(m.sbobine) + '</select></label>' +
+        '<label class="fld"><span class="mlab">Slides, anyone with the link</span><select class="inp" id="fl-' + c.code + '" aria-label="Slides folder for ' + h(c.name) + '">' + opts(m.slides) + '</select></label></div>';
+    }).join('') +
+    '<div style="margin-top:16px"><button class="sbtn" data-a="savefolders"' + (A.folders ? '' : ' disabled') + '>Save folders</button></div>' +
+    '<p style="margin:16px 0 0;font-size:14px;line-height:1.5;color:#5F6368">The portal never changes folder sharing. Set the three Slides folders to "Anyone with the link can view" in Drive yourself; the sbobine folders stay shared with the group only.</p>';
+}
+
+// ----- members and email
+function renderMembers() {
+  var st = S.adminState, m = st.members, s = st.settings, ls = m.lastSync, box = $('#membox');
+  if (!box) return;
+  var sync = ls ? '<div class="graybox"><strong style="font-weight:800">Last sync ' + h(stampIn(ls.at)) + '.</strong> ' + ls.ok + ' ' + pl(ls.ok, 'person', 'people') + ' can open the sbobine' + (ls.failed.length ? '. ' + ls.failed.length + ' couldn\'t be added: ' + ls.failed.map(function (f) { return h(f.email) + ' (' + h(f.why) + ')'; }).join('; ') + '. Ask them for a Gmail address.' : '.') + '</div>' : '';
+  box.innerHTML = '<div class="box" style="flex:1 1 380px"><h3 class="h3" style="margin-bottom:6px">Who can open the sbobine</h3>' +
+    '<p style="margin:0 0 16px;font-size:15px;line-height:1.5;color:#3C4043">' + m.count + ' ' + pl(m.count, 'person', 'people') + ' in the Members sheet' + (m.count !== m.active ? ' (' + m.active + ' active)' : '') + '. <a href="' + h(s.membersUrl) + '" target="_blank" rel="noopener" style="font-weight:700">Open the sheet</a></p>' +
+    '<button class="sbtn" data-a="sync">Sync Drive access</button>' + sync +
+    '<p style="margin:12px 0 0;font-size:13px;line-height:1.45;color:#5F6368">Shares the main folder as Viewer with each active member in the sheet and removes members marked inactive. The email group doesn\'t give access, so joining or leaving it only changes who gets emails. Slides folders keep their public link.</p></div>' +
+    '<div class="box" style="flex:1 1 380px"><h3 class="h3">Group email</h3>' +
+    (S.env === 'test' ? '<p style="margin:0;font-size:15px;line-height:1.5;color:#3C4043">In test mode, emails go only to the test list (see Test mode below).</p>'
+      : '<label class="fld">Google Group address<input class="inp" id="gmail" value="' + h(s.groupEmail) + '"></label><div style="margin-top:10px"><button class="sbtn2 soft" data-a="savegroup">Save address</button></div>') +
+    '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:14px"><button class="sbtn2" data-a="copyemails">Copy all member emails</button><button class="sbtn2" data-a="testemail">Send a test email</button></div>' +
+    (A.emailsText ? '<label class="fld" style="margin-top:12px">Member emails<textarea class="ta" id="emailsta" rows="3" readonly style="font-size:14px;font-weight:500">' + h(A.emailsText) + '</textarea></label>' : '') +
+    '<p style="margin:14px 0 0;font-size:14px;line-height:1.5;color:#5F6368">' + (st.mail.quota >= 0 ? st.mail.quota + ' emails left today. ' : '') + (st.mail.queue ? st.mail.queue + ' waiting to be sent (they go out every hour).' : 'Nothing waiting to be sent.') + '</p></div>';
+}
+
+// ----- admins and settings
+function renderAdmins() {
+  var st = S.adminState, me = st.me, s = st.settings, box = $('#adminbox');
+  if (!box) return;
+  box.innerHTML = '<div class="box" style="flex:2 1 480px"><h3 class="h3">Admins</h3><ul style="list-style:none;margin:0;padding:0">' +
+    st.admins.map(function (a) {
+      var mine = a.email.toLowerCase() === me.email.toLowerCase();
+      var act = mine ? '<button class="linkbtn" data-a="newkey" style="font-size:14px">Get a new key</button>'
+        : A.removing === a.email ? '<span style="display:flex;gap:10px;align-items:center;font-size:14px"><button class="sbtn" data-a="rmadmin" data-email="' + h(a.email) + '" style="height:36px;background:#D93025">Remove</button><button class="linkbtn" data-a="rmcancel">Cancel</button></span>'
+          : '<button class="linkbtn" data-a="rmadmin" data-email="' + h(a.email) + '" style="font-size:14px">Remove</button>';
+      return '<li class="adminli"><span><strong style="font-weight:800">' + h(a.name) + '</strong>' + (mine ? ' <span style="color:#5F6368">(you)</span>' : '') + '<small>' + (a.addedBy === 'setup' ? 'Added at setup' : 'Added by ' + h(shortName(a.addedBy)) + (a.addedAt ? ', ' + h(stampLabel(a.addedAt)) : '')) + ' · ' + h(a.email) + '</small></span>' + act + '</li>';
+    }).join('') + '</ul>' +
+    (A.newKey ? '<div class="graybox drop">Your new key (also emailed to you). This device stays signed in with it.<div class="keyshow">' + h(A.newKey) + '</div></div>' : '') +
+    '<div style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin-top:12px;padding-top:16px;border-top:1px solid #E8EAED">' +
+    '<label class="fld" style="flex:1 1 150px">Name<input class="inp" id="nan" placeholder="e.g. Marco Tosi"></label>' +
+    '<label class="fld" style="flex:2 1 200px">Email<input class="inp" id="nae" type="email" placeholder="Where their key is sent"></label>' +
+    '<button class="sbtn" data-a="addadmin" style="height:48px">Add admin</button></div></div>' +
+    '<div class="box" style="flex:1 1 280px"><h3 class="h3">Settings</h3>' +
+    '<label class="fld">Days after a lecture before it counts as overdue<span style="display:flex;gap:10px"><input class="inp" id="grace" value="' + h(s.grace) + '" inputmode="numeric" style="width:100px;font-weight:700"><button class="sbtn2 soft" data-a="savegrace">Save</button></span></label>' +
+    '<ul class="alinks"><li><a href="' + h(s.dataSheetUrl) + '" target="_blank" rel="noopener">Open the data sheet' + (S.env === 'test' ? ' (test)' : '') + '</a></li>' +
+    '<li><button class="linkbtn" data-a="copyurl" style="font-size:15px">Copy the portal link</button></li>' +
+    '<li><a href="' + h(pageHref('dashboard', 'live')) + '">Open the dashboard</a></li></ul></div>';
+}
+
+// ----- test mode
+function renderTest() {
+  var s = S.adminState.settings, box = $('#testbox');
+  if (!box) return;
+  var inTest = S.env === 'test';
+  var uni = s.universal || { on: false };
+  var uniBox = '<div class="box" style="margin-top:20px"><div class="swrow" style="align-items:flex-start"><span style="display:block"><b style="display:block;font-size:19px;font-weight:900">Universal test mode</b>' +
+    '<span style="display:block;font-size:15px;font-weight:500;line-height:1.5;color:#3C4043;margin-top:6px;max-width:720px">' + (uni.on
+      ? '<strong style="color:#B3261E">On</strong> since ' + h(stampIn(uni.at)) + (uni.by ? ', by ' + h(shortName(uni.by)) : '') + '. Everyone who opens the portal without an admin key sees the test portal and can try every step. Admins still see the real one.'
+      : 'Off. Turn it on to let the whole class try the portal: everyone who opens it without an admin key gets the test portal (test data, test folders, test email list) until an admin turns it off. Your own test mode above keeps working either way.') + '</span></span>' +
+    '<button class="sw" role="switch" aria-label="Universal test mode" aria-checked="' + uni.on + '" data-a="uni"><span class="knob"></span></button></div>' +
+    (A.confirmUni ? '<div class="graybox drop" style="display:flex;flex-wrap:wrap;align-items:center;gap:10px"><span style="flex:1 1 260px">Turn it on? Classmates who open the portal will see test data instead of the real semester until someone turns it off.</span><button class="sbtn" data-a="uni-yes">Yes, turn it on</button><button class="linkbtn" data-a="uni-cancel">Cancel</button></div>' : '') + '</div>';
+  box.innerHTML = '<div class="stripe"><p>Try anything without touching the real portal. In test mode, uploads go to the test folders, emails go only to the test list, and author changes and schedule approvals only change the test copy of the data. The real dashboard never sees any of it.</p>' +
+    '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:18px">' +
+    (inTest ? '<a class="wbtn" href="' + h(pageHref('admin', 'live')) + '">Leave test mode</a>' : '<a class="wbtn" href="' + h(pageHref('dashboard', 'test')) + '">Open the site in test mode</a>') +
+    (A.confirmReset ? '<button class="wbtn2 danger" data-a="reset">Yes, reset the test data</button><button class="wbtn2" data-a="resetcancel">Cancel</button>' : '<button class="wbtn2" data-a="reset">Reset test data</button>') +
+    '</div>' +
+    (A.confirmReset ? '<p class="drop" style="margin-top:12px;font-size:14px">This recopies the live lectures, clears test submissions and author assignments, and trashes every file in the test folders.' +
+      (s.universal && s.universal.on ? ' <strong>Universal test mode is on, so this also wipes whatever classmates are trying right now.</strong>' : '') + '</p>' : '') +
+    '</div>' +
+    '<div class="two" style="margin-top:20px"><div class="box" style="flex:1 1 380px"><h3 class="h3" style="margin-bottom:6px">Test folders</h3>' +
+    '<p style="margin:0 0 12px;font-size:15px;line-height:1.5;color:#3C4043">Made at setup, laid out like the real ones: 3 sbobine folders and 3 slides folders.</p>' +
+    '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:#F3F4F2;border-radius:14px;padding:12px 14px"><strong style="font-weight:800">' + h(s.testRoot ? s.testRoot.name : 'Not created yet (run setup)') + '</strong>' + (s.testRoot ? '<a href="' + h(s.testRoot.url) + '" target="_blank" rel="noopener" style="font-weight:700">Open</a>' : '') + '</div>' +
+    (s.testDataUrl ? '<p style="margin:12px 0 0;font-size:14px"><a href="' + h(s.testDataUrl) + '" target="_blank" rel="noopener" style="font-weight:700">Open the test data sheet</a></p>' : '') + '</div>' +
+    '<div class="box" style="flex:1 1 380px"><h3 class="h3" style="margin-bottom:6px">Test email list</h3>' +
+    '<p style="margin:0 0 12px;font-size:15px;line-height:1.5;color:#3C4043">Test emails go only here, in their own thread, with [TEST] in front of the subject.</p>' +
+    '<div style="display:flex;flex-wrap:wrap;gap:8px">' + s.testEmails.map(function (e) { return '<span class="chip" style="height:36px;font-size:14px;padding:0 2px 0 12px">' + h(e) + '<button class="chipx" data-a="rmtestmail" data-email="' + h(e) + '" aria-label="Remove ' + h(e) + '">×</button></span>'; }).join('') +
+    '<button class="add" data-a="addtestmail" style="height:36px;font-size:14px">+ Add an email</button></div></div></div>' + uniBox;
+}
+
+// ----- activity
+function lecName(id) {
+  var l = byId[id];
+  return l ? lecTitle(l) : id ? dayLabel_(id.slice(0, 10)) + ' ' + id.slice(11) : '';
+}
+function activityText(r) {
+  var j = function (s) { try { return JSON.parse(s); } catch (e) { return s; } };
+  var b = j(r.before), a = j(r.after);
+  var diffNames = function (x, y) { x = Array.isArray(x) ? x : []; y = Array.isArray(y) ? y : []; return y.filter(function (n) { return x.indexOf(n) < 0; }); };
+  if (r.action === 'assign') return 'Added ' + diffNames(b, a).join(', ') + ' to ' + lecName(r.lectureId);
+  if (r.action === 'unassign') return 'Removed ' + diffNames(a, b).join(', ') + ' from ' + lecName(r.lectureId);
+  if (r.action === 'import') return 'Imported authors for ' + lecName(r.lectureId) + ': ' + (Array.isArray(a) ? a.join(', ') : '');
+  if (r.action === 'approve-schedule') return 'Approved a schedule change' + (a && a.counts ? ' (' + a.counts.changed + ' changed, ' + a.counts.added + ' added, ' + a.counts.removed + ' removed)' : '');
+  if (r.action === 'dismiss-schedule') return 'Dismissed a schedule change';
+  if (r.action === 'upload' && a) return a.by + ' uploaded ' + (a.kind === 'slides' ? 'slides' : 'the sbobina') + ' for ' + a.title + (a.part > 1 ? ', part ' + a.part : '') + (a.state === 'superseded' ? ' (since replaced)' : '') + (a.email === 'imported' ? ' (imported)' : '');
+  if (r.action === 'settings' && a && typeof a === 'object') {
+    var k = Object.keys(a)[0], val = a[k];
+    var names = { link: 'Changed the schedule link', graceDays: 'Set the overdue grace period to ' + val + ' days', groupEmail: 'Set the group address to ' + val, testEmails: 'Changed the test email list',
+      root: 'Changed the Drive folders', folders: 'Changed the Drive folders', syncedAccess: 'Synced Drive access (' + val + ' people)', addedAdmin: 'Added admin ' + val, removedAdmin: 'Removed admin ' + val,
+      newKey: 'Made a new admin key', resetTest: 'Reset the test data', universalTest: (val ? 'Turned universal test mode on' : 'Turned universal test mode off') };
+    return names[k] || 'Changed settings';
+  }
+  return r.action;
+}
+function renderActivity() {
+  var box = $('#actbox'), list = S.adminState.activity;
+  if (!box) return;
+  var all = list.length, shown = A.allActivity ? list : list.slice(0, 25);
+  box.innerHTML = all ? shown.map(function (r, i) {
+    return '<div class="actv" style="' + (i === 0 ? 'border-top:0' : '') + '"><span style="color:#5F6368">' + h(stampLabel(r.at)) + '</span><strong style="font-weight:800">' + h(r.who === 'Portal' || r.who === 'Import' ? r.who : shortName(r.who)) + '</strong><span>' + h(activityText(r)) + '</span></div>';
+  }).join('') + (all > shown.length ? '<div style="padding:12px 0 16px;border-top:1px solid #E8EAED"><button class="pillbtn" data-a="allact">Show all ' + all + '</button></div>' : '') : '<p style="padding:16px 0;color:#5F6368">Nothing yet.</p>';
+}
+
+// =====================================================================================
+// Start
+// =====================================================================================
+(function start() {
+  var k = store.get('sb.key');
+  if (k) S.admin = { key: k, name: store.get('sb.name') || 'Admin' };
+  if (S.data) setData(S.data);
+  if (BOOT.error && !S.data) { $('#view').innerHTML = '<div class="wrap"><div class="err-box">' + h(BOOT.error) + '</div></div>'; renderHeader(); return; }
+  // An admin on the live dashboard gets the author chips: fetch the state with the key once
+  if (S.admin && S.data && !S.data.admin) {
+    api('state').then(function (d) { setData(d); if (S.page === 'dashboard') renderPage({ keep: true }); else renderHeader(); }, function () {});
+  }
+  renderPage();
+})();
+})();
+</script>
+</body>
+</html>
