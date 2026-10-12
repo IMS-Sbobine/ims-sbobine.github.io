@@ -621,6 +621,30 @@ table.lt .cnote{margin-left:44px}
 .menu{position:absolute;z-index:50;min-width:220px;max-width:290px;background:#FFFFFF;border:2px solid var(--ink);border-radius:14px;box-shadow:4px 4px 0 var(--ink);padding:6px;display:flex;flex-direction:column}
 .menu [role="menuitem"]{border:0;background:none;text-align:left;padding:9px 10px;border-radius:9px;font-size:14px;font-weight:700;color:var(--ink);text-decoration:none}
 .menu [role="menuitem"]:hover,.menu [role="menuitem"]:focus-visible{background:var(--bg)}
+.dgrid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:28px;align-items:start}
+.dmain{min-width:0}
+.dside{display:flex;flex-direction:column;gap:14px;margin-top:26px;position:sticky;top:16px}
+@media (max-width:1023px){.dgrid{grid-template-columns:minmax(0,1fr)}.dside{position:static}}
+.grp h3{margin:0;font-size:18px;font-weight:900}
+.grp h4{margin:16px 0 6px;font-size:14px;font-weight:900}
+.grp .meta{font-size:13px;color:var(--muted)}
+.mem{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line2);font-size:14px}
+.av{width:30px;height:30px;flex:0 0 30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#FFFFFF}
+.mem .grow{flex:1 1 auto;min-width:0}
+.mem b{font-weight:800}
+.otag{font-size:11px;font-weight:700;color:var(--faint)}
+.mbar2{height:6px;border-radius:3px;background:var(--line2);overflow:hidden;margin-top:4px}
+.mbar2 i{display:block;height:100%;background:#2BA84A}
+.cnum{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
+.lock{font-size:12px;color:var(--muted);font-weight:700}
+.xs{border:0;background:none;width:26px;height:26px;border-radius:50%;font-size:16px;font-weight:900;color:var(--faint)}
+.xs:hover{background:var(--bg);color:var(--red-ink)}
+.ginv{display:flex;gap:8px;margin-top:12px}
+.ginv .inp{height:38px;font-size:14px}
+.ginv .sbtn{height:38px;flex:0 0 auto}
+.aim.grp{background:#F1ECFB;color:#5B2DB0}
+.rchip.hid{opacity:.55}
+.rchip .pv.sh{background:#F1ECFB;color:#5B2DB0}
 .li2{display:flex;flex-wrap:wrap;align-items:center;gap:10px;border-top:1px solid var(--line2);padding:12px 0;font-size:15px}
 .li2 .grow{flex:1 1 240px;min-width:0}
 .li2 b{font-weight:800}
@@ -1151,7 +1175,7 @@ function renderHeader() {
   }
 }
 function inboxBadge() {
-  var n = S.data && S.data.hand ? S.data.hand.incoming.length : 0;
+  var n = (S.data && S.data.hand ? S.data.hand.incoming.length : 0) + (S.me && S.me.invites ? S.me.invites : 0);
   return n ? '<a href="#mine" class="hbadge" data-act="tomine" aria-label="' + n + ' ' + pl(n, 'request', 'requests') + ' waiting for you">' + n + '</a>' : '';
 }
 // Admins in test mode can see the site the way each kind of classmate does
@@ -1895,16 +1919,16 @@ deskMq.addEventListener && deskMq.addEventListener('change', function () {
 });
 
 // =====================================================================================
-// Study diary: your ticks, aims and resources, plus your lectures and requests
+// Study diary: your ticks, aims and resources, your lectures and requests, study groups
 // =====================================================================================
-var DI = { week: null, course: '', menu: null };
+var DI = { week: null, course: '', showHid: {}, leaving: '', newGroup: false };
 var TICKS = ['Not started yet', 'Started', 'Studied'];
 var COURSE_SHORT = { MS: 'Medical Science', NB: 'Neuro & Behaviour', FS: 'Surgery' };
 
 function renderDiary(v) {
   if (level() < 2) {
     v.innerHTML = '<main class="signin"><div class="box"><h1 class="rise">Your study diary</h1>' +
-      '<p style="margin:0 0 20px;font-size:15px;line-height:1.5;color:#3C4043">Tick off the lectures you\'ve started and studied, set yourself dates to finish them, and keep your own links for each lecture or course. Only you see it. Sign in to start.</p>' +
+      '<p style="margin:0 0 20px;font-size:15px;line-height:1.5;color:#3C4043">Tick off the lectures you\'ve started and studied, set yourself dates to finish them, keep your own links for each lecture or course, and study with classmates in groups. Sign in to start.</p>' +
       '<button class="btn wide" data-u="tosignin">Sign in</button></div></main>';
     v.onclick = function (e) { if (e.target.closest('[data-u="tosignin"]')) { S.after = 'diary'; S.signinNote = ''; go('signin'); } };
     return;
@@ -1918,21 +1942,24 @@ function renderDiary(v) {
   v.innerHTML = '<main class="wrap" id="diary">' +
     '<h1 class="dh1 rise">Your study diary</h1>' +
     '<div id="minebox">' + mineHtml() + askHtml() + '</div>' +
+    '<div class="dgrid"><div class="dmain">' +
     '<div class="prog" id="dprog" aria-live="polite"></div>' +
     '<div class="mchips" role="group" aria-label="Show" id="dcourses">' +
     [['', 'All, week by week']].concat(COURSES.map(function (c) { return [c.code, COURSE_SHORT[c.code] || c.name]; })).map(function (x) {
       return '<button data-dcourse="' + x[0] + '" aria-pressed="' + (DI.course === x[0]) + '">' + (x[0] ? '<span aria-hidden="true" class="dot" style="background:' + ccol(x[0]) + '"></span>' : '') + h(x[1]) + '</button>';
     }).join('') + '</div>' +
-    '<div id="dbody"></div>' + stripHtml() + '</main>';
+    '<div id="dbody"></div></div>' +
+    '<aside class="dside" id="dside" aria-label="Study groups"></aside></div>' + stripHtml() + '</main>';
   drawDiary();
   var root = $('#diary');
   root.addEventListener('click', diaryClick);
+  root.addEventListener('submit', diarySubmit);
   wireHand(root);
 }
+function setDiary(d) { S.diary = d; if (S.me) S.me.invites = (d.invited || []).length; renderHeader(); }
 
-function diaryLectures() {
-  return S.data.lectures.filter(function (l) { return !l.removed && (!DI.course || l.cc === DI.course); });
-}
+function diaryLectures() { return S.data.lectures.filter(function (l) { return !l.removed && (!DI.course || l.cc === DI.course); }); }
+function groupById(id) { return (S.diary.groups || []).filter(function (g) { return g.id === id; })[0]; }
 function drawProgress() {
   var list = diaryLectures().filter(function (l) { return !l.cancelled; }), t = S.diary.ticks, done = 0, half = 0;
   list.forEach(function (l) { if (t[l.id] === 2) done++; else if (t[l.id] === 1) half++; });
@@ -1941,24 +1968,42 @@ function drawProgress() {
     '<span class="bar" aria-hidden="true"><i style="width:' + (100 * done / n).toFixed(1) + '%;background:#2BA84A"></i><i style="width:' + (100 * half / n).toFixed(1) + '%;background:#E8A600"></i></span>' +
     '<span class="lg"><span><i style="background:#2BA84A"></i>Studied ' + done + '</span><span><i style="background:#E8A600"></i>Started ' + half + '</span><span><i style="background:#E8EAED"></i>Not yet ' + (list.length - done - half) + '</span></span>';
 }
-function resFor(scope) { return S.diary.res.filter(function (r) { return r.scope === scope; }); }
+
+// ----- resources: yours (only you, or shared with groups) and what your groups share with you
 function resChips(scope) {
-  return resFor(scope).map(function (r) {
-    return '<span class="rchip"><a href="' + h(r.url) + '" target="_blank" rel="noopener"><span class="k">' + (r.kind === 'class' ? 'Class' : 'Link') + '</span>' + h(r.title) + '</a>' +
-      '<span class="pv">Only you</span><button class="more" data-rmore="' + h(r.id) + '" aria-label="More for ' + h(r.title) + '" aria-haspopup="menu">⋯</button></span>';
-  }).join('');
+  var hidden = S.diary.hidden || [];
+  var mine = S.diary.res.filter(function (r) { return r.scope === scope; }).map(function (r) {
+    var gs = (r.groups || []).map(groupById).filter(Boolean).map(function (g) { return g.name; });
+    return chip(r, gs.length ? 'Shared with ' + gs.join(', ') : 'Only you', !!gs.length, false);
+  });
+  var others = (S.diary.shared || []).filter(function (r) { return r.scope === scope; });
+  var nHid = others.filter(function (r) { return hidden.indexOf(r.id) >= 0; }).length;
+  var theirs = others.filter(function (r) { return hidden.indexOf(r.id) < 0 || DI.showHid[scope]; }).map(function (r) {
+    return chip(r, 'From ' + r.by + ', ' + r.groupNames.join(', '), true, hidden.indexOf(r.id) >= 0);
+  });
+  return mine.join('') + theirs.join('') +
+    (nHid ? '<button class="linkbtn" data-showhid="' + h(scope) + '" style="font-size:13px;color:#5F6368">' + (DI.showHid[scope] ? 'Hide the hidden ' + pl(nHid, 'one', 'ones') + ' again' : nHid + ' hidden · Show') + '</button>' : '');
 }
-function aimChip(l) {
-  var a = S.diary.aims[l.id];
-  if (!a) return '<button class="linkbtn aimset" data-daim="' + h(l.id) + '">Set an aim</button>';
-  var late = a < S.data.today && S.diary.ticks[l.id] !== 2;
-  return '<button class="aim' + (late ? ' late' : '') + '" data-daim="' + h(l.id) + '" title="Only you see this. Tap to change it.">' + (late ? 'Aim passed: ' : 'Your aim: ') + h(dayLabel_(a)) + '</button>';
+function chip(r, tag, sh, hid) {
+  return '<span class="rchip' + (hid ? ' hid' : '') + '"><a href="' + h(r.url) + '" target="_blank" rel="noopener"><span class="k">' + (r.kind === 'class' ? 'Class' : 'Link') + '</span>' + h(r.title) + '</a>' +
+    '<span class="pv' + (sh ? ' sh' : '') + '">' + h(tag) + '</span><button class="more" data-rmore="' + h(r.id) + '" aria-label="More for ' + h(r.title) + '" aria-haspopup="menu">⋯</button></span>';
+}
+// ----- aims: yours, and each group's (anyone in the group can change those)
+function aimChips(l) {
+  var out = '', a = S.diary.aims[l.id], studied = S.diary.ticks[l.id] === 2;
+  var late = function (d) { return d < S.data.today && !studied; };
+  if (a) out += '<button class="aim' + (late(a) ? ' late' : '') + '" data-daim="' + h(l.id) + '" title="Only you see this. Tap to change it.">' + (late(a) ? 'Aim passed: ' : 'Your aim: ') + h(dayLabel_(a)) + '</button>';
+  (S.diary.groups || []).forEach(function (g) {
+    var x = g.aims[l.id];
+    if (x) out += '<button class="aim grp' + (late(x.date) ? ' late' : '') + '" data-daim="' + h(l.id) + '" data-g="' + h(g.id) + '" title="' + h(g.name) + ' aim, set by ' + h(x.by) + '. Anyone in the group can change it.">' + h(g.name) + ': ' + h(dayLabel_(x.date)) + '</button>';
+  });
+  return out || '<button class="linkbtn aimset" data-daim="' + h(l.id) + '">Set an aim</button>';
 }
 function diaryCard(l) {
   var s = S.diary.ticks[l.id] || 0;
   return '<article class="dl' + (l.cancelled ? ' cx' : '') + '" id="dl-' + h(l.id) + '">' +
     '<button class="tick" data-dtick="' + h(l.id) + '" data-s="' + s + '"' + (l.cancelled ? ' disabled' : '') + ' aria-label="' + h(lecTitle(l) + ': ' + TICKS[s] + (l.cancelled ? '' : '. Tap to change.')) + '">' + (s === 2 ? '✓' : '') + '</button>' +
-    '<div class="r1">' + badge(l.cc) + '<span class="tt">' + h(lecTitle(l)) + '</span><span class="meta">' + h(l.start + ' · Prof. ' + l.prof) + '</span>' + (l.cancelled ? '' : aimChip(l)) + '</div>' +
+    '<div class="r1">' + badge(l.cc) + '<span class="tt">' + h(lecTitle(l)) + '</span><span class="meta">' + h(l.start + ' · Prof. ' + l.prof) + '</span>' + (l.cancelled ? '' : aimChips(l)) + '</div>' +
     '<div class="tp">' + (l.cancelled ? '<span class="ct">' + h(l.topic || '') + '</span> ' + cancelNote(l) : h(l.topic || 'No topic yet') + ' <span class="meta">· ' + TICKS[s] + '</span>') + '</div>' +
     (l.cancelled ? '' : '<div class="res">' + resChips(l.id) + '<button class="addr" data-radd="' + h(l.id) + '">+ Add a resource</button></div>') + '</article>';
 }
@@ -1988,10 +2033,60 @@ function drawDiary() {
   }
   body.innerHTML = html;
   $$('#dcourses [data-dcourse]').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-dcourse') === DI.course); });
+  drawGroups();
 }
 
-function diarySave(name, req, msg) {
-  return api(name, req).then(function (d) { S.diary = d; drawDiary(); if (msg) toast(msg); }, function (x) { toast(x.message, true); drawDiary(); });
+// ----- the groups column
+function drawGroups() {
+  var box = $('#dside'), d = S.diary;
+  if (!box) return;
+  var inv = (d.invited || []).map(function (g) {
+    return '<div class="hreq in" style="margin:0 0 12px"><span>' + h(g.by) + ' invited you to <b>' + h(g.name) + '</b><small>' + g.members + ' ' + pl(g.members, 'person', 'people') + ' so far</small></span>' +
+      '<span class="acts"><button class="sbtn" data-ganswer="' + h(g.id) + '" data-acc="1">Join</button><button class="sbtn2 soft" data-ganswer="' + h(g.id) + '" data-acc="0">Decline</button></span></div>';
+  }).join('');
+  var cards = (d.groups || []).map(groupCard).join('');
+  var create = DI.newGroup
+    ? '<form class="box grp" id="gnew"><h3>New study group</h3><label class="fld" style="margin-top:10px">Name<input class="inp" id="gname" maxlength="60" placeholder="e.g. Neuro revision" autocomplete="off"></label>' +
+      '<div style="display:flex;gap:8px;margin-top:12px"><button class="sbtn" id="gnewgo">Create</button><button type="button" class="sbtn2 soft" data-gnew="0">Cancel</button></div>' +
+      '<p class="sub" style="margin:10px 0 0;font-size:13px">You can then invite anyone by email. You can be in up to 10 groups.</p></form>'
+    : '<button class="btn2" data-gnew="1" style="align-self:flex-start">+ New study group</button>';
+  box.innerHTML = '<h2 class="h2" style="margin:0">Study groups</h2>' + inv +
+    (cards || (DI.newGroup ? '' : '<p class="sub" style="margin:0">Study with classmates: see each other\'s progress if you all want to, share resources and set dates to finish lectures by.</p>')) + create;
+  if (DI.newGroup) { var gi = $('#gname'); if (gi) gi.focus(); }
+}
+function groupCard(g) {
+  var pb = function (p) { return p ? '<div class="mbar2" aria-hidden="true"><i style="width:' + (100 * p.studied / Math.max(1, p.total)).toFixed(0) + '%"></i></div>' : ''; };
+  var members = g.members.map(function (m) {
+    var right = m.progress ? '<span class="cnum">' + m.progress.studied + ' / ' + m.progress.total + '</span>'
+      : '<span class="lock">' + (m.me ? 'Private' : g.share ? 'Keeps it private' : 'Hidden') + '</span>';
+    return '<div class="mem"><span class="av" aria-hidden="true" style="background:' + avColor(m.id) + '">' + h((m.name || '?').charAt(0)) + '</span>' +
+      '<span class="grow"><b>' + h(m.name) + '</b>' + (m.owner ? ' <span class="otag">made the group</span>' : '') + pb(m.progress) + '</span>' + right +
+      (g.mine && !m.me ? '<button class="xs" data-gremove="' + h(g.id) + '" data-m="' + h(m.id) + '" aria-label="Take ' + h(m.name) + ' out of the group">×</button>' : '') + '</div>';
+  }).join('');
+  var invites = g.invites.length ? '<p class="sub" style="margin:8px 0 0;font-size:13px">Invited: ' + g.invites.map(function (i) { return h(i.email) + (g.mine ? ' <button class="linkbtn" data-guninvite="' + h(g.id) + '" data-e="' + h(i.email) + '" style="font-size:12px;color:#5F6368">withdraw</button>' : ''); }).join(', ') + '</p>' : '';
+  var aims = Object.keys(g.aims).map(function (id) {
+    var l = byId[id], a = g.aims[id];
+    return l ? '<div class="li2" style="padding:8px 0;font-size:14px"><span class="grow">' + h(lecTitle(l)) + '<small>Set by ' + h(a.by) + '</small></span><span style="display:flex;gap:8px;align-items:center"><span class="aim grp">' + h(dayLabel_(a.date)) + '</span><button class="linkbtn" data-daim="' + h(id) + '" data-g="' + h(g.id) + '" style="font-size:13px">Change</button></span></div>' : '';
+  }).join('');
+  var shared = (S.diary.res.filter(function (r) { return (r.groups || []).indexOf(g.id) >= 0; }).map(function (r) { return { t: r.title, u: r.url, by: 'You' }; }))
+    .concat((S.diary.shared || []).filter(function (r) { return r.groupIds.indexOf(g.id) >= 0; }).map(function (r) { return { t: r.title, u: r.url, by: r.by }; }));
+  return '<section class="box grp" aria-label="' + h(g.name) + '">' +
+    '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><h3>' + h(g.name) + '</h3><span class="meta">' + g.members.length + ' ' + pl(g.members.length, 'person', 'people') + '</span></div>' +
+    '<div class="swrow"><span id="gs-' + h(g.id) + '">Share my progress with this group</span><button class="sw" role="switch" aria-labelledby="gs-' + h(g.id) + '" aria-checked="' + g.share + '" data-gshare="' + h(g.id) + '"><span class="knob"></span></button></div>' +
+    '<p class="sub" style="margin:6px 0 4px;font-size:13px">' + (g.share ? 'You see the others who share too.' : 'Your ticks are private here, so you don\'t see anyone else\'s either.') + '</p>' +
+    members + invites +
+    '<form class="ginv" data-ginvite="' + h(g.id) + '"><label class="sr" for="gi-' + h(g.id) + '">Invite by email</label><input class="inp" id="gi-' + h(g.id) + '" type="text" inputmode="email" placeholder="Invite by email" autocomplete="off"><button class="sbtn">Invite</button></form>' +
+    '<h4>Shared aims</h4>' + (aims || '<p class="sub" style="margin:0;font-size:13px">None yet. Set one from a lecture: choose the group when you set the aim. Anyone in the group can change it.</p>') +
+    '<h4>Shared resources</h4>' + (shared.length ? '<div style="display:flex;flex-wrap:wrap;gap:6px">' + shared.map(function (r) { return '<a class="rchip" href="' + h(r.u) + '" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;padding-right:10px">' + h(r.t) + '<span class="pv sh">' + h(r.by) + '</span></a>'; }).join('') + '</div>'
+      : '<p class="sub" style="margin:0;font-size:13px">None yet. Share one of your resources from its ⋯ menu.</p>') +
+    '<div style="margin-top:14px">' + (DI.leaving === g.id ? '<span style="display:inline-flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="sbtn" data-gleave="' + h(g.id) + '" style="background:#D93025;height:36px">Leave ' + h(g.name) + '</button><button class="linkbtn" data-gleavecancel="1">Cancel</button></span>'
+      : '<button class="linkbtn" data-gleave="' + h(g.id) + '" style="font-size:13px;color:#5F6368">Leave the group</button>') + '</div></section>';
+}
+function avColor(id) { var c = ['#2457D6', '#8146D6', '#0E8F92', '#E8A600', '#D93025', '#1E7B37', '#5F6368']; var n = 0; for (var i = 0; i < String(id).length; i++) n = (n * 31 + String(id).charCodeAt(i)) % 997; return c[n % c.length]; }
+
+function diaryCall(name, req, msg, btn) {
+  if (btn) busy(btn, true, '…');
+  return api(name, req).then(function (d) { setDiary(d); drawDiary(); if (msg) toast(typeof msg === 'function' ? msg(d) : msg); }, function (x) { if (btn) busy(btn, false); toast(x.message, true); drawDiary(); });
 }
 function diaryClick(e) {
   var t = e.target.closest('[data-dtick]');
@@ -2000,7 +2095,7 @@ function diaryClick(e) {
     if (s) S.diary.ticks[id] = s; else delete S.diary.ticks[id];
     drawDiary();
     var nb = $('[data-dtick="' + id + '"]'); if (nb) nb.focus();
-    diarySave('diaryTick', { lectureId: id, state: s }, lecTitle(l) + ': ' + TICKS[s] + '.');
+    diaryCall('diaryTick', { lectureId: id, state: s }, lecTitle(l) + ': ' + TICKS[s] + '.');
     return;
   }
   var c = e.target.closest('[data-dcourse]');
@@ -2008,44 +2103,94 @@ function diaryClick(e) {
   var w = e.target.closest('[data-dw]');
   if (w) { var dv = +w.getAttribute('data-dw'); DI.week = dv ? Math.max(0, Math.min(SEM.weeks - 1, DI.week + dv)) : curWeek(); drawDiary(); return; }
   var a = e.target.closest('[data-daim]');
-  if (a) { openAim(a.getAttribute('data-daim')); return; }
+  if (a) { openAim(a.getAttribute('data-daim'), a.getAttribute('data-g') || ''); return; }
   var r = e.target.closest('[data-radd]');
   if (r) { openAddRes(r.getAttribute('data-radd')); return; }
   var m = e.target.closest('[data-rmore]');
   if (m) { openResMenu(m); return; }
+  var sh = e.target.closest('[data-showhid]');
+  if (sh) { var sc = sh.getAttribute('data-showhid'); DI.showHid[sc] = !DI.showHid[sc]; drawDiary(); return; }
+  var gn = e.target.closest('[data-gnew]');
+  if (gn) { DI.newGroup = gn.getAttribute('data-gnew') === '1'; drawGroups(); return; }
+  var ga = e.target.closest('[data-ganswer]');
+  if (ga) { var acc = ga.getAttribute('data-acc') === '1'; diaryCall('groupAnswer', { groupId: ga.getAttribute('data-ganswer'), accept: acc }, acc ? 'You\'re in. Your progress stays private until you switch on sharing.' : 'Invite declined.', ga); return; }
+  var gs = e.target.closest('[data-gshare]');
+  if (gs) { var on = gs.getAttribute('aria-checked') !== 'true'; diaryCall('groupShare', { groupId: gs.getAttribute('data-gshare'), share: on }, on ? 'You share your progress with this group, and see the others who share.' : 'Your progress is private here. You no longer see the others\' either.', gs); return; }
+  var gr = e.target.closest('[data-gremove]');
+  if (gr) { diaryCall('groupLeave', { groupId: gr.getAttribute('data-gremove'), member: gr.getAttribute('data-m') }, 'Taken out of the group.', gr); return; }
+  var gu = e.target.closest('[data-guninvite]');
+  if (gu) { diaryCall('groupLeave', { groupId: gu.getAttribute('data-guninvite'), invite: gu.getAttribute('data-e') }, 'Invite withdrawn.', gu); return; }
+  var gl = e.target.closest('[data-gleave]');
+  if (gl) {
+    var gid = gl.getAttribute('data-gleave');
+    if (DI.leaving !== gid) { DI.leaving = gid; drawGroups(); return; }
+    DI.leaving = '';
+    diaryCall('groupLeave', { groupId: gid }, 'You left the group.', gl);
+    return;
+  }
+  if (e.target.closest('[data-gleavecancel]')) { DI.leaving = ''; drawGroups(); }
+}
+function diarySubmit(e) {
+  if (e.target.id === 'gnew') {
+    e.preventDefault();
+    var nm = $('#gname').value.trim();
+    if (!nm) { $('#gname').focus(); return; }
+    DI.newGroup = false;
+    diaryCall('groupCreate', { name: nm }, 'Group created. Invite people by email.', $('#gnewgo'));
+    return;
+  }
+  var inv = e.target.closest('[data-ginvite]');
+  if (inv) {
+    e.preventDefault();
+    var gid = inv.getAttribute('data-ginvite'), inp = inv.querySelector('input'), val = inp.value.trim();
+    if (!val) { inp.focus(); return; }
+    diaryCall('groupInvite', { groupId: gid, emails: val }, function (d) { return d.invitedNow ? (d.invitedNow === 1 ? 'Invite sent.' : d.invitedNow + ' invites sent.') + ' They join once they accept.' : 'They\'re already in the group or invited.'; }, inv.querySelector('button'));
+  }
 }
 
-function openAim(id) {
-  var l = byId[id], d = $('#repdlg'), cur = S.diary.aims[id] || '';
+function openAim(id, gid) {
+  var l = byId[id], d = $('#repdlg');
   if (!l || !d) return;
+  var groups = S.diary.groups || [];
+  var cur = function (g) { return g ? (groupById(g) && groupById(g).aims[id] ? groupById(g).aims[id].date : '') : (S.diary.aims[id] || ''); };
   d.innerHTML = '<form id="aimform"><h2 id="rep-h" style="margin:0 0 4px;font-size:22px;font-weight:900">Aim to finish ' + h(lecTitle(l)) + '</h2>' +
-    '<p style="margin:0 0 4px;font-size:14px;line-height:1.45;color:#3C4043">A date you want to have it studied by. Only you see it.</p>' +
-    '<label class="fld" style="margin-top:12px">By<input class="inp" type="date" id="aimdate" value="' + h(cur || '') + '" min="' + h(l.date) + '"></label>' +
-    '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:16px"><button class="sbtn" id="aimgo">Save</button>' + (cur ? '<button type="button" class="sbtn2" id="aimdel">Remove the aim</button>' : '') + '<button type="button" class="sbtn2 soft" id="aimno">Cancel</button></div></form>';
+    '<p style="margin:0 0 4px;font-size:14px;line-height:1.45;color:#3C4043">A date you want to have it studied by.</p>' +
+    (groups.length ? '<fieldset style="border:0;padding:0;margin:12px 0 0"><legend style="font-size:14px;font-weight:800;padding:0">Whose aim is it</legend>' +
+      '<label class="check" style="margin-top:4px"><input type="radio" name="aimwho" value=""' + (gid ? '' : ' checked') + '><span aria-hidden="true" class="bx" style="border-radius:50%">✓</span>Just mine (only I see it)</label>' +
+      groups.map(function (g) { return '<label class="check" style="margin-top:4px"><input type="radio" name="aimwho" value="' + h(g.id) + '"' + (gid === g.id ? ' checked' : '') + '><span aria-hidden="true" class="bx" style="border-radius:50%">✓</span>' + h(g.name) + '\'s (everyone in it sees it and can change it)</label>'; }).join('') + '</fieldset>' : '') +
+    '<label class="fld" style="margin-top:12px">By<input class="inp" type="date" id="aimdate" value="' + h(cur(gid)) + '" min="' + h(l.date) + '"></label>' +
+    '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:16px"><button class="sbtn" id="aimgo">Save</button><button type="button" class="sbtn2" id="aimdel">Remove this aim</button><button type="button" class="sbtn2 soft" id="aimno">Cancel</button></div></form>';
   if (d.showModal) d.showModal(); else d.setAttribute('open', '');
   var close = function () { if (d.close) d.close(); else d.removeAttribute('open'); };
+  var who = function () { var x = d.querySelector('input[name="aimwho"]:checked'); return x ? x.value : ''; };
+  d.querySelectorAll('input[name="aimwho"]').forEach(function (x) { x.onchange = function () { $('#aimdate').value = cur(who()); }; });
   $('#aimno').onclick = close;
-  if ($('#aimdel')) $('#aimdel').onclick = function () { close(); diarySave('diaryAim', { lectureId: id, date: '' }, 'Aim removed.'); };
-  $('#aimform').onsubmit = function (ev) {
-    ev.preventDefault();
-    var v = $('#aimdate').value;
-    if (!v) { $('#aimdate').focus(); return; }
-    close(); diarySave('diaryAim', { lectureId: id, date: v }, 'Aim saved: ' + dayLabel_(v) + '.');
+  var save = function (date) {
+    var g = who();
+    close();
+    if (g) diaryCall('groupAim', { groupId: g, lectureId: id, date: date }, date ? 'Group aim saved. Everyone in ' + groupById(g).name + ' sees it.' : 'Group aim removed.');
+    else diaryCall('diaryAim', { lectureId: id, date: date }, date ? 'Aim saved: ' + dayLabel_(date) + '.' : 'Aim removed.');
   };
+  $('#aimdel').onclick = function () { save(''); };
+  $('#aimform').onsubmit = function (ev) { ev.preventDefault(); var v = $('#aimdate').value; if (!v) { $('#aimdate').focus(); return; } save(v); };
 }
 
 function openAddRes(scope) {
   var d = $('#repdlg'), course = /^course:/.test(scope), l = course ? null : byId[scope];
   if (!d) return;
-  var have = resFor(scope).map(function (r) { return r.url; });
+  var have = S.diary.res.filter(function (r) { return r.scope === scope; }).map(function (r) { return r.url; });
   var files = l ? l.files.filter(function (f) { return have.indexOf(f.u) < 0; }) : [];
   var title = course ? (COURSES.filter(function (c) { return 'course:' + c.code === scope; })[0] || {}).name : lecTitle(l);
+  var groups = S.diary.groups || [];
   d.innerHTML = '<form id="resform"><h2 id="rep-h" style="margin:0 0 4px;font-size:22px;font-weight:900">Add a resource</h2>' +
-    '<p style="margin:0 0 4px;font-size:14px;line-height:1.45;color:#3C4043">To ' + h(title) + (course ? ', for the whole course' : '') + '. Only you see it.</p>' +
+    '<p style="margin:0 0 4px;font-size:14px;line-height:1.45;color:#3C4043">To ' + h(title) + (course ? ', for the whole course' : '') + '.</p>' +
     (files.length ? '<fieldset style="border:0;padding:0;margin:14px 0 0"><legend style="font-size:14px;font-weight:800;padding:0">This lecture\'s files</legend>' +
       files.map(function (f, i) { return '<label class="check" style="margin-top:4px"><input type="checkbox" data-rfile="' + i + '"><span aria-hidden="true" class="bx">✓</span>' + h(f.l) + '</label>'; }).join('') + '</fieldset>' : '') +
     '<label class="fld" style="margin-top:14px">' + (files.length ? 'Or paste a link' : 'Link') + '<input class="inp" id="rurl" type="url" inputmode="url" placeholder="https://…" autocomplete="off"></label>' +
     '<label class="fld" style="margin-top:10px">Name <span class="opt">Optional</span><input class="inp" id="rtitle" maxlength="120" placeholder="e.g. Amboss: cirrhosis" autocomplete="off"></label>' +
+    '<fieldset style="border:0;padding:0;margin:14px 0 0"><legend style="font-size:14px;font-weight:800;padding:0">Who sees it</legend>' +
+    (groups.length ? '<p style="margin:4px 0 0;font-size:13px;color:#5F6368">Only you, unless you tick a group.</p>' + groups.map(function (g) { return '<label class="check" style="margin-top:4px"><input type="checkbox" data-rgroup="' + h(g.id) + '"><span aria-hidden="true" class="bx">✓</span>Share with ' + h(g.name) + '</label>'; }).join('')
+      : '<p style="margin:4px 0 0;font-size:13px;color:#5F6368">Only you. Join or make a study group to share resources.</p>') + '</fieldset>' +
     '<div id="rerr"></div><div style="display:flex;gap:10px;margin-top:16px"><button class="sbtn" id="rgo">Add</button><button type="button" class="sbtn2 soft" id="rno">Cancel</button></div></form>';
   if (d.showModal) d.showModal(); else d.setAttribute('open', '');
   var close = function () { if (d.close) d.close(); else d.removeAttribute('open'); };
@@ -2059,15 +2204,17 @@ function openAddRes(scope) {
     var url = $('#rurl').value.trim();
     if (url) items.push({ kind: 'link', url: /^https?:\/\//i.test(url) ? url : 'https://' + url, title: $('#rtitle').value });
     if (!items.length) { $('#rerr').innerHTML = '<div class="err-box drop" role="alert">' + (files.length ? 'Tick a file or paste a link.' : 'Paste a link.') + '</div>'; return; }
+    var gids = $$('[data-rgroup]', d).filter(function (x) { return x.checked; }).map(function (x) { return x.getAttribute('data-rgroup'); });
     var btn = $('#rgo');
     busy(btn, true, 'Adding…');
-    api('diaryRes', { scope: scope, items: items }).then(function (dd) { S.diary = dd; close(); drawDiary(); toast(items.length > 1 ? items.length + ' resources added.' : 'Added. Only you see it.'); },
+    api('diaryRes', { scope: scope, items: items, groups: gids }).then(function (dd) { setDiary(dd); close(); drawDiary(); toast((items.length > 1 ? items.length + ' resources added' : 'Added') + (gids.length ? ' and shared.' : '. Only you see it.')); },
       function (x) { busy(btn, false); $('#rerr').innerHTML = '<div class="err-box drop" role="alert">' + h(x.message) + '</div>'; });
   };
 }
 
 function openResMenu(btn) {
-  var id = btn.getAttribute('data-rmore'), r = S.diary.res.filter(function (x) { return x.id === id; })[0];
+  var id = btn.getAttribute('data-rmore');
+  var mine = S.diary.res.filter(function (x) { return x.id === id; })[0], theirs = (S.diary.shared || []).filter(function (x) { return x.id === id; })[0], r = mine || theirs;
   if (!r) return;
   var m = $('#rmenu');
   if (!m) {
@@ -2077,17 +2224,34 @@ function openResMenu(btn) {
     m.addEventListener('click', function (e) {
       var b = e.target.closest('[data-rmi]');
       if (!b) return;
-      var rid = m.getAttribute('data-for');
+      var rid = m.getAttribute('data-for'), act = b.getAttribute('data-rmi'), g = b.getAttribute('data-g');
       m.hidden = true;
-      if (b.getAttribute('data-rmi') === 'remove') diarySave('diaryRes', { remove: rid }, 'Removed from your diary.');
+      if (act === 'remove') diaryCall('diaryRes', { remove: rid }, 'Removed from your diary.');
+      if (act === 'hide' || act === 'show') diaryCall('diaryHide', { id: rid, hide: act === 'hide' }, act === 'hide' ? 'Hidden from your diary. The others still see it.' : 'It\'s back in your diary.');
+      if (act === 'share' || act === 'unshare') {
+        var res = S.diary.res.filter(function (x) { return x.id === rid; })[0], gs = (res.groups || []).filter(function (x) { return x !== g; });
+        if (act === 'share') gs.push(g);
+        diaryCall('diaryShare', { id: rid, groups: gs }, act === 'share' ? 'Shared with ' + groupById(g).name + '.' : 'No longer shared with ' + groupById(g).name + '.');
+      }
     });
     document.addEventListener('click', function (e) { if (!m.hidden && !e.target.closest('#rmenu') && !e.target.closest('[data-rmore]')) m.hidden = true; });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') m.hidden = true; });
   }
   if (!m.hidden && m.getAttribute('data-for') === id) { m.hidden = true; return; }
   m.setAttribute('data-for', id);
-  m.innerHTML = '<a role="menuitem" href="' + h(r.url) + '" target="_blank" rel="noopener">Open</a><button role="menuitem" data-rmi="remove">Remove from my diary</button>' +
-    '<p class="sub" style="margin:6px 10px 4px;font-size:12px">Only you see this resource. Sharing with study groups comes with groups.</p>';
+  var items = '<a role="menuitem" href="' + h(r.url) + '" target="_blank" rel="noopener">Open</a>';
+  if (mine) {
+    items += (S.diary.groups || []).map(function (g) {
+      var on = (mine.groups || []).indexOf(g.id) >= 0;
+      return '<button role="menuitem" data-rmi="' + (on ? 'unshare' : 'share') + '" data-g="' + h(g.id) + '">' + (on ? 'Stop sharing with ' : 'Share with ') + h(g.name) + '</button>';
+    }).join('') + '<button role="menuitem" data-rmi="remove">Remove from my diary</button>';
+    if (!(S.diary.groups || []).length) items += '<p class="sub" style="margin:6px 10px 4px;font-size:12px">Only you see this. Join or make a study group to share it.</p>';
+  } else {
+    var hid = (S.diary.hidden || []).indexOf(id) >= 0;
+    items += '<button role="menuitem" data-rmi="' + (hid ? 'show' : 'hide') + '">' + (hid ? 'Show it again' : 'Hide it from my diary') + '</button>' +
+      '<p class="sub" style="margin:6px 10px 4px;font-size:12px">Shared by ' + h(theirs.by) + '. Hiding only affects your diary.</p>';
+  }
+  m.innerHTML = items;
   m.hidden = false;
   var b = btn.getBoundingClientRect(), vw = document.documentElement.clientWidth;
   m.style.left = (Math.min(b.left, vw - m.offsetWidth - 16) + window.scrollX) + 'px';
