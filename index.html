@@ -645,6 +645,11 @@ table.lt .cnote{margin-left:44px}
 .aim.grp{background:#F1ECFB;color:#5B2DB0}
 .rchip.hid{opacity:.55}
 .rchip .pv.sh{background:#F1ECFB;color:#5B2DB0}
+.ropts{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.ropt{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;padding:12px 16px;border-radius:14px;border:2px solid var(--line);background:#FFFFFF;color:var(--ink)}
+.ropt:hover,.ropt:focus-visible{border-color:var(--ink)}
+.ropt b{font-size:15px;font-weight:800}
+.ropt span{font-size:13px;color:var(--muted)}
 .li2{display:flex;flex-wrap:wrap;align-items:center;gap:10px;border-top:1px solid var(--line2);padding:12px 0;font-size:15px}
 .li2 .grow{flex:1 1 240px;min-width:0}
 .li2 b{font-weight:800}
@@ -761,6 +766,8 @@ var COURSES = [{"key":"MEDICAL SCIENCE AND CLINICAL INVESTIGATION","code":"MS","
 var MAX_PARTS = 5;
 var MAX_AUTHORS = 4;
 var GOOGLE_CLIENT_ID = "367469496601-vl1pk0h2sunp5hlr76qft41qejfduiiv.apps.googleusercontent.com";
+var GOOGLE_API_KEY = "";
+var GOOGLE_APP_ID = "367469496601";
 var HELP_EMAIL = "ims-study-tracker-help@googlegroups.com";
 var WD_ = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 var MON_ = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -1985,7 +1992,7 @@ function resChips(scope) {
     (nHid ? '<button class="linkbtn" data-showhid="' + h(scope) + '" style="font-size:13px;color:#5F6368">' + (DI.showHid[scope] ? 'Hide the hidden ' + pl(nHid, 'one', 'ones') + ' again' : nHid + ' hidden · Show') + '</button>' : '');
 }
 function chip(r, tag, sh, hid) {
-  return '<span class="rchip' + (hid ? ' hid' : '') + '"><a href="' + h(r.url) + '" target="_blank" rel="noopener"><span class="k">' + (r.kind === 'class' ? 'Class' : 'Link') + '</span>' + h(r.title) + '</a>' +
+  return '<span class="rchip' + (hid ? ' hid' : '') + '"><a href="' + h(r.url) + '" target="_blank" rel="noopener"><span class="k">' + (r.kind === 'class' ? 'Class' : r.kind === 'drive' ? 'Drive' : 'Link') + '</span>' + h(r.title) + '</a>' +
     '<span class="pv' + (sh ? ' sh' : '') + '">' + h(tag) + '</span><button class="more" data-rmore="' + h(r.id) + '" aria-label="More for ' + h(r.title) + '" aria-haspopup="menu">⋯</button></span>';
 }
 // ----- aims: yours, and each group's (anyone in the group can change those)
@@ -2175,41 +2182,210 @@ function openAim(id, gid) {
   $('#aimform').onsubmit = function (ev) { ev.preventDefault(); var v = $('#aimdate').value; if (!v) { $('#aimdate').focus(); return; } save(v); };
 }
 
-function openAddRes(scope) {
+// Add a resource: a link, class sbobine or slides, a file from your Google Drive, or a file uploaded to your Drive
+function openAddRes(scope, mode) {
   var d = $('#repdlg'), course = /^course:/.test(scope), l = course ? null : byId[scope];
   if (!d) return;
-  var have = S.diary.res.filter(function (r) { return r.scope === scope; }).map(function (r) { return r.url; });
-  var files = l ? l.files.filter(function (f) { return have.indexOf(f.u) < 0; }) : [];
   var title = course ? (COURSES.filter(function (c) { return 'course:' + c.code === scope; })[0] || {}).name : lecTitle(l);
   var groups = S.diary.groups || [];
-  d.innerHTML = '<form id="resform"><h2 id="rep-h" style="margin:0 0 4px;font-size:22px;font-weight:900">Add a resource</h2>' +
-    '<p style="margin:0 0 4px;font-size:14px;line-height:1.45;color:#3C4043">To ' + h(title) + (course ? ', for the whole course' : '') + '.</p>' +
-    (files.length ? '<fieldset style="border:0;padding:0;margin:14px 0 0"><legend style="font-size:14px;font-weight:800;padding:0">This lecture\'s files</legend>' +
-      files.map(function (f, i) { return '<label class="check" style="margin-top:4px"><input type="checkbox" data-rfile="' + i + '"><span aria-hidden="true" class="bx">✓</span>' + h(f.l) + '</label>'; }).join('') + '</fieldset>' : '') +
-    '<label class="fld" style="margin-top:14px">' + (files.length ? 'Or paste a link' : 'Link') + '<input class="inp" id="rurl" type="url" inputmode="url" placeholder="https://…" autocomplete="off"></label>' +
-    '<label class="fld" style="margin-top:10px">Name <span class="opt">Optional</span><input class="inp" id="rtitle" maxlength="120" placeholder="e.g. Amboss: cirrhosis" autocomplete="off"></label>' +
-    '<fieldset style="border:0;padding:0;margin:14px 0 0"><legend style="font-size:14px;font-weight:800;padding:0">Who sees it</legend>' +
-    (groups.length ? '<p style="margin:4px 0 0;font-size:13px;color:#5F6368">Only you, unless you tick a group.</p>' + groups.map(function (g) { return '<label class="check" style="margin-top:4px"><input type="checkbox" data-rgroup="' + h(g.id) + '"><span aria-hidden="true" class="bx">✓</span>Share with ' + h(g.name) + '</label>'; }).join('')
-      : '<p style="margin:4px 0 0;font-size:13px;color:#5F6368">Only you. Join or make a study group to share resources.</p>') + '</fieldset>' +
-    '<div id="rerr"></div><div style="display:flex;gap:10px;margin-top:16px"><button class="sbtn" id="rgo">Add</button><button type="button" class="sbtn2 soft" id="rno">Cancel</button></div></form>';
-  if (d.showModal) d.showModal(); else d.setAttribute('open', '');
   var close = function () { if (d.close) d.close(); else d.removeAttribute('open'); };
+  var head = '<h2 id="rep-h" style="margin:0 0 4px;font-size:22px;font-weight:900">Add a resource</h2>' +
+    '<p style="margin:0 0 4px;font-size:14px;line-height:1.45;color:#3C4043">To ' + h(title) + (course ? ', for the whole course' : '') + '.</p>';
+  if (!mode) {
+    var opt = function (m, t, sub) { return '<button type="button" class="ropt" data-rmode="' + m + '"><b>' + t + '</b><span>' + sub + '</span></button>'; };
+    d.innerHTML = '<div>' + head + '<div class="ropts">' +
+      opt('link', 'Paste a link', 'Any web page, video or file link') +
+      opt('class', 'Add class sbobine or slides', l && l.files.length ? 'This lecture has ' + l.files.length + ' ' + pl(l.files.length, 'file', 'files') : 'From this lecture or any other') +
+      opt('pick', 'Pick from my Google Drive', DRIVE_READY() ? 'Choose a file you already have' : 'Not switched on yet') +
+      opt('upload', 'Upload from this device to my Google Drive', 'The file goes into your own Drive, only you can open it') +
+      '</div><div style="margin-top:14px"><button type="button" class="sbtn2 soft" id="rno">Cancel</button></div></div>';
+    if (d.showModal && !d.open) d.showModal(); else d.setAttribute('open', '');
+    $('#rno').onclick = close;
+    $$('[data-rmode]', d).forEach(function (b) { b.onclick = function () { openAddRes(scope, b.getAttribute('data-rmode')); }; });
+    return;
+  }
+  var pane = '', who = '<fieldset style="border:0;padding:0;margin:14px 0 0"><legend style="font-size:14px;font-weight:800;padding:0">Who sees it</legend>' +
+    (groups.length ? '<p style="margin:4px 0 0;font-size:13px;color:#5F6368">Only you, unless you tick a group.</p>' + groups.map(function (g) { return '<label class="check" style="margin-top:4px"><input type="checkbox" data-rgroup="' + h(g.id) + '"><span aria-hidden="true" class="bx">✓</span>Share with ' + h(g.name) + '</label>'; }).join('')
+      : '<p style="margin:4px 0 0;font-size:13px;color:#5F6368">Only you. Join or make a study group to share resources.</p>') + '</fieldset>';
+  var picked = [];
+  if (mode === 'link') {
+    pane = '<label class="fld" style="margin-top:14px">Link<input class="inp" id="rurl" type="url" inputmode="url" placeholder="https://…" autocomplete="off"></label>' +
+      '<label class="fld" style="margin-top:10px">Name <span class="opt">Optional</span><input class="inp" id="rtitle" maxlength="120" placeholder="e.g. Amboss: cirrhosis" autocomplete="off"></label>';
+  } else if (mode === 'class') {
+    var withFiles = S.data.lectures.filter(function (x) { return x.files.length && !x.removed && (!course || 'course:' + x.cc === scope); });
+    var first = l && l.files.length ? l.id : (withFiles[0] || {}).id || '';
+    pane = withFiles.length ? '<label class="fld" style="margin-top:14px">From<select class="inp" id="rlec">' + withFiles.map(function (x) { return '<option value="' + h(x.id) + '"' + (x.id === first ? ' selected' : '') + '>' + h(lecTitle(x) + (l && x.id === l.id ? ' (this lecture)' : '') + ', ' + dayLabel_(x.date)) + '</option>'; }).join('') + '</select></label><div id="rfiles"></div>'
+      : '<p style="margin:14px 0 0;font-size:14px;color:#5F6368">No sbobine or slides have been uploaded' + (course ? ' for this course' : '') + ' yet.</p>';
+  } else if (mode === 'pick') {
+    pane = DRIVE_READY() ? '<div style="margin-top:14px"><button type="button" class="btn2" id="rpick">Choose from my Google Drive</button></div><div id="rpicked"></div>'
+      : '<p style="margin:14px 0 0;font-size:14px;line-height:1.45;color:#5F6368">Picking from Google Drive isn\'t switched on yet: an admin needs to finish one setup step in Google Cloud. Paste the file\'s link for now (Share, then Copy link in Drive).</p>';
+  } else if (mode === 'upload') {
+    pane = '<label class="fld" style="margin-top:14px">File <span class="opt">Up to 100 MB</span><input class="inp" id="rfile" type="file" style="padding:8px 10px;height:auto"></label>' +
+      '<p style="margin:8px 0 0;font-size:13px;line-height:1.45;color:#5F6368">It\'s saved in a folder called "IMS Study Tracker" in your own Google Drive. Google asks once to let this site add files there; it can only see files it adds or you pick.</p><div class="progress" id="rprog" hidden><div class="bar"><i></i></div><div class="lbl"></div></div>';
+  }
+  d.innerHTML = '<form id="resform">' + head + pane + (mode === 'pick' && !DRIVE_READY() ? '' : who) +
+    '<div id="rerr"></div><div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:16px">' + (mode === 'pick' && !DRIVE_READY() ? '' : '<button class="sbtn" id="rgo">Add</button>') +
+    '<button type="button" class="sbtn2" id="rback">Back</button><button type="button" class="sbtn2 soft" id="rno">Cancel</button></div></form>';
+  if (d.showModal && !d.open) d.showModal(); else d.setAttribute('open', '');
   $('#rno').onclick = close;
+  $('#rback').onclick = function () { openAddRes(scope); };
+  var err = function (m) { $('#rerr').innerHTML = m ? '<div class="err-box drop" role="alert">' + h(m) + '</div>' : ''; };
+  var drawFiles = function () {
+    var x = byId[($('#rlec') || {}).value], have = S.diary.res.filter(function (r) { return r.scope === scope; }).map(function (r) { return r.url; });
+    if (!x) return;
+    $('#rfiles').innerHTML = '<fieldset style="border:0;padding:0;margin:10px 0 0"><legend class="sr">Files</legend>' + x.files.map(function (f, i) {
+      var had = have.indexOf(f.u) >= 0;
+      return '<label class="check" style="margin-top:4px"><input type="checkbox" data-rfile="' + i + '"' + (had ? ' disabled' : '') + '><span aria-hidden="true" class="bx">✓</span>' + h(f.l) + (had ? ' <span style="color:#80868B;font-weight:500">(already in your diary)</span>' : '') + '</label>';
+    }).join('') + '</fieldset>';
+  };
+  if ($('#rlec')) { $('#rlec').onchange = drawFiles; drawFiles(); }
+  if ($('#rpick')) $('#rpick').onclick = function () {
+    err('');
+    pickFromDrive().then(function (docs) {
+      picked = docs;
+      $('#rpicked').innerHTML = docs.length ? '<ul style="margin:10px 0 0;padding-left:20px;font-size:14px;font-weight:700">' + docs.map(function (x) { return '<li>' + h(x.name) + '</li>'; }).join('') + '</ul>' : '';
+    }, function (x) { err(x.message); });
+  };
   $('#resform').onsubmit = function (ev) {
     ev.preventDefault();
-    var items = $$('[data-rfile]', d).filter(function (x) { return x.checked; }).map(function (x) {
-      var f = files[+x.getAttribute('data-rfile')];
-      return { kind: 'class', url: f.u, title: lecTitle(l) + ' ' + f.l };
-    });
-    var url = $('#rurl').value.trim();
-    if (url) items.push({ kind: 'link', url: /^https?:\/\//i.test(url) ? url : 'https://' + url, title: $('#rtitle').value });
-    if (!items.length) { $('#rerr').innerHTML = '<div class="err-box drop" role="alert">' + (files.length ? 'Tick a file or paste a link.' : 'Paste a link.') + '</div>'; return; }
+    err('');
     var gids = $$('[data-rgroup]', d).filter(function (x) { return x.checked; }).map(function (x) { return x.getAttribute('data-rgroup'); });
     var btn = $('#rgo');
-    busy(btn, true, 'Adding…');
-    api('diaryRes', { scope: scope, items: items, groups: gids }).then(function (dd) { setDiary(dd); close(); drawDiary(); toast((items.length > 1 ? items.length + ' resources added' : 'Added') + (gids.length ? ' and shared.' : '. Only you see it.')); },
-      function (x) { busy(btn, false); $('#rerr').innerHTML = '<div class="err-box drop" role="alert">' + h(x.message) + '</div>'; });
+    var send = function (items) {
+      if (!items.length) return;
+      busy(btn, true, 'Adding…');
+      return api('diaryRes', { scope: scope, items: items, groups: gids }).then(function (dd) {
+        setDiary(dd); close(); drawDiary();
+        toast((items.length > 1 ? items.length + ' resources added' : 'Added') + (gids.length ? ' and shared.' : '. Only you see it.'));
+        if (gids.length) items.forEach(function (it) { if (it.fileId) shareDriveFile(it.fileId, gids); });
+      }, function (x) { busy(btn, false); err(x.message); });
+    };
+    if (mode === 'link') {
+      var url = $('#rurl').value.trim();
+      if (!url) return err('Paste a link.');
+      return send([{ kind: 'link', url: /^https?:\/\//i.test(url) ? url : 'https://' + url, title: $('#rtitle').value }]);
+    }
+    if (mode === 'class') {
+      var x = byId[($('#rlec') || {}).value];
+      var items = x ? $$('[data-rfile]', d).filter(function (c) { return c.checked; }).map(function (c) { var f = x.files[+c.getAttribute('data-rfile')]; return { kind: 'class', url: f.u, title: lecTitle(x) + ' ' + f.l }; }) : [];
+      if (!items.length) return err('Tick at least one file.');
+      return send(items);
+    }
+    if (mode === 'pick') {
+      if (!picked.length) return err('Choose a file from your Drive first.');
+      return send(picked.map(function (p) { return { kind: 'drive', url: p.url, title: p.name, fileId: p.id }; }));
+    }
+    if (mode === 'upload') {
+      var file = ($('#rfile').files || [])[0];
+      if (!file) return err('Choose a file first.');
+      if (file.size > 100 * 1048576) return err(file.name + ' is ' + mb(file.size) + '. The limit is 100 MB.');
+      busy(btn, true, 'Uploading…');
+      var pr = $('#rprog'); pr.hidden = false;
+      uploadToDrive(file, function (frac) { $('.bar i', pr).style.width = Math.round(frac * 100) + '%'; $('.lbl', pr).textContent = 'Uploading to your Drive… ' + Math.round(frac * 100) + '%'; })
+        .then(function (f) { busy(btn, false); return send([{ kind: 'drive', url: f.webViewLink, title: f.name, fileId: f.id }]); },
+          function (x) { busy(btn, false); pr.hidden = true; err(x.message); });
+    }
   };
+}
+
+// ----- the person's own Google Drive (Google's file picker and uploads, with access only to files this site adds or is shown)
+var DRIVE = { token: '', exp: 0, client: null };
+function DRIVE_READY() { return !!GOOGLE_API_KEY; }
+function driveToken() {
+  if (DRIVE.token && Date.now() < DRIVE.exp - 60000) return Promise.resolve(DRIVE.token);
+  return loadGsi().then(function () {
+    restoreGS();
+    var oa = window.google && window.google.accounts && window.google.accounts.oauth2;
+    if (!oa) throw new Error('Google sign-in didn\'t load. Check your connection and try again.');
+    return new Promise(function (res, rej) {
+      DRIVE.client = oa.initTokenClient({
+        client_id: GOOGLE_CLIENT_ID, scope: 'https://www.googleapis.com/auth/drive.file', hint: S.me && S.me.email || undefined,
+        callback: function (t) {
+          if (!t || t.error || !t.access_token) return rej(new Error('Google Drive access wasn\'t given, so nothing was added.'));
+          DRIVE.token = t.access_token; DRIVE.exp = Date.now() + (+t.expires_in || 3600) * 1000;
+          res(DRIVE.token);
+        },
+        error_callback: function () { rej(new Error('The Google window closed before access was given.')); }
+      });
+      DRIVE.client.requestAccessToken({ prompt: '' });
+    });
+  });
+}
+var pickerP = null;
+function loadPicker() {
+  if (pickerP) return pickerP;
+  pickerP = new Promise(function (res, rej) {
+    var sc = document.createElement('script');
+    sc.src = 'https://apis.google.com/js/api.js'; sc.async = true;
+    sc.onload = function () { window.gapi.load('picker', { callback: function () { restoreGS(); res(window.google.picker); }, onerror: function () { pickerP = null; rej(new Error('Google\'s file picker didn\'t load.')); } }); };
+    sc.onerror = function () { pickerP = null; rej(new Error('Google\'s file picker didn\'t load.')); };
+    document.head.appendChild(sc);
+  });
+  return pickerP;
+}
+function pickFromDrive() {
+  return driveToken().then(function (tok) {
+    return loadPicker().then(function (gp) {
+      return new Promise(function (res) {
+        var view = new gp.DocsView(gp.ViewId.DOCS).setIncludeFolders(true).setSelectFolderEnabled(false);
+        new gp.PickerBuilder().addView(view).addView(new gp.DocsUploadView()).enableFeature(gp.Feature.MULTISELECT_ENABLED)
+          .setOAuthToken(tok).setDeveloperKey(GOOGLE_API_KEY).setAppId(GOOGLE_APP_ID).setOrigin(location.protocol + '//' + location.host)
+          .setCallback(function (data) {
+            if (data.action === gp.Action.PICKED) res((data.docs || []).map(function (x) { return { id: x.id, name: x.name, url: x.url || ('https://drive.google.com/file/d/' + x.id + '/view') }; }));
+            if (data.action === gp.Action.CANCEL) res([]);
+          }).build().setVisible(true);
+      });
+    });
+  });
+}
+function driveFetch(url, opt) {
+  opt = opt || {};
+  opt.headers = Object.assign({ Authorization: 'Bearer ' + DRIVE.token }, opt.headers || {});
+  return fetch(url, opt).then(function (r) { if (!r.ok) return r.text().then(function (t) { throw new Error('Google Drive said no (' + r.status + '). ' + t.slice(0, 120)); }); return r; });
+}
+function studyFolder() {
+  var q = encodeURIComponent("name = 'IMS Study Tracker' and mimeType = 'application/vnd.google-apps.folder' and trashed = false");
+  return driveFetch('https://www.googleapis.com/drive/v3/files?q=' + q + '&fields=files(id)&spaces=drive').then(function (r) { return r.json(); }).then(function (j) {
+    if (j.files && j.files[0]) return j.files[0].id;
+    return driveFetch('https://www.googleapis.com/drive/v3/files?fields=id', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: 'IMS Study Tracker', mimeType: 'application/vnd.google-apps.folder' }) })
+      .then(function (r) { return r.json(); }).then(function (f) { return f.id; });
+  });
+}
+// Resumable upload in 8 MB pieces, straight from the browser into the person's Drive
+function uploadToDrive(file, onProgress) {
+  return driveToken().then(studyFolder).then(function (folder) {
+    return driveFetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable&fields=id,name,webViewLink', {
+      method: 'POST', headers: { 'Content-Type': 'application/json; charset=UTF-8', 'X-Upload-Content-Type': file.type || 'application/octet-stream', 'X-Upload-Content-Length': String(file.size) },
+      body: JSON.stringify({ name: file.name, parents: [folder] })
+    });
+  }).then(function (r) {
+    var loc = r.headers.get('Location'), CH = 8 * 1048576, start = 0;
+    if (!loc) throw new Error('Google Drive didn\'t start the upload. Try again.');
+    var next = function () {
+      var end = Math.min(file.size, start + CH);
+      return fetch(loc, { method: 'PUT', headers: { 'Content-Range': 'bytes ' + start + '-' + (end - 1) + '/' + file.size }, body: file.slice(start, end) }).then(function (res) {
+        if (res.status === 308) { start = end; onProgress(start / file.size); return next(); }
+        if (!res.ok) throw new Error('The upload to Google Drive stopped (' + res.status + '). Try again.');
+        onProgress(1);
+        return res.json();
+      });
+    };
+    return file.size ? next() : Promise.reject(new Error('That file is empty.'));
+  });
+}
+// Sharing a Drive file with a group lets its members open it (view only)
+function shareDriveFile(fileId, gids) {
+  return Promise.all(gids.map(function (g) { return api('groupEmails', { groupId: g }); })).then(function (lists) {
+    var emails = [].concat.apply([], lists).filter(function (e, i, a) { return a.indexOf(e) === i; });
+    if (!emails.length) return;
+    return driveToken().then(function () {
+      return Promise.all(emails.map(function (e) {
+        return driveFetch('https://www.googleapis.com/drive/v3/files/' + encodeURIComponent(fileId) + '/permissions?sendNotificationEmail=false', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ role: 'reader', type: 'user', emailAddress: e })
+        }).catch(function () {});
+      }));
+    });
+  }).then(function () { toast('The group can open the file now.'); }, function (x) { toast('Shared in the diary, but Google Drive didn\'t let the group open the file: ' + x.message, true); });
 }
 
 function openResMenu(btn) {
@@ -2231,7 +2407,8 @@ function openResMenu(btn) {
       if (act === 'share' || act === 'unshare') {
         var res = S.diary.res.filter(function (x) { return x.id === rid; })[0], gs = (res.groups || []).filter(function (x) { return x !== g; });
         if (act === 'share') gs.push(g);
-        diaryCall('diaryShare', { id: rid, groups: gs }, act === 'share' ? 'Shared with ' + groupById(g).name + '.' : 'No longer shared with ' + groupById(g).name + '.');
+        diaryCall('diaryShare', { id: rid, groups: gs }, act === 'share' ? 'Shared with ' + groupById(g).name + '.' : 'No longer shared with ' + groupById(g).name + '.')
+          .then(function () { if (act === 'share' && res.kind === 'drive' && res.fileId) shareDriveFile(res.fileId, [g]); });
       }
     });
     document.addEventListener('click', function (e) { if (!m.hidden && !e.target.closest('#rmenu') && !e.target.closest('[data-rmore]')) m.hidden = true; });
