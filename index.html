@@ -766,7 +766,7 @@ var COURSES = [{"key":"MEDICAL SCIENCE AND CLINICAL INVESTIGATION","code":"MS","
 var MAX_PARTS = 5;
 var MAX_AUTHORS = 4;
 var GOOGLE_CLIENT_ID = "367469496601-vl1pk0h2sunp5hlr76qft41qejfduiiv.apps.googleusercontent.com";
-var GOOGLE_API_KEY = "";
+var GOOGLE_API_KEY = "AIzaSyBLWEd2UgSld_RTz30wfCD9f86nw6bMObg";
 var GOOGLE_APP_ID = "367469496601";
 var HELP_EMAIL = "ims-study-tracker-help@googlegroups.com";
 var WD_ = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
@@ -2220,7 +2220,7 @@ function openAddRes(scope, mode) {
     pane = DRIVE_READY() ? '<div style="margin-top:14px"><button type="button" class="btn2" id="rpick">Choose from my Google Drive</button></div><div id="rpicked"></div>'
       : '<p style="margin:14px 0 0;font-size:14px;line-height:1.45;color:#5F6368">Picking from Google Drive isn\'t switched on yet: an admin needs to finish one setup step in Google Cloud. Paste the file\'s link for now (Share, then Copy link in Drive).</p>';
   } else if (mode === 'upload') {
-    pane = '<label class="fld" style="margin-top:14px">File <span class="opt">Up to 100 MB</span><input class="inp" id="rfile" type="file" style="padding:8px 10px;height:auto"></label>' +
+    pane = '<label class="fld" style="margin-top:14px">File <span class="opt">Up to 1 GB</span><input class="inp" id="rfile" type="file" style="padding:8px 10px;height:auto"></label>' +
       '<p style="margin:8px 0 0;font-size:13px;line-height:1.45;color:#5F6368">It\'s saved in a folder called "IMS Study Tracker" in your own Google Drive. Google asks once to let this site add files there; it can only see files it adds or you pick.</p><div class="progress" id="rprog" hidden><div class="bar"><i></i></div><div class="lbl"></div></div>';
   }
   d.innerHTML = '<form id="resform">' + head + pane + (mode === 'pick' && !DRIVE_READY() ? '' : who) +
@@ -2278,7 +2278,7 @@ function openAddRes(scope, mode) {
     if (mode === 'upload') {
       var file = ($('#rfile').files || [])[0];
       if (!file) return err('Choose a file first.');
-      if (file.size > 100 * 1048576) return err(file.name + ' is ' + mb(file.size) + '. The limit is 100 MB.');
+      if (file.size > 1024 * 1048576) return err(file.name + ' is ' + mb(file.size) + '. The limit is 1 GB.');
       busy(btn, true, 'Uploading…');
       var pr = $('#rprog'); pr.hidden = false;
       uploadToDrive(file, function (frac) { $('.bar i', pr).style.width = Math.round(frac * 100) + '%'; $('.lbl', pr).textContent = 'Uploading to your Drive… ' + Math.round(frac * 100) + '%'; })
