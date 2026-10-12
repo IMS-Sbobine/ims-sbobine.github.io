@@ -2328,7 +2328,15 @@ function loadPicker() {
   });
   return pickerP;
 }
+// Google's picker adds itself at the end of the page and takes focus, which scrolls the page down: hold it still
+function holdScroll(ms) {
+  var x = window.scrollX, y = window.scrollY, until = Date.now() + (ms || 1200);
+  var put = function () { if (window.scrollX !== x || window.scrollY !== y) window.scrollTo(x, y); if (Date.now() < until) requestAnimationFrame(put); };
+  requestAnimationFrame(put);
+  return function (more) { until = Date.now() + (more || 600); requestAnimationFrame(put); };
+}
 function pickFromDrive() {
+  var again = holdScroll(1500);
   return driveToken().then(function (tok) {
     return loadPicker().then(function (gp) {
       return new Promise(function (res) {
@@ -2336,9 +2344,11 @@ function pickFromDrive() {
         new gp.PickerBuilder().addView(view).addView(new gp.DocsUploadView()).enableFeature(gp.Feature.MULTISELECT_ENABLED)
           .setOAuthToken(tok).setDeveloperKey(GOOGLE_API_KEY).setAppId(GOOGLE_APP_ID).setOrigin(location.protocol + '//' + location.host)
           .setCallback(function (data) {
+            if (data.action === gp.Action.PICKED || data.action === gp.Action.CANCEL) again(800);
             if (data.action === gp.Action.PICKED) res((data.docs || []).map(function (x) { return { id: x.id, name: x.name, url: x.url || ('https://drive.google.com/file/d/' + x.id + '/view') }; }));
             if (data.action === gp.Action.CANCEL) res([]);
           }).build().setVisible(true);
+        again(1500);
       });
     });
   });
