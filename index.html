@@ -520,6 +520,48 @@ dialog.dlg::backdrop{background:rgba(27,29,31,.45)}
 .mrow2 .grow{flex:1 1 auto}
 .hbadge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;margin-left:4px;border-radius:9px;background:var(--red);color:#FFFFFF!important;font-size:11px;font-weight:900;text-decoration:none!important}
 @media (max-width:899px){.mine{margin-top:22px;padding:16px;border-radius:20px;box-shadow:5px 5px 0 var(--ink)}.hreq .acts{width:100%}.hreq .acts .sbtn,.hreq .acts .sbtn2{flex:1 1 0}}
+/* cancelled lectures */
+.st-cancelled{background:#F1F3F4;color:var(--faint);text-decoration:line-through;box-shadow:inset 0 0 0 1.5px var(--line)}
+.mini.st-cancelled{text-decoration:none}
+table.lt tr.row.cx td{background:repeating-linear-gradient(135deg,#FAFAF9 0 10px,#F3F4F2 10px 20px)}
+.cx .lname b,.cx .r2 b,.cx .ltopic .t,.cx .tp.ct{text-decoration:line-through;color:var(--faint)}
+.cnote{display:inline-block;margin-top:8px;font-size:13px;font-weight:700;line-height:1.35;color:var(--ink2);background:#FFFFFF;border:1.5px solid var(--line);border-radius:8px;padding:4px 8px}
+table.lt .cnote{margin-left:44px}
+.dcard.cx{background:repeating-linear-gradient(135deg,#FAFAF9 0 10px,#F3F4F2 10px 20px)}
+.lcard.cx{opacity:.6;cursor:not-allowed}
+.lcard.cx .tt{text-decoration:line-through}
+.cxbtn{display:block;margin-top:8px;font-size:12px;font-weight:600;color:var(--faint)}
+.cxbtn:hover,.cxbtn button:hover{color:var(--red-ink)}
+.cx .cxbtn{color:var(--ink2)}
+/* lecture pop-up on the semester board */
+.lpop{position:absolute;z-index:30;width:310px;max-width:calc(100vw - 32px);background:#FFFFFF;border:2px solid var(--ink);border-radius:16px;box-shadow:5px 5px 0 var(--ink);padding:14px 16px;font-size:14px;line-height:1.45}
+.lpop .t{display:flex;align-items:center;gap:8px;font-size:17px;font-weight:900}
+.lpop .m{color:var(--muted);margin-top:2px}
+.lpop .tp{margin-top:8px;color:var(--ink2)}
+.lpop .row{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin-top:10px}
+.lpop .row a{font-weight:800;font-size:13px}
+.lpop .hint{margin-top:10px;font-size:12px;color:var(--faint)}
+/* class links strip */
+.strip{margin-top:30px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:12px;border-radius:18px;background:#FFFFFF}
+.strip .lab{font-size:13px;font-weight:800;color:var(--muted);padding:0 6px 0 4px}
+.chipl{display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 13px;border-radius:18px;border:2px solid var(--line);background:#FFFFFF;font-size:14px;font-weight:700;text-decoration:none;color:var(--ink)}
+.chipl:hover{border-color:var(--ink);color:var(--ink)}
+.chipl .dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.chipl.dark{background:var(--ink);border-color:var(--ink);color:#FFFFFF}
+.chipl.dark:hover{color:#FFFFFF}
+.strip .sep{width:1px;height:24px;background:var(--line);margin:0 4px}
+.strip .note{flex:1 1 100%;margin:2px 4px 0;font-size:12px;color:var(--muted)}
+@media (max-width:899px){.strip .sep{display:none}.strip{margin-top:22px}}
+/* admin tabs */
+.atabs{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 28px}
+.atabs button{display:inline-flex;align-items:center;gap:8px;height:42px;padding:0 16px;border-radius:21px;border:2px solid var(--line);background:#FFFFFF;font-size:15px;font-weight:700;color:var(--ink)}
+.atabs button[aria-selected="true"]{background:var(--ink);border-color:var(--ink);color:#FFFFFF}
+.atabs .cnt{min-width:22px;height:22px;border-radius:11px;background:var(--red);color:#FFFFFF;font-size:13px;font-weight:900;display:inline-flex;align-items:center;justify-content:center;padding:0 6px}
+@media (max-width:899px){.atabs{flex-wrap:nowrap;overflow-x:auto;margin:18px -20px 24px;padding:0 20px}.atabs button{flex:0 0 auto}}
+.astack{display:flex;flex-direction:column;gap:28px}
+.astack .h2{margin-bottom:12px}
+.clear{display:flex;align-items:center;gap:14px;background:#FFFFFF;border-radius:22px;padding:22px}
+.clear .tk{width:40px;height:40px;flex:0 0 40px;border-radius:50%;background:var(--green);color:#FFFFFF;font-size:20px;font-weight:900;display:flex;align-items:center;justify-content:center}
 .bwarn{margin-top:8px;background:var(--red-bg);color:var(--red-ink);border-radius:12px;padding:10px 14px;font-size:14px;font-weight:700;line-height:1.4}
 
 /* toast */
@@ -844,7 +886,8 @@ var ST = {
   writing: { glyph: '~', label: 'Being written' },
   assigned: { glyph: '', label: 'To be held' },
   open: { glyph: '?', label: 'No authors yet' },
-  overdue: { glyph: '!', label: 'Overdue' }
+  overdue: { glyph: '!', label: 'Overdue' },
+  cancelled: { glyph: '×', label: 'Cancelled' }
 };
 var STOPFILL = { submitted: '#2BA84A', reused: '#2BA84A', 'reused-asis': '#2BA84A', writing: '#E8A600', overdue: '#D93025', open: '#BDC1C6' };
 var green = function (st) { return st === 'submitted' || st === 'reused' || st === 'reused-asis'; };
@@ -1079,6 +1122,7 @@ function signOut() {
 }
 function renderPage(opt) {
   opt = opt || {};
+  hidePop();
   renderHeader();
   var v = $('#view');
   v.onclick = v.oninput = v.onchange = v.onkeydown = null;
@@ -1120,6 +1164,14 @@ document.addEventListener('click', function (e) {
   if (uo) { e.preventDefault(); setUniversal(false, uo); }
   var rp = e.target.closest('[data-report]');
   if (rp) { e.preventDefault(); openReport(rp.getAttribute('data-report')); }
+  var cx = e.target.closest('[data-cancel]');
+  if (cx) { e.preventDefault(); openCancel(cx.getAttribute('data-cancel')); }
+  var ux = e.target.closest('[data-uncancel]');
+  if (ux) {
+    e.preventDefault();
+    busy(ux, true, 'Undoing…');
+    api('cancelLecture', { lectureId: ux.getAttribute('data-uncancel'), undo: true }).then(function (r) { afterLectureChange(r); toast(lecTitle(r.lecture) + ' is back on the schedule.'); }, function (x) { busy(ux, false); toast(x.message, true); });
+  }
   var tm = e.target.closest('[data-act="tomine"]');
   if (tm) {
     e.preventDefault();
@@ -1236,13 +1288,14 @@ function overviewSentence(k, phone) {
   var w = k.written, ov = k.overdue === 0 ? 'none are overdue' : k.overdue + (k.overdue === 1 ? ' is overdue' : ' are overdue');
   if (phone) {
     return '<span class="mk st-submitted">' + w + ' written up</span> out of ' + k.held + ' held. <span class="mk st-writing">' + k.writing + ' being written</span>, <span class="mk st-overdue">' + k.overdue + ' overdue</span>. ' +
-      '<span class="mk st-assigned">' + k.assigned + ' to be held ' + pl(k.assigned, 'has', 'have') + ' authors</span>, <span class="mk st-open">' + k.open + ' ' + pl(k.open, 'has', 'have') + ' no authors yet</span>.';
+      '<span class="mk st-assigned">' + k.assigned + ' to be held ' + pl(k.assigned, 'has', 'have') + ' authors</span>, <span class="mk st-open">' + k.open + ' ' + pl(k.open, 'has', 'have') + ' no authors yet</span>.' + cancelledBit(k);
   }
   return '<span class="mk st-submitted">' + w + ' ' + pl(w, 'lecture', 'lectures') + ' written up</span> out of ' + k.held + ' held. ' +
     '<span class="mk st-writing">' + k.writing + ' ' + pl(k.writing, 'is', 'are') + ' being written</span> right now and <span class="mk st-overdue">' + ov + '</span>. ' +
     '<span class="mk st-assigned">' + k.assigned + ' ' + pl(k.assigned, 'lecture', 'lectures') + ' still to be held ' + pl(k.assigned, 'has', 'have') + ' authors</span>, and ' +
-    '<span class="mk st-open">' + k.open + ' ' + pl(k.open, 'has', 'have') + ' no authors yet</span>.';
+    '<span class="mk st-open">' + k.open + ' ' + pl(k.open, 'has', 'have') + ' no authors yet</span>.' + cancelledBit(k);
 }
+function cancelledBit(k) { return k.cancelled ? ' <span class="mk st-cancelled">' + k.cancelled + ' ' + pl(k.cancelled, 'was', 'were') + ' cancelled</span>.' : ''; }
 
 function boardHtml(animate) {
   var cw = curWeek(), out = '', phone = !desk();
@@ -1263,6 +1316,57 @@ function boardHtml(animate) {
   }
   return out;
 }
+
+// The semester board's lecture pop-up: hover (or keyboard focus) on computers, first tap on phones
+var POP = { el: null, id: null };
+var hoverMq = window.matchMedia('(hover: none)'), lastPointer = '';
+// touch: the screen can't hover, or this tap came from a finger
+function noHover() { return hoverMq.matches || lastPointer === 'touch'; }
+document.addEventListener('pointerdown', function (e) { lastPointer = e.pointerType || ''; }, true);
+function popHtml(l) {
+  var files = l.files.slice(0, 4).map(function (f) { return '<a href="' + h(f.u) + '" target="_blank" rel="noopener">' + h(f.l) + '</a>'; }).join('');
+  return '<div class="t">' + badge(l.cc) + '<span>' + h(lecTitle(l)) + '</span></div>' +
+    '<div class="m">' + h(dayLabel_(l.date) + ', ' + l.start + '–' + l.end + ' · Prof. ' + l.prof) + '</div>' +
+    '<div class="tp"' + (l.cancelled ? ' style="text-decoration:line-through;color:#80868B"' : '') + '>' + (l.topic ? h(l.topic) : '<span style="color:#80868B">No topic yet</span>') + '</div>' +
+    (l.cancelled ? cancelNote(l) : '') +
+    '<div class="row">' + spill(l) + (l.who.length ? '<span style="font-size:13px;color:#3C4043">' + h(l.who.join(', ')) + '</span>' : '') + '</div>' +
+    (files ? '<div class="row">' + files + '</div>' : '') +
+    (noHover() ? '<button class="btn wide" data-popgo="' + h(l.id) + '" style="margin-top:12px;height:46px">Go to lecture</button>' : '<div class="hint">Click to jump to it in the week below</div>');
+}
+function showPop(btn) {
+  var l = byId[btn.getAttribute('data-jump')];
+  if (!l) return;
+  if (!POP.el) {
+    POP.el = document.createElement('div');
+    POP.el.className = 'lpop'; POP.el.id = 'lpop'; POP.el.setAttribute('role', 'dialog'); POP.el.hidden = true;
+    POP.el.addEventListener('click', function (e) {
+      var g = e.target.closest('[data-popgo]');
+      if (g) { var id = g.getAttribute('data-popgo'); hidePop(); jump(id); }
+    });
+    document.body.appendChild(POP.el);
+  }
+  POP.el.setAttribute('aria-label', lecTitle(l) + ' details');
+  POP.el.innerHTML = popHtml(l);
+  POP.el.hidden = false; POP.id = l.id;
+  var b = btn.getBoundingClientRect(), vw = document.documentElement.clientWidth, w = POP.el.offsetWidth, hgt = POP.el.offsetHeight;
+  var left = Math.min(Math.max(16, b.left), vw - w - 16);
+  var top = b.bottom + 8;
+  if (top + hgt > window.innerHeight - 8 && b.top - hgt - 8 > 8) top = b.top - hgt - 8;
+  POP.el.style.left = (left + window.scrollX) + 'px';
+  POP.el.style.top = (top + window.scrollY) + 'px';
+}
+function hidePop() { if (POP.el) POP.el.hidden = true; POP.id = null; }
+function wireBoardPop(board) {
+  if (!board) return;
+  board.addEventListener('mouseover', function (e) { if (hoverMq.matches || lastPointer === 'touch') return; var b = e.target.closest('[data-jump]'); if (b && POP.id !== b.getAttribute('data-jump')) showPop(b); });
+  board.addEventListener('mouseleave', function (e) { if (noHover()) return; if (POP.el && e.relatedTarget && POP.el.contains(e.relatedTarget)) return; hidePop(); });
+  // keyboard focus only: a tap also focuses the chip, and the tap itself decides there
+  board.addEventListener('focusin', function (e) { var b = e.target.closest('[data-jump]'); var kb = false; try { kb = b && b.matches(':focus-visible'); } catch (x) {} if (kb) showPop(b); });
+  board.addEventListener('focusout', function (e) { if (!board.contains(e.relatedTarget) && !(POP.el && POP.el.contains(e.relatedTarget))) hidePop(); });
+}
+document.addEventListener('keydown', function (e) { if (e.key === 'Escape') hidePop(); });
+document.addEventListener('click', function (e) { if (POP.id && !e.target.closest('#lpop') && !e.target.closest('[data-jump]')) hidePop(); });
+window.addEventListener('resize', hidePop);
 
 function abbrText() {
   var seen = {}, list = [];
@@ -1285,14 +1389,22 @@ function renderDashboard(v, opt) {
     (phone ? '<p class="abbrs" style="font-weight:600">Tap a lecture to jump to it. <button class="linkbtn" data-act="abbr" style="color:#5F6368">What the abbreviations mean</button></p><p class="abbrs" id="abbr" hidden>' + h(abbrText()) + '</p>'
       : '<p class="abbrs">' + h(abbrText()) + '</p>') +
     '</section>' +
-    '<div id="minebox">' + mineHtml() + askHtml() + '</div>' + drivesHtml() + notifyHtml() +
-    '<div id="weekpart"></div>' +
+    '<div id="minebox">' + mineHtml() + askHtml() + '</div>' +
+    '<div id="weekpart"></div>' + stripHtml() +
     '</main>';
   renderWeekPart();
   var dash = $('#dash');
+  wireBoardPop($('#board'));
   dash.addEventListener('click', function (e) {
+    var pg = e.target.closest('[data-popgo]');
+    if (pg) { var pid = pg.getAttribute('data-popgo'); hidePop(); return jump(pid); }
     var j = e.target.closest('[data-jump]');
-    if (j) return jump(j.getAttribute('data-jump'));
+    if (j) {
+      // on touch screens the first tap shows the details, the second jumps
+      if (noHover() && POP.id !== j.getAttribute('data-jump')) { showPop(j); return; }
+      hidePop();
+      return jump(j.getAttribute('data-jump'));
+    }
     var a = e.target.closest('[data-act]');
     if (!a) return;
     var act = a.getAttribute('data-act');
@@ -1322,7 +1434,7 @@ function handBusy(id) {
   var hd = S.data.hand;
   return !!hd && hd.outgoing.concat(hd.incoming).some(function (r) { return r.lectureId === id || r.otherId === id; });
 }
-function handable(l) { return l.meOn && !l.removed && !green(l.st) && l.st !== 'overdue'; }
+function handable(l) { return l.meOn && !l.removed && !l.cancelled && !green(l.st) && l.st !== 'overdue'; }
 function mineHtml() {
   var hd = S.data.hand;
   if (!hd) return '';
@@ -1442,6 +1554,20 @@ function notifyHtml() {
 
 var FOLDER_SVG = '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>';
 var LOCK_SVG = '<svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>';
+// Class links: the Drive folders and the email sign-up, in one strip
+function stripHtml() {
+  var f = S.data.folders, n = S.data.notify;
+  if (!f && !(n && n.subscribe)) return '';
+  var short = { MS: 'Medical Science', NB: 'Neuro & Behaviour', FS: 'Surgery' };
+  var chip = function (url, label, cls, dot, title) {
+    return url ? '<a class="chipl' + (cls ? ' ' + cls : '') + '" href="' + h(url) + '" target="_blank" rel="noopener"' + (title ? ' title="' + h(title) + '"' : '') + '>' + (dot ? '<span aria-hidden="true" class="dot" style="background:' + dot + '"></span>' : '') + h(label) + '</a>' : '';
+  };
+  return '<nav class="strip" aria-label="Class links"><span class="lab">Class Drive' + (S.env === 'test' ? ' (test)' : '') + '</span>' +
+    (f ? chip(f.year5, 'Year 5 Drive', 'dark') + chip(f.slides, 'Slides', '', '', 'Open to everyone') +
+      f.sbobine.map(function (x) { return chip(x.url, short[x.cc] || x.name, '', ccol(x.cc), 'Sbobine: opens only if it\'s been shared with your Google account'); }).join('') : '') +
+    (n && n.subscribe ? '<span class="sep" aria-hidden="true"></span><a class="chipl" href="' + h(n.subscribe) + '" title="Opens a ready email to the mailing list: press Send">Get the emails</a>' : '') +
+    '<span class="note">The three course folders hold the sbobine and open only if they\'ve been shared with your Google account. "Get the emails" opens a ready email to the mailing list: press Send.</span></nav>';
+}
 function drivesHtml() {
   var f = S.data.folders;
   if (!f) return '';
@@ -1548,7 +1674,12 @@ function renderWeekList() {
   }
 }
 
+function cancelNote(l) { return l.cancelled ? '<span class="cnote">Cancelled' + (l.cnote ? ': ' + h(l.cnote) : '') + '</span>' : ''; }
 function topicBlock(l, phone) {
+  if (l.cancelled) {
+    var t = l.topic ? (phone ? '<div class="tp ct">' + h(l.topic) + '</div>' : '<span class="ltopic"><span class="t">' + h(l.topic) + '</span></span>') : '';
+    return t + (phone ? '<div>' + cancelNote(l) + '</div>' : '<div>' + cancelNote(l) + '</div>');
+  }
   var locked = l.topic && (l.src === 'submission' || l.src === 'schedule');
   if (!locked && level() < 2) {
     if (!l.topic) return phone ? '<div class="tp" style="color:#80868B">No topic yet</div>' : '<span class="ltopic"><span class="t" style="color:#80868B">No topic yet</span></span>';
@@ -1567,10 +1698,45 @@ function whoHtml(l, admin) {
   if (admin) return authorEditor(l) + (green(l.st) && l.who.join() !== l.asg.join() ? '<span class="subnote">Written by ' + h(l.who.join(', ')) + '</span>' : '');
   var list = l.who.length ? '<span class="who">' + l.who.map(function (n) { return h(n) + (!green(l.st) && l.vol.indexOf(n) >= 0 ? '<span class="vtag"> (volunteer)</span>' : ''); }).join(', ') + '</span>'
     : '<span class="who none">Nobody yet</span>';
-  var btn = l.mine && !green(l.st) ? '<button class="volbtn out" data-withdraw="' + h(l.id) + '" aria-label="Withdraw from ' + h(lecTitle(l)) + '">Withdraw</button>'
+  var btn = l.mine && !green(l.st) && !l.cancelled ? '<button class="volbtn out" data-withdraw="' + h(l.id) + '" aria-label="Withdraw from ' + h(lecTitle(l)) + '">Withdraw</button>'
     : l.vok ? '<button class="volbtn" data-volunteer="' + h(l.id) + '" aria-label="Volunteer for ' + h(lecTitle(l)) + '">' + (l.asg.length ? 'Join them' : 'I\'ll write it') + '</button>' : '';
   if (handable(l) && S.data.hand && !handBusy(l.id)) btn += (btn ? ' ' : '') + '<button class="volbtn" data-hand="' + h(l.id) + '" aria-label="Hand over or swap ' + h(lecTitle(l)) + '">Hand over</button>';
   return list + (btn ? '<span style="display:block;margin-top:8px">' + btn + '</span>' : '');
+}
+// Admins: cancel a lecture that didn't happen (it stays struck through until a schedule removes it)
+function cancelAction(l) {
+  if (!S.admin || l.removed) return '';
+  if (l.cancelled) return '<span class="cxbtn"><button class="linkbtn" data-cancel="' + h(l.id) + '" style="color:inherit">Edit the note</button> · <button class="linkbtn" data-uncancel="' + h(l.id) + '" style="color:inherit">Undo the cancellation</button></span>';
+  if (green(l.st)) return '';
+  return '<button class="linkbtn cxbtn" data-cancel="' + h(l.id) + '" aria-label="Cancel ' + h(lecTitle(l)) + '">Cancel lecture</button>';
+}
+function openCancel(id) {
+  var l = byId[id], d = $('#repdlg');
+  if (!l || !d) return;
+  var again = l.cancelled;
+  d.innerHTML = '<form id="cxform"><h2 id="rep-h" style="margin:0 0 4px;font-size:22px;font-weight:900">' + (again ? 'Note on ' : 'Cancel ') + h(lecTitle(l)) + (again ? '' : '?') + '</h2>' +
+    '<p style="margin:0 0 4px;font-size:14px;line-height:1.45;color:#3C4043">' + h(dayLabel_(l.date) + ', ' + l.start + ', Prof. ' + l.prof) + '.' +
+    (again ? '' : ' It stays on the schedule struck through, with your note, until a new schedule removes it. It stops counting as held and can\'t turn overdue. Its authors stay listed, and nothing can be uploaded for it. You can undo this.') + '</p>' +
+    '<label class="fld" style="margin-top:12px">Note for everyone <span class="opt">Optional, shown on the lecture</span><input class="inp" id="cxnote" maxlength="120" value="' + h(l.cnote || '') + '" placeholder="e.g. The professor is away, to be rescheduled"></label>' +
+    '<div id="cxerr"></div><div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:16px"><button class="sbtn" id="cxgo"' + (again ? '' : ' style="background:#D93025"') + '>' + (again ? 'Save the note' : 'Cancel the lecture') + '</button><button type="button" class="sbtn2" id="cxno">' + (again ? 'Close' : 'Keep it') + '</button></div></form>';
+  if (d.showModal) d.showModal(); else d.setAttribute('open', '');
+  var close = function () { if (d.close) d.close(); else d.removeAttribute('open'); };
+  $('#cxno').onclick = close;
+  $('#cxnote').focus();
+  $('#cxform').onsubmit = function (e) {
+    e.preventDefault();
+    var btn = $('#cxgo');
+    busy(btn, true, 'Saving…');
+    api('cancelLecture', { lectureId: id, note: $('#cxnote').value }).then(function (r) {
+      close(); afterLectureChange(r);
+      toast(again ? 'Note saved.' : lecTitle(r.lecture) + ' is cancelled. You can undo it from the lecture.');
+    }, function (x) { busy(btn, false); $('#cxerr').innerHTML = '<div class="err-box drop" role="alert">' + h(x.message) + '</div>'; });
+  };
+}
+function afterLectureChange(r) {
+  updateLecture(r.lecture, r.counts, r.names);
+  if (S.page === 'admin') { renderAuthList(); renderAuthPills(); return; }
+  if (S.page === 'dashboard') { renderWeekList(); refreshOverview(); var mb = $('#minebox'); if (mb) mb.innerHTML = mineHtml(); }
 }
 function reportBtn(l) { return '<button class="repbtn" data-report="' + h(l.id) + '" aria-label="Report a problem with ' + h(lecTitle(l)) + '">Report a problem</button>'; }
 function statusExtras(l) {
@@ -1587,22 +1753,22 @@ function filesHtml(l, pills) {
 }
 function dashRow(l, newDay, searching, admin) {
   var note = S.data.dayNotes[l.date];
-  return '<tr id="lec-' + h(l.id) + '" class="row' + (newDay ? ' newday' : '') + (D.hl === l.id ? ' hl' : '') + '">' +
+  return '<tr id="lec-' + h(l.id) + '" class="row' + (newDay ? ' newday' : '') + (D.hl === l.id ? ' hl' : '') + (l.cancelled ? ' cx' : '') + '">' +
     '<td><span style="display:block;font-weight:800">' + (newDay ? h(searching ? dayLabel_(l.date) : dayLabel_(l.date).replace(/ \w+$/, '')) : '') + '</span>' +
     (newDay && note ? '<span class="daynote" style="margin:4px 0 4px">' + h(note) + '</span>' : '') +
     '<span style="display:block;font-size:13px;color:#5F6368">' + h(l.start + '–' + l.end) + '</span></td>' +
     '<td><span class="lname' + (l.removed ? ' rm' : '') + '">' + badge(l.cc) + '<b>' + h(lecTitle(l)) + '</b><span style="color:#3C4043">Prof. ' + h(l.prof) + '</span></span>' + topicBlock(l, false) + '</td>' +
     (admin || approved() ? '<td>' + whoHtml(l, admin) + '</td>' : '') +
-    '<td style="padding-top:12px">' + spill(l) + statusExtras(l) + '</td>' +
+    '<td style="padding-top:12px">' + spill(l) + statusExtras(l) + cancelAction(l) + '</td>' +
     '<td><span class="flinks">' + filesHtml(l) + '</span>' + reportBtn(l) + '</td></tr>';
 }
 function dashCard(l, i, admin) {
-  return '<article id="lec-' + h(l.id) + '" class="dcard' + (l.removed ? ' rm' : '') + (D.hl === l.id ? ' hl' : '') + '">' +
+  return '<article id="lec-' + h(l.id) + '" class="dcard' + (l.removed ? ' rm' : '') + (l.cancelled ? ' cx' : '') + (D.hl === l.id ? ' hl' : '') + '">' +
     '<div class="r1"><span class="tm">' + h(l.start + '–' + l.end) + '</span>' + spill(l) + '</div>' +
     '<div class="r2">' + badge(l.cc) + '<b>' + h(lecTitle(l)) + '</b></div>' +
     '<div class="pf">Prof. ' + h(l.prof) + '</div>' + topicBlock(l, true) +
     (admin || approved() ? '<div class="au"><span>Authors</span>' + whoHtml(l, admin) + statusExtras(l) + '</div>' : statusExtras(l)) +
-    (l.files.length ? '<div class="fpills">' + filesHtml(l) + '</div>' : '') + reportBtn(l) + '</article>';
+    (l.files.length ? '<div class="fpills">' + filesHtml(l) + '</div>' : '') + cancelAction(l) + reportBtn(l) + '</article>';
 }
 
 // Report a problem: a topic or a file. Admins get a note without the text.
@@ -1667,7 +1833,7 @@ function pairOf(id) {
   var l = byId[id];
   if (!l) return null;
   var list = dayList(l.date), i = list.findIndex(function (x) { return x.id === id; });
-  var same = function (x) { return x && x.prof === l.prof && x.mkey === l.mkey; };
+  var same = function (x) { return x && !x.cancelled && x.prof === l.prof && x.mkey === l.mkey; };
   if (same(list[i + 1])) return list[i + 1];
   if (same(list[i - 1])) return list[i - 1];
   return null;
@@ -1832,6 +1998,7 @@ function updateDayTabs() {
 }
 function statusText(l) {
   var who = l.who.join(', ');
+  if (l.cancelled) return 'Cancelled' + (l.cnote ? ': ' + l.cnote : '');
   if (!who) return { submitted: 'Submitted', reused: "Last year's sbobina, minor edits", 'reused-asis': "Last year's sbobina, used as is", writing: 'Being written', assigned: 'To be held, has authors', overdue: 'Overdue', open: 'No authors yet' }[l.st];
   if (l.st === 'submitted') return 'Submitted by ' + who;
   if (l.st === 'reused') return "Last year's sbobina, minor edits" + (who ? ', by ' + who : '');
@@ -1846,7 +2013,7 @@ function stopItem(l, first, last, withJoinSlot) {
   var stop = 'color:' + (hollow ? c : '#FFFFFF') + ';background:' + (hollow ? '#FFFFFF' : c) + ';border-color:' + (hollow ? c : '#FFFFFF') + ';box-shadow:0 0 0 2px ' + c;
   return '<li data-li="' + h(l.id) + '"><div class="stoprow"><div class="rail"><span aria-hidden="true" class="bar" style="background:' + c + ';top:' + (first ? '30px' : '0') + ';bottom:' + (last ? 'calc(100% - 34px)' : '0') + '"></span>' +
     '<span aria-hidden="true" class="stop" style="' + stop + '">' + g + '</span></div>' +
-    '<button class="lcard" data-u="pick" data-id="' + h(l.id) + '" aria-pressed="false">' +
+    '<button class="lcard' + (l.cancelled ? ' cx' : '') + '" data-u="pick" data-id="' + h(l.id) + '" aria-pressed="false"' + (l.cancelled ? ' disabled' : '') + '>' +
     '<span class="r1"><span class="tm">' + h(l.start + '–' + l.end) + '</span>' + badge(l.cc) + '</span>' +
     '<span class="tt">' + h(lecTitle(l)) + '</span><span class="pf">Prof. ' + h(l.prof) + '</span>' +
     (l.topic ? '<span class="tp">' + h(l.topic) + '</span>' : '') +
@@ -2617,21 +2784,23 @@ function renderAdmin(v, opt) {
     return;
   }
   var st = S.adminState, pend = st.schedule.pending;
+  var want = OLDSEC[String((opt && opt.hash) || '').replace('#', '')];
+  if (want) A.tab = want;
+  if (!A.tab) A.tab = 'todo';
   v.innerHTML = '<main class="wrap" id="admin" style="padding-bottom:80px">' +
     '<h1 class="ah1 rise">Admin' + (S.env === 'test' ? ' <span style="font-size:.4em;letter-spacing:0;vertical-align:middle" class="daynote">TEST DATA</span>' : '') + '</h1>' +
     '<p style="margin:10px 0 0;font-size:16px;color:#3C4043">Everything you change here is logged with your name.</p>' +
-    '<nav aria-label="Admin sections" class="secnav" id="secnav">' + secnavHtml() + '</nav>' +
-    '<section id="schedule" class="asec" aria-labelledby="h-schedule"><h2 id="h-schedule" class="h2">Schedule changes</h2><div id="sched"></div></section>' +
-    '<section id="reports" class="asec" aria-labelledby="h-reports"><h2 id="h-reports" class="h2">Reports</h2><div id="repbox"></div></section>' +
-    '<section id="members" class="asec" aria-labelledby="h-members"><h2 id="h-members" class="h2">Members and access</h2><div id="accbox"></div></section>' +
-    '<section id="authors" class="asec" aria-labelledby="h-authors"><h2 id="h-authors" class="h2" style="margin-bottom:6px">Authors</h2><p style="margin:0 0 14px;font-size:15px;line-height:1.45;color:#3C4043">Add one or more authors per lecture. Lectures without authors stay grey and never turn overdue. Approved classmates can also volunteer for lectures nobody\'s been assigned to, up to ' + MAX_AUTHORS + ' people. Volunteers are grey: Confirm makes it an assignment they can\'t withdraw from.</p><div id="unmatched"></div><div id="authpills" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px"></div><div id="authlist"></div><p style="margin:10px 4px 0;font-size:13px;color:#5F6368">Changes save as you make them. The same chips appear on the dashboard while you\'re signed in.</p></section>' +
-    '<section id="drive" class="asec" aria-labelledby="h-drive"><h2 id="h-drive" class="h2">Drive folders</h2><div class="box" id="drivebox"></div></section>' +
-    '<section id="email" class="asec" aria-labelledby="h-email"><h2 id="h-email" class="h2">Email</h2><div class="two" id="membox"></div></section>' +
-    '<section id="admins" class="asec" aria-labelledby="h-admins"><h2 id="h-admins" class="h2">Admins and settings</h2><div class="two" id="adminbox"></div></section>' +
-    '<section id="test" class="asec" aria-labelledby="h-test"><h2 id="h-test" class="h2">Test mode</h2><div id="testbox"></div></section>' +
-    '<section id="activity" class="asec" aria-labelledby="h-activity"><h2 id="h-activity" class="h2">Activity</h2><div class="box" style="padding:6px 22px" id="actbox"></div></section>' +
+    '<div class="atabs" role="tablist" aria-label="Admin sections" id="atabs">' + tabsHtml() + '</div>' +
+    pane('todo', '<div id="allclear"></div><div id="sched"></div><div id="reqbox2"></div><div id="repwrap"><h2 class="h2">Reports</h2><div id="repbox"></div></div><div id="mailprob"></div>') +
+    pane('lectures', '<section aria-labelledby="h-authors"><h2 id="h-authors" class="h2" style="margin-bottom:6px">Lectures and authors</h2><p style="margin:0 0 14px;font-size:15px;line-height:1.45;color:#3C4043">Add one or more authors per lecture. Lectures without authors stay grey and never turn overdue. Approved classmates can also volunteer for lectures nobody\'s been assigned to, up to ' + MAX_AUTHORS + ' people. Volunteers are grey: Confirm makes it an assignment they can\'t withdraw from. "Cancel lecture" is for a lecture that didn\'t happen: it stays struck through until a new schedule removes it.</p>' +
+      '<div id="unmatched"></div><div id="authpills" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px"></div><div id="authlist"></div><p style="margin:10px 4px 0;font-size:13px;color:#5F6368">Changes save as you make them. The same chips appear on the dashboard while you\'re signed in.</p></section>') +
+    pane('people', '<section><h2 class="h2">Approved classmates and access</h2><div id="accbox"></div></section><section><h2 class="h2">Admins</h2><div id="adminbox"></div></section>') +
+    pane('settings', '<section><h2 class="h2">Class password</h2><div id="gatebox"></div></section><section><h2 class="h2">Schedule</h2><div id="schedsrc"></div></section>' +
+      '<section><h2 class="h2">Drive folders</h2><div class="box" id="drivebox"></div></section><section><h2 class="h2">Email</h2><div class="two" id="membox"></div></section>' +
+      '<section><h2 class="h2">Test mode</h2><div id="testbox"></div></section><section><h2 class="h2">Other settings</h2><div id="setbox"></div></section>') +
+    pane('activity', '<section><h2 class="h2">Activity</h2><div class="box" style="padding:6px 22px" id="actbox"></div></section>') +
     '</main>';
-  renderSched(); renderReports(); renderAccess(); renderUnmatched(); renderAuthPills(); renderAuthList(); renderDrive(); renderMembers(); renderAdmins(); renderTest(); renderActivity();
+  renderSched(); renderReports(); renderAccess(); renderUnmatched(); renderAuthPills(); renderAuthList(); renderDrive(); renderMembers(); renderAdmins(); renderTest(); renderActivity(); renderAllClear();
   var root = $('#admin');
   root.addEventListener('click', adminClick);
   root.addEventListener('input', function (e) { if (e.target.id === 'mq') { A.mq = e.target.value; $('#memlist').innerHTML = memberRows(); } });
@@ -2642,29 +2811,45 @@ function renderAdmin(v, opt) {
   });
   wireAuthorEditors($('#authlist'), function () { renderAuthList(); renderAuthPills(); });
   wireTopicInputs($('#authlist'), function () { renderAuthList(); });
-  $('#secnav').addEventListener('click', function (e) {
-    var a = e.target.closest('[data-sec]');
-    if (!a) return;
-    e.preventDefault();
-    var t = document.getElementById(a.getAttribute('data-sec'));
-    if (t) t.scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth', block: 'start' });
+  $('#atabs').addEventListener('click', function (e) { var b = e.target.closest('[data-tab]'); if (b) showTab(b.getAttribute('data-tab')); });
+  $('#atabs').addEventListener('keydown', function (e) {
+    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+    var ids = ATABS.map(function (t) { return t[0]; }), i = ids.indexOf(A.tab) + (e.key === 'ArrowRight' ? 1 : -1);
+    showTab(ids[(i + ids.length) % ids.length]); var b = $('#tab-' + A.tab); if (b) b.focus();
   });
-  // the pill of the section in view is filled
-  if ('IntersectionObserver' in window) {
-    var io = new IntersectionObserver(function (ents) {
-      ents.forEach(function (en) {
-        if (!en.isIntersecting) return;
-        $$('#secnav a').forEach(function (a) { a.classList.toggle('on', a.getAttribute('data-sec') === en.target.id); });
-      });
-    }, { rootMargin: '-30% 0px -60% 0px' });
-    $$('.asec', root).forEach(function (s) { io.observe(s); });
-  }
   if (!A.folders) api('listFolders').then(function (r) { A.folders = r.folders; renderDrive(); }, function (e) { A.folders = []; A.foldersErr = e.message; renderDrive(); });
   if (pend && pend.needsParse) parsePending(pend);
-  var hash = opt && opt.hash;
-  if (!hash) { try { GS.url.getLocation(function (loc) { if (loc.hash) scrollToSec(loc.hash); }); } catch (e) {} } else scrollToSec(hash);
+  if (!(opt && opt.hash)) { try { GS.url.getLocation(function (loc) { if (loc.hash && OLDSEC[loc.hash]) showTab(OLDSEC[loc.hash]); }); } catch (e) {} }
 }
-function scrollToSec(id) { setTimeout(function () { var t = document.getElementById(String(id).replace('#', '')); if (t) t.scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth' }); }, 150); }
+// Tabs: To do (everything waiting on an admin), Lectures, People, Settings, Activity
+var ATABS = [['todo', 'To do'], ['lectures', 'Lectures'], ['people', 'People'], ['settings', 'Settings'], ['activity', 'Activity']];
+// older links (emails, bookmarks) pointed at sections of the single long page
+var OLDSEC = { todo: 'todo', schedule: 'todo', reports: 'todo', requests: 'todo', lectures: 'lectures', authors: 'lectures', people: 'people', members: 'people', admins: 'people',
+  settings: 'settings', drive: 'settings', email: 'settings', test: 'settings', activity: 'activity' };
+function todoCount() {
+  var st = S.adminState;
+  return (st.schedule.pending ? 1 : 0) + st.reports.length + st.access.requests.length + ((st.mail.problems || []).length ? 1 : 0);
+}
+function tabsHtml() {
+  var n = todoCount();
+  return ATABS.map(function (t) {
+    var on = A.tab === t[0];
+    return '<button role="tab" id="tab-' + t[0] + '" data-tab="' + t[0] + '" aria-selected="' + on + '" aria-controls="pane-' + t[0] + '" tabindex="' + (on ? 0 : -1) + '">' + t[1] + (t[0] === 'todo' && n ? ' <span class="cnt" aria-label="' + n + ' waiting">' + n + '</span>' : '') + '</button>';
+  }).join('');
+}
+function pane(id, html) { return '<div class="apane astack" role="tabpanel" id="pane-' + id + '" aria-labelledby="tab-' + id + '"' + (A.tab === id ? '' : ' hidden') + '>' + html + '</div>'; }
+function showTab(id) {
+  if (!id) return;
+  A.tab = id;
+  $$('#atabs [data-tab]').forEach(function (b) { var on = b.getAttribute('data-tab') === id; b.setAttribute('aria-selected', on); b.tabIndex = on ? 0 : -1; });
+  $$('#admin .apane').forEach(function (p) { p.hidden = p.id !== 'pane-' + id; });
+}
+function renderAllClear() {
+  var box = $('#allclear');
+  if (!box) return;
+  box.innerHTML = todoCount() ? '' : '<div class="clear"><span aria-hidden="true" class="tk">✓</span><span><strong style="display:block;font-size:19px;font-weight:900">All clear</strong><span style="font-size:15px;color:#3C4043">No schedule changes, access requests, reports or email problems are waiting.</span></span></div>';
+}
+function scrollToSec(id) { var t = OLDSEC[String(id).replace('#', '')]; if (t) showTab(t); }
 function busy(btn, on, label) { if (!btn) return; if (on) { btn.dataset.label = btn.textContent; btn.textContent = label || 'Working…'; btn.disabled = true; } else { btn.textContent = btn.dataset.label || btn.textContent; btn.disabled = false; } }
 
 // ----- schedule
@@ -2678,7 +2863,7 @@ function diffRowHtml(it) {
   return '<div class="drow">' + type + lec + what + who + '</div>';
 }
 function renderSched() {
-  var box = $('#sched'), sc = S.adminState.schedule, p = sc.pending, s = S.adminState.settings, html = '';
+  var box = $('#sched'), sc = S.adminState.schedule, p = sc.pending, s = S.adminState.settings, html = '', top = '';
   if (p) {
     var k = p.counts;
     html += '<div class="loud"><h3>A new schedule is waiting for approval</h3>';
@@ -2689,9 +2874,10 @@ function renderSched() {
       html += '<div style="margin-top:14px">' + (p.items.length ? p.items.map(diffRowHtml).join('') : '<p style="color:#5F6368">The PDF changed but no lecture details did. Approving just records this version.</p>') + '</div>';
       if (p.warnings && p.warnings.length) html += '<p style="font-size:13px;color:#B3261E">The reader had trouble with part of the PDF: ' + h(p.warnings.join('; ')) + '. Check those days by hand.</p>';
     }
-    html += '<div class="actrow"><button class="btn" data-a="approve"' + (p.needsParse ? ' disabled' : '') + ' style="height:52px">Approve and publish</button><button class="btn2" data-a="dismiss" style="height:52px;font-size:16px">Dismiss</button><span style="font-size:14px;color:#5F6368">Approving updates the website for everyone and lets the other admins know.</span></div></div>';
+    html += '<div class="actrow"><button class="btn" data-a="approve"' + (p.needsParse ? ' disabled' : '') + ' style="height:52px">Approve and publish</button><button class="btn2" data-a="dismiss" style="height:52px;font-size:16px">Dismiss</button><span style="font-size:14px;color:#5F6368">Approving updates the website for everyone and lets the other admins know. Cancelled lectures stay cancelled.</span></div></div>';
+    top = html; html = '';
   } else {
-    html += '<div class="box"><h3 class="h3" style="margin-bottom:4px">The live schedule is up to date</h3><p style="margin:0;font-size:15px;line-height:1.5;color:#3C4043">No new version of the PDF is waiting. Admins get an email as soon as one shows up.</p></div>';
+    html += '<div class="box"><h3 class="h3" style="margin-bottom:4px">The live schedule is up to date</h3><p style="margin:0;font-size:15px;line-height:1.5;color:#3C4043">No new version of the PDF is waiting. Admins get an email as soon as one shows up, and it appears under To do.</p></div>';
   }
   var hist = sc.history.map(function (x) {
     var c = x.counts;
@@ -2706,7 +2892,10 @@ function renderSched() {
     '<p style="margin:14px 0 0;font-size:14px;line-height:1.5;color:#5F6368">Checked every hour from 07:00 to 22:00' + (S.env === 'test' ? ' (live portal only; use Check now in test mode)' : '') + '. ' +
     (sc.lastApproved ? 'Live schedule approved ' + h(stampIn(sc.lastApproved)) + (sc.approvedBy ? ' by ' + h(shortName(sc.approvedBy)) : '') + '.' : 'Live schedule: the one loaded at setup.') + (sc.approvedAt ? ' Last checked ' + h(stampIn(sc.approvedAt)) + '.' : '') + '</p></div>' +
     '<div class="box" style="flex:1 1 280px"><h3 class="h3">Earlier changes</h3>' + (hist ? '<ul style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px;font-size:14px;line-height:1.4">' + hist + '</ul>' : '<p style="margin:0;color:#5F6368;font-size:14px">None yet.</p>') + '</div></div>';
-  box.innerHTML = html;
+  if (box) box.innerHTML = top ? '<h2 class="h2">Schedule</h2>' + top : '';
+  var src = $('#schedsrc');
+  if (src) src.innerHTML = html;
+  renderAllClear();
 }
 function loadPdfJs() {
   return new Promise(function (res, rej) {
@@ -2764,6 +2953,7 @@ function adminClick(e) {
       renderSched(); refreshSecnav();
       $('#checkres').innerHTML = '<div class="graybox drop' + (r.result === 'error' ? '" style="color:#B3261E' : '') + '"><strong>' + h(r.message) + '</strong>' +
         (r.result === 'error' ? '<br>Check the link and file name, or use "Upload a PDF instead".' : '') + '</div>';
+      if (r.schedule.pending) showTab('todo');
       if (r.schedule.pending && r.schedule.pending.needsParse) parsePending(r.schedule.pending);
     }, fail);
   }
@@ -2996,18 +3186,10 @@ function adminClick(e) {
     api('saveTestEmails', { emails: rest }).then(function (r) { st.settings.testEmails = r.testEmails; renderTest(); }, fail);
   }
 }
-function secnavHtml() {
-  var st = S.adminState, cnt = { schedule: st.schedule.pending ? 1 : 0, reports: st.reports.length, members: st.access.requests.length };
-  return [['schedule', 'Schedule changes'], ['reports', 'Reports'], ['members', 'Members and access'], ['authors', 'Authors'], ['drive', 'Drive folders'], ['email', 'Email'], ['admins', 'Admins and settings'], ['test', 'Test mode'], ['activity', 'Activity']].map(function (x) {
-    return '<a href="#' + x[0] + '" data-sec="' + x[0] + '"' + (x[0] === 'test' ? ' class="dash"' : '') + '>' + x[1] + (cnt[x[0]] ? ' <span class="cnt">' + cnt[x[0]] + '</span>' : '') + '</a>';
-  }).join('');
-}
 function refreshSecnav() {
-  var nav = $('#secnav');
-  if (!nav) return;
-  var on = $('#secnav a.on'), id = on && on.getAttribute('data-sec');
-  nav.innerHTML = secnavHtml();
-  if (id) { var a = $('#secnav [data-sec="' + id + '"]'); if (a) a.classList.add('on'); }
+  var t = $('#atabs');
+  if (t) t.innerHTML = tabsHtml();
+  renderAllClear();
 }
 
 // ----- authors
@@ -3113,9 +3295,15 @@ function renderMembers() {
     deliveryHtml(st.mail.problems) +
     '<div class="box" style="flex:1 1 280px"><h3 class="h3">Joining the list</h3><p style="margin:0;font-size:15px;line-height:1.5;color:#3C4043">' +
     (st.notify && st.notify.join ? 'People join by emailing <strong style="font-weight:800;word-break:break-all">' + h(st.notify.join) + '</strong>. The dashboard and every email have a button for it. Leaving the list only stops the emails.' : 'No Google Group is set.') + '</p></div>';
+  renderMailProblems();
 }
 
 // Bounces and "message rejected" replies Gmail got lately: the usual reason an email list stays silent
+function renderMailProblems() {
+  var mp = $('#mailprob'), list = S.adminState.mail.problems || [];
+  if (mp) mp.innerHTML = list.length ? '<h2 class="h2">Email</h2>' + deliveryHtml(list) : '';
+  renderAllClear();
+}
 function deliveryHtml(list) {
   if (!list || !list.length) return '';
   return '<div class="box" style="flex:1 1 100%;border:2px solid #D93025"><h3 class="h3" style="margin-bottom:6px;color:#B3261E">Emails that didn\'t arrive (last 14 days)</h3>' +
@@ -3184,7 +3372,10 @@ function renderAccess() {
     (ac.blocked.length ? '<div style="margin-top:8px">' + ac.blocked.map(function (b) {
       return '<div class="adminli"><span><strong style="font-weight:800;word-break:break-all">' + h(b.email) + '</strong><small>Blocked ' + h(stampIn(b.at)) + (b.by ? ' by ' + h(shortName(b.by)) : '') + '</small></span><button class="linkbtn" data-a="unblock" data-email="' + h(b.email) + '">Unblock</button></div>';
     }).join('') + '</div>' : '<p style="margin:12px 0 0;font-size:15px;color:#5F6368">Nobody is blocked.</p>') + '</div>';
-  box.innerHTML = '<div class="two">' + gate + reqs + '</div>' + add + mem + others + blocked;
+  box.innerHTML = add.replace('style="margin-top:20px"', '') + mem + others + blocked;
+  var gb = $('#gatebox'); if (gb) gb.innerHTML = gate.replace('<h3 class="h3" style="margin-bottom:6px">Class password</h3>', '');
+  var rb = $('#reqbox2'); if (rb) rb.innerHTML = ac.requests.length ? '<h2 class="h2">Access requests</h2>' + reqs.replace('<h3 class="h3" style="margin-bottom:6px">Access requests</h3>', '') : '';
+  renderAllClear();
 }
 
 // ----- authors who aren't tied to an account (hand-overs need to know whose a lecture is)
@@ -3210,7 +3401,10 @@ function rmBtn(id) {
 function renderReports() {
   var box = $('#repbox'), list = S.adminState.reports;
   if (!box) return;
-  if (!list.length) { box.innerHTML = '<div class="box"><p style="margin:0;font-size:15px;line-height:1.5;color:#5F6368">No reports waiting. Anyone can flag a topic or a file from the dashboard, and admins get an email when they do.</p></div>'; return; }
+  var wrap = $('#repwrap');
+  if (wrap) wrap.hidden = !list.length;
+  renderAllClear();
+  if (!list.length) { box.innerHTML = ''; return; }
   box.innerHTML = list.map(function (r) {
     var subs = r.subs.map(function (x) {
       return '<div class="adminli"><span><strong style="font-weight:800">' + (x.kind === 'slides' ? 'Slides' : 'Sbobina') + (x.part > 1 ? ', part ' + x.part : '') + '</strong><small style="word-break:break-all">Uploaded ' + h(stampLabel(x.at)) + (x.by ? ' by ' + h(x.by) : '') + '</small></span>' +
@@ -3230,7 +3424,7 @@ function renderReports() {
 function renderAdmins() {
   var st = S.adminState, me = st.me, s = st.settings, box = $('#adminbox');
   if (!box) return;
-  box.innerHTML = '<div class="box" style="flex:2 1 480px"><h3 class="h3">Admins</h3><ul style="list-style:none;margin:0;padding:0">' +
+  box.innerHTML = '<div class="box"><ul style="list-style:none;margin:0;padding:0">' +
     st.admins.map(function (a) {
       var mine = a.email.toLowerCase() === me.email.toLowerCase();
       var act = mine ? '<button class="linkbtn" data-a="newkey" style="font-size:14px">Make an emergency key</button>'
@@ -3242,8 +3436,9 @@ function renderAdmins() {
     '<div style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin-top:12px;padding-top:16px;border-top:1px solid #E8EAED">' +
     '<label class="fld" style="flex:1 1 150px">Name<input class="inp" id="nan" placeholder="e.g. Marco Tosi"></label>' +
     '<label class="fld" style="flex:2 1 200px">Email<input class="inp" id="nae" type="email" placeholder="The address they sign in with"></label>' +
-    '<button class="sbtn" data-a="addadmin" style="height:48px">Add admin</button></div></div>' +
-    '<div class="box" style="flex:1 1 280px"><h3 class="h3">Settings</h3>' +
+    '<button class="sbtn" data-a="addadmin" style="height:48px">Add admin</button></div></div>';
+  var sb = $('#setbox');
+  if (sb) sb.innerHTML = '<div class="box">' +
     '<label class="fld">Days after a lecture before it counts as overdue<span style="display:flex;gap:10px"><input class="inp" id="grace" value="' + h(s.grace) + '" inputmode="numeric" style="width:100px;font-weight:700"><button class="sbtn2 soft" data-a="savegrace">Save</button></span></label>' +
     '<ul class="alinks"><li><a href="' + h(s.dataSheetUrl) + '" target="_blank" rel="noopener">Open the data sheet' + (S.env === 'test' ? ' (test)' : '') + '</a></li>' +
     '<li><button class="linkbtn" data-a="copyurl" style="font-size:15px">Copy the portal link</button></li>' +
