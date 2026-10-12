@@ -2241,10 +2241,15 @@ function openAddRes(scope, mode) {
   if ($('#rlec')) { $('#rlec').onchange = drawFiles; drawFiles(); }
   if ($('#rpick')) $('#rpick').onclick = function () {
     err('');
+    // the window sits in the browser's top layer, above Google's picker: step aside while it's open
+    var back = function () { if (!d.open) { if (d.showModal) d.showModal(); else d.setAttribute('open', ''); } };
+    if (d.close) d.close(); else d.removeAttribute('open');
     pickFromDrive().then(function (docs) {
-      picked = docs;
-      $('#rpicked').innerHTML = docs.length ? '<ul style="margin:10px 0 0;padding-left:20px;font-size:14px;font-weight:700">' + docs.map(function (x) { return '<li>' + h(x.name) + '</li>'; }).join('') + '</ul>' : '';
-    }, function (x) { err(x.message); });
+      back();
+      if (docs.length) picked = docs;
+      $('#rpicked').innerHTML = picked.length ? '<ul style="margin:10px 0 0;padding-left:20px;font-size:14px;font-weight:700">' + picked.map(function (x) { return '<li>' + h(x.name) + '</li>'; }).join('') + '</ul>' : '';
+      if (picked.length) $('#rpick').textContent = 'Choose different files';
+    }, function (x) { back(); err(x.message); });
   };
   $('#resform').onsubmit = function (ev) {
     ev.preventDefault();
