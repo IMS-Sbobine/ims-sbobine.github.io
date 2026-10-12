@@ -1285,7 +1285,7 @@ function renderDashboard(v, opt) {
     (phone ? '<p class="abbrs" style="font-weight:600">Tap a lecture to jump to it. <button class="linkbtn" data-act="abbr" style="color:#5F6368">What the abbreviations mean</button></p><p class="abbrs" id="abbr" hidden>' + h(abbrText()) + '</p>'
       : '<p class="abbrs">' + h(abbrText()) + '</p>') +
     '</section>' +
-    '<div id="minebox">' + mineHtml() + '</div>' + drivesHtml() + notifyHtml() +
+    '<div id="minebox">' + mineHtml() + askHtml() + '</div>' + drivesHtml() + notifyHtml() +
     '<div id="weekpart"></div>' +
     '</main>';
   renderWeekPart();
@@ -1347,6 +1347,22 @@ function mineHtml() {
     '<p class="sub">Can\'t make one? Ask a classmate to take it over, or to swap one of theirs. Nothing changes until they accept.</p>' +
     inc + out + (rows ? '<div style="margin-top:' + (inc || out ? '14' : '4') + 'px">' + rows + '</div>' : '') + '</section>';
 }
+// Signed in but not approved: the dashboard explains how to get approved
+function askHtml() {
+  if (!S.me || S.me.level !== 2 || !S.me.email) return '';
+  return '<section class="mine" id="askbox" aria-labelledby="h-req"><div id="reqbox">' + requestBox(true) + '</div></section>';
+}
+function askAccess(t) {
+  var nm = ($('#rqname') || {}).value || '';
+  if (!nm.trim()) { toast('Add your name first.', true); return; }
+  busy(t, true, 'Sending…');
+  api('requestAccess', { name: nm.trim() }).then(function (r) {
+    if (r.approved) { toast('You\'re already approved. Loading…'); S.data = null; return renderPage(); }
+    S.me.pending = !!r.pending;
+    $('#reqbox').innerHTML = requestBox($('#askbox') !== null);
+    toast('Request sent. You\'ll get an email once an admin approves you.');
+  }, function (e) { busy(t, false); toast(e.message, true); });
+}
 function handDone(r, msg) {
   setData(r.state);
   renderPage({ keep: true });
@@ -1356,6 +1372,8 @@ function wireHand(root) {
   root.addEventListener('click', function (e) {
     var hb = e.target.closest('[data-hand]');
     if (hb) { openHand(hb.getAttribute('data-hand')); return; }
+    var ra = e.target.closest('[data-u="reqaccess"]');
+    if (ra) { askAccess(ra); return; }
     var an = e.target.closest('[data-hans]');
     if (an) {
       var acc = an.getAttribute('data-acc') === '1';
@@ -1927,17 +1945,7 @@ function renderType(v) {
     }
     if (a === 'next') toStep(3);
     if (a === 'back' || a === 'change') toStep(1);
-    if (a === 'reqaccess') {
-      var nm = ($('#rqname') || {}).value || '';
-      if (!nm.trim()) { toast('Add your name first.', true); return; }
-      busy(t, true, 'Sending…');
-      api('requestAccess', { name: nm.trim() }).then(function (r) {
-        if (r.approved) { toast('You\'re already approved. Loading…'); S.data = null; return renderPage(); }
-        S.me.pending = !!r.pending;
-        $('#reqbox').innerHTML = requestBox();
-        toast('Request sent. You\'ll get an email once an admin approves you.');
-      }, function (e) { busy(t, false); toast(e.message, true); });
-    }
+    if (a === 'reqaccess') askAccess(t);
   };
   function choice(k2, title, desc, icon, off) {
     return '<button class="choice" role="radio" data-u="kind" data-k="' + k2 + '" aria-checked="' + (k === k2) + '"' + (off ? ' disabled aria-disabled="true"' : '') + '><span aria-hidden="true" class="ic">' + icon + '</span><span class="tx"><b>' + title + '</b><span>' + desc + '</span></span><span aria-hidden="true" class="radio"></span></button>';
@@ -1945,14 +1953,17 @@ function renderType(v) {
 }
 
 // Signed in but not approved: ask the admins once
-function requestBox() {
+// bare: inside the dashboard box (no card of its own)
+function requestBox(bare) {
   if (S.me && S.me.pending) {
-    return '<div class="graybox drop" role="status" style="margin-top:16px"><strong style="font-weight:800">Your request is with the admins.</strong> You\'ll get an email once you\'re approved. Then you can upload sbobine here and see who\'s writing what.</div>';
+    return bare ? '<h2 id="h-req">Your request is with the admins</h2><p class="sub" style="margin:0">You\'ll get an email once you\'re approved, and this box goes away. Then you can upload sbobine, see who\'s writing what, volunteer for lectures and skip the class password.</p>'
+      : '<div class="graybox drop" role="status" style="margin-top:16px"><strong style="font-weight:800">Your request is with the admins.</strong> You\'ll get an email once you\'re approved. Then you can upload sbobine here and see who\'s writing what.</div>';
   }
-  return '<section class="card" aria-labelledby="h-req" style="margin-top:16px"><h2 id="h-req">Want to upload sbobine?</h2>' +
-    '<p style="margin:0;font-size:14px;line-height:1.45;color:#3C4043">Sbobine and the names of who\'s writing what are for approved classmates. Ask once and an admin will approve you.</p>' +
-    '<label class="fld">Your name and surname<input class="inp" id="rqname" value="' + h(S.me ? S.me.name : '') + '" autocomplete="name" maxlength="80"></label>' +
-    '<div><button class="sbtn" data-u="reqaccess">Ask for access</button></div></section>';
+  var inner = '<p style="margin:0;font-size:14px;line-height:1.45;color:#3C4043">Approved classmates upload sbobine, see who\'s writing what, volunteer for lectures and skip the class password. Ask once with your real name, and an admin will approve you.</p>' +
+    '<label class="fld" style="margin-top:10px">Your name and surname<input class="inp" id="rqname" value="' + h(S.me ? S.me.name : '') + '" autocomplete="name" maxlength="80"></label>' +
+    '<div style="margin-top:10px"><button class="sbtn" data-u="reqaccess">Ask to be approved</button></div>';
+  return bare ? '<h2 id="h-req">Get approved</h2>' + inner
+    : '<section class="card" aria-labelledby="h-req" style="margin-top:16px"><h2 id="h-req">Want to upload sbobine?</h2>' + inner + '</section>';
 }
 function renderUploadSignin(v) {
   v.innerHTML = '<main class="signin"><div class="box"><h1 class="rise">Sign in to upload</h1>' +
@@ -2504,7 +2515,7 @@ function afterSignIn(r) {
 function levelLine(me) {
   if (me.isAdmin) return 'You\'re an admin.';
   if (me.level >= 3) return 'You\'re an approved classmate.';
-  return 'An admin hasn\'t approved this address yet, so you still need the class password' + (me.pending ? '. Your request is waiting.' : '. You can ask for access on the Upload page.');
+  return 'An admin hasn\'t approved this address yet, so you still need the class password' + (me.pending ? '. Your request is waiting.' : '. You can ask to be approved at the top of the dashboard.');
 }
 function renderSignin(v) {
   var note = S.signinNote, me = S.me;
@@ -2624,6 +2635,11 @@ function renderAdmin(v, opt) {
   var root = $('#admin');
   root.addEventListener('click', adminClick);
   root.addEventListener('input', function (e) { if (e.target.id === 'mq') { A.mq = e.target.value; $('#memlist').innerHTML = memberRows(); } });
+  root.addEventListener('keydown', function (e) {
+    if (e.target.id !== 'nm-edit') return;
+    if (e.key === 'Enter') { e.preventDefault(); var b = $('#memlist [data-a="savename"]'); if (b) b.click(); }
+    if (e.key === 'Escape') { A.editName = ''; $('#memlist').innerHTML = memberRows(); }
+  });
   wireAuthorEditors($('#authlist'), function () { renderAuthList(); renderAuthPills(); });
   wireTopicInputs($('#authlist'), function () { renderAuthList(); });
   $('#secnav').addEventListener('click', function (e) {
@@ -2821,6 +2837,17 @@ function adminClick(e) {
     api('removeMember', { email: rmE }).then(function (r) { A.confirmRmM = ''; accessDone(rmE + ' was removed from the approved list.')(r); }, fail);
   }
   if (a === 'rmmcancel') { A.confirmRmM = ''; $('#memlist').innerHTML = memberRows(); }
+  if (a === 'editname') { A.editName = t.getAttribute('data-email'); $('#memlist').innerHTML = memberRows(); var ni = $('#nm-edit'); if (ni) { ni.focus(); ni.select(); } }
+  if (a === 'namecancel') { A.editName = ''; $('#memlist').innerHTML = memberRows(); }
+  if (a === 'savename') {
+    var nv = ($('#nm-edit').value || '').trim();
+    if (!nv) { toast('Type their name.', true); return; }
+    busy(t, true, 'Saving…');
+    api('setMemberName', { email: t.getAttribute('data-email'), name: nv }).then(function (r) {
+      A.editName = ''; S.data = null; api('state').then(setData);
+      accessDone('Name saved' + (r.renamed ? ', and updated on ' + r.renamed + ' ' + pl(r.renamed, 'lecture', 'lectures') : '') + '.')(r);
+    }, fail);
+  }
   if (a === 'unblock') {
     busy(t, true, '…');
     api('block', { email: t.getAttribute('data-email'), unblock: true }).then(accessDone('Unblocked.'), fail);
@@ -2891,6 +2918,13 @@ function adminClick(e) {
       var shown = function () { renderMembers(); var ta = $('#emailsta'); if (ta) { ta.focus(); ta.select(); } };
       if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function () { toast(list.length + ' emails copied.'); shown(); }, function () { shown(); toast('Select the emails below and copy them.'); });
       else { shown(); toast('Select the emails below and copy them.'); }
+    }, fail);
+  }
+  if (a === 'testemail-test') {
+    busy(t, true, 'Sending…');
+    api('sendTestEmail', { target: 'test' }).then(function (r) {
+      busy(t, false); st.mail.quota = r.quota; st.mail.problems = r.problems; renderMembers();
+      toast(r.status === 'sent' ? 'Sent to ' + r.to + '. If it doesn\'t arrive, check "Emails that didn\'t arrive" under Email.' : 'Queued: the daily email limit is used up.');
     }, fail);
   }
   if (a === 'testemail') {
@@ -3074,9 +3108,19 @@ function renderMembers() {
       : '<label class="fld">Google Group address<input class="inp" id="gmail" value="' + h(s.groupEmail) + '"></label><div style="margin-top:10px"><button class="sbtn2 soft" data-a="savegroup">Save address</button></div>') +
     '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:14px"><button class="sbtn2" data-a="copyemails">Copy all member emails</button><button class="sbtn2" data-a="testemail">Send a test email</button></div>' +
     (A.emailsText ? '<label class="fld" style="margin-top:12px">Member emails<textarea class="ta" id="emailsta" rows="3" readonly style="font-size:14px;font-weight:500">' + h(A.emailsText) + '</textarea></label>' : '') +
-    '<p style="margin:14px 0 0;font-size:14px;line-height:1.5;color:#5F6368">' + (st.mail.quota >= 0 ? st.mail.quota + ' emails left today. ' : '') + (st.mail.queue ? st.mail.queue + ' waiting to be sent (they go out every hour).' : 'Nothing waiting to be sent.') + '</p></div>' +
+    '<p style="margin:14px 0 0;font-size:14px;line-height:1.5;color:#5F6368">' + (st.mail.quota >= 0 ? st.mail.quota + ' emails left today. ' : '') + (st.mail.queue ? st.mail.queue + ' waiting to be sent (they go out every hour).' : 'Nothing waiting to be sent.') + '</p>' +
+    (st.mail.errors && st.mail.errors.length ? '<div class="graybox" style="color:#B3261E"><strong style="font-weight:800">Couldn\'t send:</strong> ' + st.mail.errors.map(function (x) { return h(stampIn(x.at)) + ': ' + h(x.error); }).join('<br>') + '</div>' : '') + '</div>' +
+    deliveryHtml(st.mail.problems) +
     '<div class="box" style="flex:1 1 280px"><h3 class="h3">Joining the list</h3><p style="margin:0;font-size:15px;line-height:1.5;color:#3C4043">' +
     (st.notify && st.notify.join ? 'People join by emailing <strong style="font-weight:800;word-break:break-all">' + h(st.notify.join) + '</strong>. The dashboard and every email have a button for it. Leaving the list only stops the emails.' : 'No Google Group is set.') + '</p></div>';
+}
+
+// Bounces and "message rejected" replies Gmail got lately: the usual reason an email list stays silent
+function deliveryHtml(list) {
+  if (!list || !list.length) return '';
+  return '<div class="box" style="flex:1 1 100%;border:2px solid #D93025"><h3 class="h3" style="margin-bottom:6px;color:#B3261E">Emails that didn\'t arrive (last 14 days)</h3>' +
+    '<p style="margin:0 0 6px;font-size:14px;line-height:1.45;color:#3C4043">Gmail got these replies. If one says the group rejected the message, open the group\'s settings on groups.google.com and either add the portal account as a member, or set <strong>Who can post</strong> to allow it, and turn off moderation for it.</p>' +
+    list.map(function (p) { return '<div class="adminli" style="display:block"><strong style="font-weight:800">' + h(p.subject) + '</strong><small>' + h(stampIn(p.at)) + '</small><span style="display:block;font-size:13px;color:#3C4043;margin-top:4px">' + h(p.text) + '</span></div>'; }).join('') + '</div>';
 }
 
 // ----- members and access
@@ -3085,7 +3129,10 @@ function memberRows() {
   var list = ac.members.filter(function (m) { return !q || (m.name + ' ' + m.email).toLowerCase().indexOf(q) >= 0; });
   if (!list.length) return '<p style="margin:12px 0 0;font-size:15px;color:#5F6368">' + (q ? 'Nobody matches.' : 'Nobody yet. Add people above, or approve requests.') + '</p>';
   return list.map(function (m) {
-    return '<div class="mrow"><span><strong style="font-weight:800">' + h(m.name || '(no name)') + '</strong>' + (m.active ? '' : ' <span class="daynote">Inactive</span>') + '<span class="meta" style="word-break:break-all">' + h(m.email) + '</span></span>' +
+    var nameCell = A.editName === m.email
+      ? '<span style="display:flex;gap:6px;align-items:center"><input class="inp" id="nm-edit" value="' + h(m.name) + '" maxlength="80" aria-label="Name of ' + h(m.email) + '" style="height:36px;font-size:14px"><button class="sbtn" data-a="savename" data-email="' + h(m.email) + '" style="height:36px;padding:0 12px;font-size:13px">Save</button><button class="linkbtn" data-a="namecancel">Cancel</button></span>'
+      : '<strong style="font-weight:800">' + h(m.name || '(no name)') + '</strong> <button class="linkbtn" data-a="editname" data-email="' + h(m.email) + '" style="font-size:13px;color:#5F6368">Edit</button>';
+    return '<div class="mrow"><span>' + nameCell + (m.active ? '' : ' <span class="daynote">Inactive</span>') + '<span class="meta" style="word-break:break-all">' + h(m.email) + '</span></span>' +
       '<span class="meta">' + (m.lastSeen ? 'Signed in ' + h(stampIn(m.lastSeen)) : 'Hasn\'t signed in yet') + '</span>' +
       '<span class="meta">' + h(m.share ? 'Drive: ' + m.share : 'Drive not shared yet') + '</span>' +
       '<span class="mact">' + (m.active ? '<button class="linkbtn" data-a="deact" data-email="' + h(m.email) + '">Deactivate</button>' : '<button class="linkbtn" data-a="react" data-email="' + h(m.email) + '">Reactivate</button>') + removeBtn(m.email) + blockBtn(m.email) + '</span></div>';
@@ -3229,6 +3276,7 @@ function renderTest() {
     (s.testDataUrl ? '<p style="margin:12px 0 0;font-size:14px"><a href="' + h(s.testDataUrl) + '" target="_blank" rel="noopener" style="font-weight:700">Open the test data sheet</a></p>' : '') + '</div>' +
     '<div class="box" style="flex:1 1 380px"><h3 class="h3" style="margin-bottom:6px">Test email list</h3>' +
     '<p style="margin:0 0 12px;font-size:15px;line-height:1.5;color:#3C4043">Test emails go only here, in their own thread, with [TEST] in front of the subject.</p>' +
+    '<div style="margin:0 0 12px"><button class="sbtn2" data-a="testemail-test">Send a test email to this list</button></div>' +
     '<div style="display:flex;flex-wrap:wrap;gap:8px">' + s.testEmails.map(function (e) { return '<span class="chip" style="height:36px;font-size:14px;padding:0 2px 0 12px">' + h(e) + '<button class="chipx" data-a="rmtestmail" data-email="' + h(e) + '" aria-label="Remove ' + h(e) + '">×</button></span>'; }).join('') +
     '<button class="add" data-a="addtestmail" style="height:36px;font-size:14px">+ Add an email</button></div></div></div>' + uniBox;
 }
