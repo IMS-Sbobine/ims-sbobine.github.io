@@ -2262,7 +2262,7 @@ function openAddRes(scope, mode) {
       return api('diaryRes', { scope: scope, items: items, groups: gids }).then(function (dd) {
         setDiary(dd); close(); drawDiary();
         toast((items.length > 1 ? items.length + ' resources added' : 'Added') + (gids.length ? ' and shared.' : '. Only you see it.'));
-        if (gids.length) items.forEach(function (it) { if (it.fileId) shareDriveFile(it.fileId, gids); });
+        if (gids.length) items.forEach(function (it) { if (it.fileId) shareDriveFile(it.fileId, gids, it.title); });
       }, function (x) { busy(btn, false); err(x.message); });
     };
     if (mode === 'link') {
@@ -2378,19 +2378,49 @@ function uploadToDrive(file, onProgress) {
     return file.size ? next() : Promise.reject(new Error('That file is empty.'));
   });
 }
-// Sharing a Drive file with a group lets its members open it (view only)
-function shareDriveFile(fileId, gids) {
+// Sharing a Drive file with a group lets its members open it (view only). Says exactly who couldn't be reached.
+function driveError(x) {
+  var m = String(x && x.message || x), j = m.indexOf('{');
+  try { var e = JSON.parse(m.slice(j)).error; return (e && e.message) || m; } catch (z) { return m; }
+}
+function grantView(fileId, email) {
+  var url = 'https://www.googleapis.com/drive/v3/files/' + encodeURIComponent(fileId) + '/permissions';
+  var body = JSON.stringify({ role: 'reader', type: 'user', emailAddress: email });
+  var post = function (notify) { return driveFetch(url + '?sendNotificationEmail=' + notify, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: body }); };
+  // addresses without a Google account can only be shared with by an invite email from Drive
+  return post(false).then(function () { return { ok: true, email: email }; }, function () {
+    return post(true).then(function () { return { ok: true, email: email, invited: true }; }, function (x) { return { ok: false, email: email, why: driveError(x) }; });
+  });
+}
+function shareDriveFile(fileId, gids, name) {
   return Promise.all(gids.map(function (g) { return api('groupEmails', { groupId: g }); })).then(function (lists) {
     var emails = [].concat.apply([], lists).filter(function (e, i, a) { return a.indexOf(e) === i; });
-    if (!emails.length) return;
-    return driveToken().then(function () {
-      return Promise.all(emails.map(function (e) {
-        return driveFetch('https://www.googleapis.com/drive/v3/files/' + encodeURIComponent(fileId) + '/permissions?sendNotificationEmail=false', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ role: 'reader', type: 'user', emailAddress: e })
-        }).catch(function () {});
-      }));
+    if (!emails.length) { toast('Nobody else is in the group yet. When people join, use ⋯ and "Let the group open it in Drive".'); return; }
+    return driveToken().then(function () { return Promise.all(emails.map(function (e) { return grantView(fileId, e); })); }).then(function (res) {
+      var bad = res.filter(function (r) { return !r.ok; }), inv = res.filter(function (r) { return r.invited; });
+      if (!bad.length) { toast('Done: ' + pl(res.length, 'the other member', 'all ' + res.length + ' other members') + ' can open it in Google Drive' + (inv.length ? ' (' + inv.length + ' got an invite email from Drive)' : '') + '.'); return; }
+      shareProblem(fileId, name, bad, res.length);
     });
-  }).then(function () { toast('The group can open the file now.'); }, function (x) { toast('Shared in the diary, but Google Drive didn\'t let the group open the file: ' + x.message, true); });
+  }).catch(function (x) { toast('Google Drive didn\'t share the file: ' + driveError(x), true); });
+}
+function shareProblem(fileId, name, bad, total) {
+  var d = $('#repdlg');
+  if (!d) return;
+  d.innerHTML = '<div><h2 id="rep-h" style="margin:0 0 4px;font-size:22px;font-weight:900">Some people can\'t open it yet</h2>' +
+    '<p style="margin:0 0 8px;font-size:14px;line-height:1.45;color:#3C4043">' + h(name || 'The file') + ' is shared in the diary, but Google Drive couldn\'t let ' + bad.length + ' of ' + total + ' ' + pl(total, 'person', 'people') + ' open it:</p>' +
+    '<ul style="margin:0;padding-left:20px;font-size:14px;line-height:1.5">' + bad.map(function (b) { return '<li><strong style="font-weight:800">' + h(b.email) + '</strong>: ' + h(b.why) + '</li>'; }).join('') + '</ul>' +
+    '<p style="margin:10px 0 0;font-size:13px;line-height:1.45;color:#5F6368">Usually that address has no Google account, or the file belongs to someone else. You can open the file to anyone who has its link instead; it still won\'t show up in searches.</p>' +
+    '<div id="sperr"></div><div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:16px"><button class="sbtn" id="spany">Let anyone with the link open it</button><button class="sbtn2 soft" id="spno">Leave it</button></div></div>';
+  if (d.showModal && !d.open) d.showModal(); else d.setAttribute('open', '');
+  var close = function () { if (d.close) d.close(); else d.removeAttribute('open'); };
+  $('#spno').onclick = close;
+  $('#spany').onclick = function () {
+    var btn = $('#spany');
+    busy(btn, true, 'Opening it…');
+    driveToken().then(function () {
+      return driveFetch('https://www.googleapis.com/drive/v3/files/' + encodeURIComponent(fileId) + '/permissions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ role: 'reader', type: 'anyone', allowFileDiscovery: false }) });
+    }).then(function () { close(); toast('Anyone with the link can open it now, so the whole group can.'); }, function (x) { busy(btn, false); $('#sperr').innerHTML = '<div class="err-box drop" role="alert">' + h(driveError(x)) + '</div>'; });
+  };
 }
 
 function openResMenu(btn) {
@@ -2408,12 +2438,13 @@ function openResMenu(btn) {
       var rid = m.getAttribute('data-for'), act = b.getAttribute('data-rmi'), g = b.getAttribute('data-g');
       m.hidden = true;
       if (act === 'remove') diaryCall('diaryRes', { remove: rid }, 'Removed from your diary.');
+      if (act === 'driveshare') { var dr = S.diary.res.filter(function (x) { return x.id === rid; })[0]; if (dr) shareDriveFile(dr.fileId, dr.groups || [], dr.title); return; }
       if (act === 'hide' || act === 'show') diaryCall('diaryHide', { id: rid, hide: act === 'hide' }, act === 'hide' ? 'Hidden from your diary. The others still see it.' : 'It\'s back in your diary.');
       if (act === 'share' || act === 'unshare') {
         var res = S.diary.res.filter(function (x) { return x.id === rid; })[0], gs = (res.groups || []).filter(function (x) { return x !== g; });
         if (act === 'share') gs.push(g);
         diaryCall('diaryShare', { id: rid, groups: gs }, act === 'share' ? 'Shared with ' + groupById(g).name + '.' : 'No longer shared with ' + groupById(g).name + '.')
-          .then(function () { if (act === 'share' && res.kind === 'drive' && res.fileId) shareDriveFile(res.fileId, [g]); });
+          .then(function () { if (act === 'share' && res.kind === 'drive' && res.fileId) shareDriveFile(res.fileId, [g], res.title); });
       }
     });
     document.addEventListener('click', function (e) { if (!m.hidden && !e.target.closest('#rmenu') && !e.target.closest('[data-rmore]')) m.hidden = true; });
@@ -2426,7 +2457,8 @@ function openResMenu(btn) {
     items += (S.diary.groups || []).map(function (g) {
       var on = (mine.groups || []).indexOf(g.id) >= 0;
       return '<button role="menuitem" data-rmi="' + (on ? 'unshare' : 'share') + '" data-g="' + h(g.id) + '">' + (on ? 'Stop sharing with ' : 'Share with ') + h(g.name) + '</button>';
-    }).join('') + '<button role="menuitem" data-rmi="remove">Remove from my diary</button>';
+    }).join('') + (mine.kind === 'drive' && mine.fileId && (mine.groups || []).length ? '<button role="menuitem" data-rmi="driveshare">Let the group open it in Drive</button>' : '') +
+      '<button role="menuitem" data-rmi="remove">Remove from my diary</button>';
     if (!(S.diary.groups || []).length) items += '<p class="sub" style="margin:6px 10px 4px;font-size:12px">Only you see this. Join or make a study group to share it.</p>';
   } else {
     var hid = (S.diary.hidden || []).indexOf(id) >= 0;
