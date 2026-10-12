@@ -17,6 +17,7 @@
   --grey:#BDC1C6;--grey2:#DADCE0;--red:#D93025;--red-ink:#B3261E;--red-bg:#FDF1EF;
 }
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 html,body{margin:0;background:var(--bg);color:var(--ink);font-family:'Hanken Grotesk',system-ui,-apple-system,'Segoe UI',sans-serif;-webkit-text-size-adjust:100%}
 body{min-height:100vh}
 a{color:var(--ink)}a:hover{color:var(--blue)}
@@ -534,6 +535,7 @@ table.lt .cnote{margin-left:44px}
 .cxbtn:hover,.cxbtn button:hover{color:var(--red-ink)}
 .cx .cxbtn{color:var(--ink2)}
 /* lecture pop-up on the semester board */
+.lpop.hov{pointer-events:none}
 .lpop{position:absolute;z-index:30;width:310px;max-width:calc(100vw - 32px);background:#FFFFFF;border:2px solid var(--ink);border-radius:16px;box-shadow:5px 5px 0 var(--ink);padding:14px 16px;font-size:14px;line-height:1.45}
 .lpop .t{display:flex;align-items:center;gap:8px;font-size:17px;font-weight:900}
 .lpop .m{color:var(--muted);margin-top:2px}
@@ -559,6 +561,7 @@ table.lt .cnote{margin-left:44px}
 .atabs .cnt{min-width:22px;height:22px;border-radius:11px;background:var(--red);color:#FFFFFF;font-size:13px;font-weight:900;display:inline-flex;align-items:center;justify-content:center;padding:0 6px}
 @media (max-width:899px){.atabs{flex-wrap:nowrap;overflow-x:auto;margin:18px -20px 24px;padding:0 20px}.atabs button{flex:0 0 auto}}
 .astack{display:flex;flex-direction:column;gap:28px}
+.astack > :empty{display:none}
 .astack .h2{margin-bottom:12px}
 .clear{display:flex;align-items:center;gap:14px;background:#FFFFFF;border-radius:22px;padding:22px}
 .clear .tk{width:40px;height:40px;flex:0 0 40px;border-radius:50%;background:var(--green);color:#FFFFFF;font-size:20px;font-weight:900;display:flex;align-items:center;justify-content:center}
@@ -1348,6 +1351,7 @@ function showPop(btn) {
   POP.el.setAttribute('aria-label', lecTitle(l) + ' details');
   POP.el.innerHTML = popHtml(l);
   POP.el.hidden = false; POP.id = l.id;
+  POP.el.classList.toggle('hov', !noHover());
   var b = btn.getBoundingClientRect(), vw = document.documentElement.clientWidth, w = POP.el.offsetWidth, hgt = POP.el.offsetHeight;
   var left = Math.min(Math.max(16, b.left), vw - w - 16);
   var top = b.bottom + 8;
@@ -1359,7 +1363,12 @@ function hidePop() { if (POP.el) POP.el.hidden = true; POP.id = null; }
 function wireBoardPop(board) {
   if (!board) return;
   board.addEventListener('mouseover', function (e) { if (hoverMq.matches || lastPointer === 'touch') return; var b = e.target.closest('[data-jump]'); if (b && POP.id !== b.getAttribute('data-jump')) showPop(b); });
-  board.addEventListener('mouseleave', function (e) { if (noHover()) return; if (POP.el && e.relatedTarget && POP.el.contains(e.relatedTarget)) return; hidePop(); });
+  // off the chip, it goes at once
+  board.addEventListener('mouseout', function (e) {
+    if (hoverMq.matches || lastPointer === 'touch') return;
+    var b = e.target.closest('[data-jump]');
+    if (b && !(e.relatedTarget && b.contains(e.relatedTarget))) hidePop();
+  });
   // keyboard focus only: a tap also focuses the chip, and the tap itself decides there
   board.addEventListener('focusin', function (e) { var b = e.target.closest('[data-jump]'); var kb = false; try { kb = b && b.matches(':focus-visible'); } catch (x) {} if (kb) showPop(b); });
   board.addEventListener('focusout', function (e) { if (!board.contains(e.relatedTarget) && !(POP.el && POP.el.contains(e.relatedTarget))) hidePop(); });
@@ -3110,6 +3119,13 @@ function adminClick(e) {
       else { shown(); toast('Select the emails below and copy them.'); }
     }, fail);
   }
+  if (a === 'dismissmail') {
+    busy(t, true, '…');
+    api('dismissMail', t.getAttribute('data-all') ? { all: true } : { id: t.getAttribute('data-id') }).then(function (r) {
+      st.mail.problems = r.problems; renderMembers(); refreshSecnav();
+      toast('Dismissed. The email itself stays in Gmail.');
+    }, fail);
+  }
   if (a === 'testemail-test') {
     busy(t, true, 'Sending…');
     api('sendTestEmail', { target: 'test' }).then(function (r) {
@@ -3308,7 +3324,10 @@ function deliveryHtml(list) {
   if (!list || !list.length) return '';
   return '<div class="box" style="flex:1 1 100%;border:2px solid #D93025"><h3 class="h3" style="margin-bottom:6px;color:#B3261E">Emails that didn\'t arrive (last 14 days)</h3>' +
     '<p style="margin:0 0 6px;font-size:14px;line-height:1.45;color:#3C4043">Gmail got these replies. If one says the group rejected the message, open the group\'s settings on groups.google.com and either add the portal account as a member, or set <strong>Who can post</strong> to allow it, and turn off moderation for it.</p>' +
-    list.map(function (p) { return '<div class="adminli" style="display:block"><strong style="font-weight:800">' + h(p.subject) + '</strong><small>' + h(stampIn(p.at)) + '</small><span style="display:block;font-size:13px;color:#3C4043;margin-top:4px">' + h(p.text) + '</span></div>'; }).join('') + '</div>';
+    list.map(function (p) {
+      return '<div class="adminli" style="align-items:flex-start"><span style="flex:1 1 auto;min-width:0"><strong style="font-weight:800">' + h(p.subject) + '</strong><small>' + h(stampIn(p.at)) + '</small><span style="display:block;font-size:13px;color:#3C4043;margin-top:4px;overflow-wrap:anywhere">' + h(p.text) + '</span></span>' +
+        '<button class="sbtn2 soft" data-a="dismissmail" data-id="' + h(p.id) + '" style="height:36px;padding:0 14px;flex:0 0 auto">Dismiss</button></div>';
+    }).join('') + (list.length > 1 ? '<div style="margin-top:10px"><button class="linkbtn" data-a="dismissmail" data-all="1" style="font-size:14px">Dismiss all ' + list.length + '</button></div>' : '') + '</div>';
 }
 
 // ----- members and access
