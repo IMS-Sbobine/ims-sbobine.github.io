@@ -506,6 +506,20 @@ dialog.dlg::backdrop{background:rgba(27,29,31,.45)}
 .mact{display:flex;flex-wrap:wrap;gap:12px;align-items:center;font-size:14px}
 @media (max-width:899px){.mrow{display:flex;flex-direction:column;align-items:flex-start;gap:4px}}
 
+.mine{margin-top:30px;background:#FFFFFF;border:2px solid var(--ink);border-radius:22px;padding:20px 22px;box-shadow:6px 6px 0 var(--ink);scroll-margin-top:20px}
+.mine h2{margin:0 0 4px;font-size:22px;font-weight:900;letter-spacing:-.01em}
+.mine .sub{margin:0 0 12px;font-size:14px;line-height:1.45;color:var(--ink2)}
+.hreq{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;border-radius:14px;padding:12px 14px;margin-top:10px;font-size:15px;line-height:1.4}
+.hreq.in{background:var(--hl);box-shadow:inset 0 0 0 2px var(--blue)}
+.hreq.out{background:var(--bg)}
+.hreq small{display:block;font-size:13px;color:var(--muted)}
+.hreq .acts{display:flex;gap:8px;flex:0 0 auto}
+.mrow2{display:flex;flex-wrap:wrap;align-items:center;gap:10px;border-top:1px solid var(--line2);padding:12px 0;font-size:15px}
+.mrow2 b{font-weight:800}
+.mrow2 .when{color:var(--muted);font-size:14px}
+.mrow2 .grow{flex:1 1 auto}
+.hbadge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;margin-left:4px;border-radius:9px;background:var(--red);color:#FFFFFF!important;font-size:11px;font-weight:900;text-decoration:none!important}
+@media (max-width:899px){.mine{margin-top:22px;padding:16px;border-radius:20px;box-shadow:5px 5px 0 var(--ink)}.hreq .acts{width:100%}.hreq .acts .sbtn,.hreq .acts .sbtn2{flex:1 1 0}}
 .bwarn{margin-top:8px;background:var(--red-bg);color:var(--red-ink);border-radius:12px;padding:10px 14px;font-size:14px;font-weight:700;line-height:1.4}
 
 /* toast */
@@ -997,7 +1011,7 @@ function renderHeader() {
   var pill;
   if (me && (me.email || isAdm)) {
     pill = '<span class="apill on">' + (isAdm ? '<a href="' + h(pageHref('admin')) + '" data-go="admin">Admin</a> · ' : '') +
-      (me.email ? '<span class="nm" title="' + h(me.email) + '">' + h(shortName(me.name || me.email)) + '</span> · ' : '') + '<a href="#" data-act="signout">Sign out</a></span>';
+      (me.email ? '<span class="nm" title="' + h(me.email) + '">' + h(shortName(me.name || me.email)) + '</span>' + inboxBadge() + ' · ' : '') + '<a href="#" data-act="signout">Sign out</a></span>';
   } else {
     pill = '<a class="apill' + (p === 'signin' ? ' on' : '') + '" href="' + h(pageHref('signin')) + '" data-go="signin"' + (p === 'signin' ? ' aria-current="page"' : '') + '>Sign in</a>';
   }
@@ -1027,6 +1041,10 @@ function renderHeader() {
     b.dataset.kind = kind;
     b.innerHTML = kind ? '<div class="banner-wrap"><div role="status" class="banner drop">' + html + '</div>' + (warn ? '<div class="bwarn drop" role="note">' + h(warn) + '</div>' : '') + '</div>' : '';
   }
+}
+function inboxBadge() {
+  var n = S.data && S.data.hand ? S.data.hand.incoming.length : 0;
+  return n ? '<a href="#mine" class="hbadge" data-act="tomine" aria-label="' + n + ' ' + pl(n, 'request', 'requests') + ' waiting for you">' + n + '</a>' : '';
 }
 // Admins in test mode can see the site the way each kind of classmate does
 function viewAsSel() {
@@ -1102,6 +1120,12 @@ document.addEventListener('click', function (e) {
   if (uo) { e.preventDefault(); setUniversal(false, uo); }
   var rp = e.target.closest('[data-report]');
   if (rp) { e.preventDefault(); openReport(rp.getAttribute('data-report')); }
+  var tm = e.target.closest('[data-act="tomine"]');
+  if (tm) {
+    e.preventDefault();
+    var scroll = function () { var m = document.getElementById('mine'); if (m) m.scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth', block: 'start' }); };
+    if (S.page !== 'dashboard') { go('dashboard'); setTimeout(scroll, 600); } else scroll();
+  }
 });
 document.addEventListener('change', function (e) {
   if (!e.target.matches || !e.target.matches('[data-act="viewas"]')) return;
@@ -1261,7 +1285,7 @@ function renderDashboard(v, opt) {
     (phone ? '<p class="abbrs" style="font-weight:600">Tap a lecture to jump to it. <button class="linkbtn" data-act="abbr" style="color:#5F6368">What the abbreviations mean</button></p><p class="abbrs" id="abbr" hidden>' + h(abbrText()) + '</p>'
       : '<p class="abbrs">' + h(abbrText()) + '</p>') +
     '</section>' +
-    drivesHtml() + notifyHtml() +
+    '<div id="minebox">' + mineHtml() + '</div>' + drivesHtml() + notifyHtml() +
     '<div id="weekpart"></div>' +
     '</main>';
   renderWeekPart();
@@ -1286,10 +1310,107 @@ function renderDashboard(v, opt) {
   dash.addEventListener('change', function (e) {
     if (e.target.id === 'df') { D.filter = e.target.value; renderWeekList(); }
   });
-  var refresh = function () { renderWeekList(); refreshOverview(); };
+  var refresh = function () { renderWeekList(); refreshOverview(); var mb = $('#minebox'); if (mb) mb.innerHTML = mineHtml(); };
   wireAuthorEditors(dash, refresh);
   wireTopicInputs(dash, refresh);
   wireVolunteer(dash, refresh);
+  wireHand(dash);
+}
+
+// ----- your lectures: hand-overs and swaps between approved classmates
+function handBusy(id) {
+  var hd = S.data.hand;
+  return !!hd && hd.outgoing.concat(hd.incoming).some(function (r) { return r.lectureId === id || r.otherId === id; });
+}
+function handable(l) { return l.meOn && !l.removed && !green(l.st) && l.st !== 'overdue'; }
+function mineHtml() {
+  var hd = S.data.hand;
+  if (!hd) return '';
+  var mine = S.data.lectures.filter(function (l) { return l.meOn && !l.removed && !green(l.st); });
+  if (!mine.length && !hd.incoming.length && !hd.outgoing.length) return '';
+  var exp = function (r) { return 'Expires ' + dayLabel_(String(r.expires).slice(0, 10)) + ', or sooner if the lecture turns overdue'; };
+  var inc = hd.incoming.map(function (r) {
+    var what = r.kind === 'swap' ? h(r.fromName) + ' offers you <b>' + h(r.title) + '</b> (' + h(r.day) + ') in exchange for your <b>' + h(r.otherTitle) + '</b> (' + h(r.otherDay) + ')'
+      : h(r.fromName) + ' asks you to take over <b>' + h(r.title) + '</b> (' + h(r.day) + ')';
+    return '<div class="hreq in"><span>' + what + '<small>' + h(exp(r)) + '</small></span><span class="acts"><button class="sbtn" data-hans="' + h(r.id) + '" data-acc="1">' + (r.kind === 'swap' ? 'Swap' : 'Take it') + '</button><button class="sbtn2 soft" data-hans="' + h(r.id) + '" data-acc="0">Decline</button></span></div>';
+  }).join('');
+  var out = hd.outgoing.map(function (r) {
+    var what = r.kind === 'swap' ? 'Waiting for ' + h(r.toName) + ' to swap your <b>' + h(r.title) + '</b> for their <b>' + h(r.otherTitle) + '</b>' : 'Waiting for ' + h(r.toName) + ' to take over <b>' + h(r.title) + '</b>';
+    return '<div class="hreq out"><span>' + what + '<small>' + h(exp(r)) + '</small></span><span class="acts"><button class="sbtn2 soft" data-hcancel="' + h(r.id) + '">Cancel the request</button></span></div>';
+  }).join('');
+  var rows = mine.map(function (l) {
+    var why = l.st === 'overdue' ? 'Overdue, so it stays with you' : handBusy(l.id) ? 'A request is open' : '';
+    return '<div class="mrow2">' + badge(l.cc) + '<span class="grow"><b>' + h(lecTitle(l)) + '</b> <span class="when">' + h(dayLabel_(l.date) + ', ' + l.start) + '</span></span>' + spill(l) +
+      (why ? '<span class="when">' + h(why) + '</span>' : '<button class="volbtn" data-hand="' + h(l.id) + '">Hand over or swap</button>') + '</div>';
+  }).join('');
+  return '<section class="mine" id="mine" aria-labelledby="h-mine"><h2 id="h-mine">Your lectures</h2>' +
+    '<p class="sub">Can\'t make one? Ask a classmate to take it over, or to swap one of theirs. Nothing changes until they accept.</p>' +
+    inc + out + (rows ? '<div style="margin-top:' + (inc || out ? '14' : '4') + 'px">' + rows + '</div>' : '') + '</section>';
+}
+function handDone(r, msg) {
+  setData(r.state);
+  renderPage({ keep: true });
+  if (msg) toast(msg);
+}
+function wireHand(root) {
+  root.addEventListener('click', function (e) {
+    var hb = e.target.closest('[data-hand]');
+    if (hb) { openHand(hb.getAttribute('data-hand')); return; }
+    var an = e.target.closest('[data-hans]');
+    if (an) {
+      var acc = an.getAttribute('data-acc') === '1';
+      busy(an, true, acc ? 'Accepting…' : 'Declining…');
+      api('answerHandover', { id: an.getAttribute('data-hans'), accept: acc }).then(function (r) { handDone(r, acc ? 'Done: it\'s yours now.' : 'Declined.'); }, function (x) { toast(x.message, true); S.data = null; renderPage({ keep: true }); });
+      return;
+    }
+    var cn = e.target.closest('[data-hcancel]');
+    if (cn) {
+      busy(cn, true, 'Cancelling…');
+      api('cancelHandover', { id: cn.getAttribute('data-hcancel') }).then(function (r) { handDone(r, 'Request cancelled.'); }, function (x) { busy(cn, false); toast(x.message, true); });
+    }
+  });
+}
+function openHand(id) {
+  var l = byId[id], hd = S.data.hand, d = $('#repdlg');
+  if (!l || !hd || !d) return;
+  var people = hd.people.filter(function (p) { return l.aid.indexOf(p.id) < 0; });
+  var theirs = function (pid) {
+    return S.data.lectures.filter(function (x) { return x.id !== l.id && x.aid.indexOf(pid) >= 0 && !x.meOn && !x.removed && !green(x.st) && x.st !== 'overdue' && !handBusy(x.id); });
+  };
+  d.innerHTML = '<form id="handform"><h2 id="rep-h" style="margin:0 0 4px;font-size:22px;font-weight:900">Hand over or swap</h2>' +
+    '<p style="margin:0 0 14px;font-size:14px;line-height:1.45;color:#3C4043">' + h(lecTitle(l) + ', ' + dayLabel_(l.date)) + '. You stay on it until they accept. The request expires in 3 days, or sooner if the lecture turns overdue.</p>' +
+    '<div role="radiogroup" aria-label="What would you like?" style="display:flex;flex-direction:column">' +
+    '<label class="check" style="margin-top:0"><input type="radio" name="hkind" value="give" checked><span aria-hidden="true" class="bx" style="border-radius:50%">✓</span>Ask someone to take it over</label>' +
+    '<label class="check" style="margin-top:4px"><input type="radio" name="hkind" value="swap"><span aria-hidden="true" class="bx" style="border-radius:50%">✓</span>Swap it for one of their lectures</label></div>' +
+    '<label class="fld" style="margin-top:12px">Who<select class="inp" id="hwho"><option value="">Choose a classmate</option>' + people.map(function (p) { return '<option value="' + h(p.id) + '">' + h(p.name) + '</option>'; }).join('') + '</select></label>' +
+    '<div id="hswap" hidden style="margin-top:12px"></div>' +
+    '<div id="herr"></div><div style="display:flex;gap:10px;margin-top:16px"><button class="sbtn" id="hsend">Send the request</button><button type="button" class="sbtn2" id="hcancel">Cancel</button></div></form>';
+  var kind = function () { return (d.querySelector('input[name="hkind"]:checked') || {}).value; };
+  var drawSwap = function () {
+    var box = $('#hswap'), pid = $('#hwho').value;
+    box.hidden = kind() !== 'swap';
+    if (box.hidden) return;
+    if (!pid) { box.innerHTML = '<p style="margin:0;font-size:14px;color:#5F6368">Choose who first, then one of their lectures.</p>'; return; }
+    var list = theirs(pid);
+    box.innerHTML = list.length ? '<label class="fld">Their lecture you\'d take<select class="inp" id="hother">' + list.map(function (x) { return '<option value="' + h(x.id) + '">' + h(lecTitle(x) + ', ' + dayLabel_(x.date) + ', ' + x.start) + '</option>'; }).join('') + '</select></label>'
+      : '<p style="margin:0;font-size:14px;color:#B3261E;font-weight:700">They have no lecture that can be swapped right now.</p>';
+  };
+  d.onchange = drawSwap;
+  if (d.showModal) d.showModal(); else d.setAttribute('open', '');
+  var close = function () { d.onchange = null; if (d.close) d.close(); else d.removeAttribute('open'); };
+  $('#hcancel').onclick = close;
+  $('#handform').onsubmit = function (e) {
+    e.preventDefault();
+    var pid = $('#hwho').value, swap = kind() === 'swap', other = swap && $('#hother') ? $('#hother').value : '', btn = $('#hsend');
+    var err = function (m) { $('#herr').innerHTML = '<div class="err-box drop" role="alert">' + h(m) + '</div>'; };
+    if (!pid) return err('Choose a classmate.');
+    if (swap && !other) return err('Pick one of their lectures to swap for.');
+    var who = (people.filter(function (p) { return p.id === pid; })[0] || {}).name || 'them';
+    busy(btn, true, 'Sending…');
+    api('requestHandover', { lectureId: l.id, to: pid, otherId: other }).then(function (r) {
+      close(); handDone(r, 'Request sent to ' + who + '. Nothing changes until they accept.');
+    }, function (x) { busy(btn, false); err(x.message); });
+  };
 }
 
 // Mailing list sign-up: Google Groups adds whoever emails <group>+subscribe@
@@ -1430,6 +1551,7 @@ function whoHtml(l, admin) {
     : '<span class="who none">Nobody yet</span>';
   var btn = l.mine && !green(l.st) ? '<button class="volbtn out" data-withdraw="' + h(l.id) + '" aria-label="Withdraw from ' + h(lecTitle(l)) + '">Withdraw</button>'
     : l.vok ? '<button class="volbtn" data-volunteer="' + h(l.id) + '" aria-label="Volunteer for ' + h(lecTitle(l)) + '">' + (l.asg.length ? 'Join them' : 'I\'ll write it') + '</button>' : '';
+  if (handable(l) && S.data.hand && !handBusy(l.id)) btn += (btn ? ' ' : '') + '<button class="volbtn" data-hand="' + h(l.id) + '" aria-label="Hand over or swap ' + h(lecTitle(l)) + '">Hand over</button>';
   return list + (btn ? '<span style="display:block;margin-top:8px">' + btn + '</span>' : '');
 }
 function reportBtn(l) { return '<button class="repbtn" data-report="' + h(l.id) + '" aria-label="Report a problem with ' + h(lecTitle(l)) + '">Report a problem</button>'; }
@@ -2491,14 +2613,14 @@ function renderAdmin(v, opt) {
     '<section id="schedule" class="asec" aria-labelledby="h-schedule"><h2 id="h-schedule" class="h2">Schedule changes</h2><div id="sched"></div></section>' +
     '<section id="reports" class="asec" aria-labelledby="h-reports"><h2 id="h-reports" class="h2">Reports</h2><div id="repbox"></div></section>' +
     '<section id="members" class="asec" aria-labelledby="h-members"><h2 id="h-members" class="h2">Members and access</h2><div id="accbox"></div></section>' +
-    '<section id="authors" class="asec" aria-labelledby="h-authors"><h2 id="h-authors" class="h2" style="margin-bottom:6px">Authors</h2><p style="margin:0 0 14px;font-size:15px;line-height:1.45;color:#3C4043">Add one or more authors per lecture. Lectures without authors stay grey and never turn overdue. Approved classmates can also volunteer for lectures nobody\'s been assigned to, up to ' + MAX_AUTHORS + ' people. Volunteers are grey: Confirm makes it an assignment they can\'t withdraw from.</p><div id="authpills" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px"></div><div id="authlist"></div><p style="margin:10px 4px 0;font-size:13px;color:#5F6368">Changes save as you make them. The same chips appear on the dashboard while you\'re signed in.</p></section>' +
+    '<section id="authors" class="asec" aria-labelledby="h-authors"><h2 id="h-authors" class="h2" style="margin-bottom:6px">Authors</h2><p style="margin:0 0 14px;font-size:15px;line-height:1.45;color:#3C4043">Add one or more authors per lecture. Lectures without authors stay grey and never turn overdue. Approved classmates can also volunteer for lectures nobody\'s been assigned to, up to ' + MAX_AUTHORS + ' people. Volunteers are grey: Confirm makes it an assignment they can\'t withdraw from.</p><div id="unmatched"></div><div id="authpills" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px"></div><div id="authlist"></div><p style="margin:10px 4px 0;font-size:13px;color:#5F6368">Changes save as you make them. The same chips appear on the dashboard while you\'re signed in.</p></section>' +
     '<section id="drive" class="asec" aria-labelledby="h-drive"><h2 id="h-drive" class="h2">Drive folders</h2><div class="box" id="drivebox"></div></section>' +
     '<section id="email" class="asec" aria-labelledby="h-email"><h2 id="h-email" class="h2">Email</h2><div class="two" id="membox"></div></section>' +
     '<section id="admins" class="asec" aria-labelledby="h-admins"><h2 id="h-admins" class="h2">Admins and settings</h2><div class="two" id="adminbox"></div></section>' +
     '<section id="test" class="asec" aria-labelledby="h-test"><h2 id="h-test" class="h2">Test mode</h2><div id="testbox"></div></section>' +
     '<section id="activity" class="asec" aria-labelledby="h-activity"><h2 id="h-activity" class="h2">Activity</h2><div class="box" style="padding:6px 22px" id="actbox"></div></section>' +
     '</main>';
-  renderSched(); renderReports(); renderAccess(); renderAuthPills(); renderAuthList(); renderDrive(); renderMembers(); renderAdmins(); renderTest(); renderActivity();
+  renderSched(); renderReports(); renderAccess(); renderUnmatched(); renderAuthPills(); renderAuthList(); renderDrive(); renderMembers(); renderAdmins(); renderTest(); renderActivity();
   var root = $('#admin');
   root.addEventListener('click', adminClick);
   root.addEventListener('input', function (e) { if (e.target.id === 'mq') { A.mq = e.target.value; $('#memlist').innerHTML = memberRows(); } });
@@ -2717,6 +2839,16 @@ function adminClick(e) {
     }, fail);
   }
   if (a === 'rmcancel2') { A.confirmRm = ''; renderReports(); renderActivity(); }
+  if (a === 'linkauthor') {
+    var ui = +t.getAttribute('data-i'), un = st.unmatched[ui], ue = $('#ul-' + ui).value;
+    if (!ue) { toast('Choose who ' + un.name + ' is first.', true); return; }
+    busy(t, true, 'Linking…');
+    api('linkAuthor', { name: un.name, email: ue }).then(function (r) { st.unmatched = r.unmatched; S.data = null; api('state').then(setData); renderUnmatched(); toast(un.name + ' is linked.'); }, fail);
+  }
+  if (a === 'undohand') {
+    busy(t, true, 'Undoing…');
+    api('undoHandover', { id: t.getAttribute('data-id') }).then(function (r) { setData(r.state); reload('Undone: everyone is back where they were.'); }, fail);
+  }
   if (a === 'rep-done' || a === 'rep-dismiss') {
     busy(t, true, '…');
     api('dismissReport', { row: +t.getAttribute('data-row'), done: a === 'rep-done' }).then(function (r) { st.reports = r.reports; renderReports(); refreshSecnav(); toast(a === 'rep-done' ? 'Marked as handled.' : 'Dismissed.'); }, fail);
@@ -2984,7 +3116,7 @@ function renderAccess() {
     '<p style="margin:12px 0 0;font-size:13px;line-height:1.45;color:#5F6368">Approving adds them to the Members sheet, shares the sbobine folders with them and sends a welcome email.</p></div>';
   var add = '<div class="box" style="margin-top:20px"><h3 class="h3" style="margin-bottom:6px">Add people</h3><p style="margin:0 0 12px;font-size:15px;line-height:1.5;color:#3C4043">One per line: <em>Name Surname, email</em>. Just the email works too.</p>' +
     '<textarea class="ta" id="addtxt" rows="4" placeholder="Giulia Bianchi, giulia@example.com&#10;marco.rossi@example.com" style="font-size:15px;font-weight:500"></textarea>' +
-    '<label class="check"><input type="checkbox" id="addwelcome" checked><span aria-hidden="true" class="bx">✓</span>Send each a welcome email</label>' +
+    '<label class="check"><input type="checkbox" id="addwelcome"><span aria-hidden="true" class="bx">✓</span>Send each a welcome email (best for a few people at a time: many identical emails at once look like spam)</label>' +
     '<div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:6px"><button class="sbtn" data-a="addmembers">Add and share the Drive</button><span style="font-size:13px;color:#5F6368">Welcome emails count toward the ' + (st.mail.quota >= 0 ? st.mail.quota + ' emails left today' : 'daily email limit') + '.</span></div><div id="addres"></div></div>';
   var nActive = ac.members.filter(function (m) { return m.active; }).length;
   var sync = ls ? '<div class="graybox"><strong style="font-weight:800">Last sync ' + h(stampIn(ls.at)) + '.</strong> ' + ls.ok + ' ' + pl(ls.ok, 'person', 'people') + ' can open the sbobine' + (ls.failed.length ? '. ' + ls.failed.length + ' couldn\'t be added: ' + ls.failed.map(function (f) { return h(f.email) + ' (' + h(f.why) + ')'; }).join('; ') + '. Ask them for a Gmail address.' : '.') + '</div>' : '';
@@ -3006,6 +3138,21 @@ function renderAccess() {
       return '<div class="adminli"><span><strong style="font-weight:800;word-break:break-all">' + h(b.email) + '</strong><small>Blocked ' + h(stampIn(b.at)) + (b.by ? ' by ' + h(shortName(b.by)) : '') + '</small></span><button class="linkbtn" data-a="unblock" data-email="' + h(b.email) + '">Unblock</button></div>';
     }).join('') + '</div>' : '<p style="margin:12px 0 0;font-size:15px;color:#5F6368">Nobody is blocked.</p>') + '</div>';
   box.innerHTML = '<div class="two">' + gate + reqs + '</div>' + add + mem + others + blocked;
+}
+
+// ----- authors who aren't tied to an account (hand-overs need to know whose a lecture is)
+function renderUnmatched() {
+  var box = $('#unmatched'), st = S.adminState, list = st.unmatched || [];
+  if (!box) return;
+  if (!list.length) { box.innerHTML = ''; return; }
+  var mem = st.access.members.filter(function (m) { return m.active; });
+  var opts = '<option value="">Choose who this is</option>' + mem.map(function (m) { return '<option value="' + h(m.email) + '">' + h(m.name + ' (' + m.email + ')') + '</option>'; }).join('');
+  box.innerHTML = '<div class="box" style="margin-bottom:16px"><h3 class="h3" style="margin-bottom:6px">Authors not linked to an account (' + list.length + ')</h3>' +
+    '<p style="margin:0 0 6px;font-size:14px;line-height:1.45;color:#5F6368">Hand-overs and swaps need to know whose lecture it is. Names that match an approved classmate exactly are linked automatically; pick the right person for these. Add them as approved classmates first if they aren\'t yet.</p>' +
+    list.map(function (u, i) {
+      return '<div class="adminli"><span><strong style="font-weight:800">' + h(u.name) + '</strong><small>' + u.lectures + ' ' + pl(u.lectures, 'lecture', 'lectures') + ' still to write</small></span>' +
+        '<span style="display:flex;gap:8px;flex:1 1 320px;max-width:460px"><select class="inp" id="ul-' + i + '" style="height:40px" aria-label="Who ' + h(u.name) + ' is">' + opts + '</select><button class="sbtn" data-a="linkauthor" data-i="' + i + '" style="height:40px">Link</button></span></div>';
+    }).join('') + '</div>';
 }
 
 // ----- reports
@@ -3107,6 +3254,14 @@ function activityText(r) {
   if (r.action === 'withdraw') return 'Withdrew from ' + lecName(r.lectureId);
   if (r.action === 'confirm-volunteer') return 'Made ' + a + ' an assigned author of ' + lecName(r.lectureId);
   if (r.action === 'request') return 'Asked for access';
+  var other = a && a.otherId ? lecName(a.otherId) : '';
+  if (r.action === 'hand-request' && a) return a.kind === 'swap' ? 'Asked ' + a.to + ' to swap ' + lecName(r.lectureId) + ' for ' + other : 'Asked ' + a.to + ' to take over ' + lecName(r.lectureId);
+  if (r.action === 'handover' && a) return a.to + ' took over ' + lecName(r.lectureId) + ' from ' + a.from;
+  if (r.action === 'swap' && a) return a.from + ' and ' + a.to + ' swapped ' + lecName(r.lectureId) + ' and ' + other;
+  if (r.action === 'hand-declined' && a) return 'Declined ' + a.from + '\'s request for ' + lecName(r.lectureId);
+  if (r.action === 'hand-cancelled' && a) return 'Cancelled the request to ' + a.to + ' for ' + lecName(r.lectureId);
+  if (r.action === 'hand-undone' && a) return 'Undid the ' + (a.kind === 'swap' ? 'swap' : 'hand-over') + ' of ' + lecName(r.lectureId) + ' between ' + a.from + ' and ' + a.to;
+  if (r.action === 'link-author' && a) return 'Linked the author name ' + a.name + (a.email ? ' to ' + a.email : '');
   if (r.action === 'remove-upload' && a) return 'Took down ' + (a.kind === 'slides' ? 'slides' : 'the sbobina') + ' for ' + a.title + (a.restored ? ', the earlier version is back' : '');
   if (r.action === 'report-resolved') return 'Handled a report on ' + lecName(r.lectureId);
   if (r.action === 'report-dismissed') return 'Dismissed a report on ' + lecName(r.lectureId);
@@ -3135,7 +3290,8 @@ function renderActivity() {
   var admins = {};
   S.adminState.admins.forEach(function (x) { admins[x.email.toLowerCase()] = 1; });
   box.innerHTML = all ? shown.map(function (r, i) {
-    var acts = (r.action === 'upload' && r.state === 'current' && r.id ? rmBtn(r.id) : '') + (r.email && !admins[r.email] ? blockBtn(r.email) : '');
+    var hid = (r.action === 'handover' || r.action === 'swap') ? (function () { try { return JSON.parse(r.after).id; } catch (x) { return ''; } })() : '';
+    var acts = (r.action === 'upload' && r.state === 'current' && r.id ? rmBtn(r.id) : '') + (hid ? '<button class="linkbtn" data-a="undohand" data-id="' + h(hid) + '">Undo</button>' : '') + (r.email && !admins[r.email] ? blockBtn(r.email) : '');
     return '<div class="actv" style="' + (i === 0 ? 'border-top:0' : '') + '"><span style="color:#5F6368">' + h(stampLabel(r.at)) + '</span><strong style="font-weight:800">' + h(r.who === 'Portal' || r.who === 'Import' ? r.who : shortName(r.who)) + '</strong>' +
       '<span>' + h(activityText(r)) + (r.email ? '<span class="meta" style="word-break:break-all">' + h(r.email) + '</span>' : '') + (acts ? '<span class="mact" style="margin-top:6px">' + acts + '</span>' : '') + '</span></div>';
   }).join('') + (all > shown.length ? '<div style="padding:12px 0 16px;border-top:1px solid #E8EAED"><button class="pillbtn" data-a="allact">Show all ' + all + '</button></div>' : '') : '<p style="padding:16px 0;color:#5F6368">Nothing yet.</p>';
