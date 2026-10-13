@@ -645,6 +645,12 @@ table.lt .cnote{margin-left:44px}
 .aim.grp{background:#F1ECFB;color:#5B2DB0}
 .rchip.hid{opacity:.55}
 .rchip .pv.sh{background:#F1ECFB;color:#5B2DB0}
+.dnote{grid-column:2;margin-top:8px;position:relative}
+.dnta{width:100%;min-height:40px;resize:none;overflow:hidden;border:2px solid var(--line2);border-radius:12px;background:#FAFBFA;padding:9px 12px;font-size:14px;font-weight:500;line-height:1.45;color:var(--ink)}
+.dnta:focus{outline:none;border-color:var(--ink);background:#FFFFFF}
+.dnta:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.dnst{display:block;min-height:16px;margin-top:3px;font-size:12px;color:var(--faint)}
+@media (max-width:899px){.dnote,.dl .res{grid-column:1 / -1}}
 .ropts{display:flex;flex-direction:column;gap:8px;margin-top:14px}
 .ropt{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;padding:12px 16px;border-radius:14px;border:2px solid var(--line);background:#FFFFFF;color:var(--ink)}
 .ropt:hover,.ropt:focus-visible{border-color:var(--ink)}
@@ -1961,9 +1967,43 @@ function renderDiary(v) {
   var root = $('#diary');
   root.addEventListener('click', diaryClick);
   root.addEventListener('submit', diarySubmit);
+  root.addEventListener('input', function (e) { if (e.target.matches && e.target.matches('[data-dnote]')) noteTyped(e.target); });
+  root.addEventListener('focusout', function (e) { if (e.target.matches && e.target.matches('[data-dnote]')) saveNote(e.target.getAttribute('data-dnote')); });
   wireHand(root);
 }
-function setDiary(d) { S.diary = d; if (S.me) S.me.invites = (d.invited || []).length; renderHeader(); }
+
+// ----- notes: saved a moment after you stop typing, and when you leave the box
+var NOTE = { timers: {}, sent: {} };
+function fitNote(el) { el.style.height = 'auto'; el.style.height = Math.max(40, el.scrollHeight + 4) + 'px'; }
+function noteTyped(el) {
+  var id = el.getAttribute('data-dnote');
+  if (!S.diary.notes) S.diary.notes = {};
+  S.diary.notes[id] = el.value;
+  fitNote(el);
+  var st = $('#dns-' + cssId(id)); if (st) st.textContent = 'Not saved yet…';
+  clearTimeout(NOTE.timers[id]);
+  NOTE.timers[id] = setTimeout(function () { saveNote(id); }, 1200);
+}
+function cssId(id) { return String(id).replace(/[^\w-]/g, function (ch) { return '\\' + ch; }); }
+function saveNote(id) {
+  clearTimeout(NOTE.timers[id]);
+  var text = (S.diary.notes || {})[id] || '';
+  if (NOTE.sent[id] === text) return;
+  if (NOTE.sent[id] === undefined && text === '') return;
+  NOTE.sent[id] = text;
+  var st = function (m) { var x = $('#dns-' + cssId(id)); if (x) x.textContent = m; };
+  st('Saving…');
+  api('diaryNote', { lectureId: id, text: text }).then(function () { if ((S.diary.notes || {})[id] === text) st('Saved'); }, function (x) { NOTE.sent[id] = undefined; st('Not saved: ' + x.message); });
+}
+window.addEventListener('beforeunload', function () { Object.keys(NOTE.timers).forEach(function (id) { saveNote(id); }); });
+function setDiary(d) {
+  // keep what's being typed: the server copy of a note can be a moment behind
+  var typing = S.diary && S.diary.notes;
+  S.diary = d;
+  if (typing) d.notes = Object.assign({}, d.notes || {}, typing);
+  if (S.me) S.me.invites = (d.invited || []).length;
+  renderHeader();
+}
 
 function diaryLectures() { return S.data.lectures.filter(function (l) { return !l.removed && (!DI.course || l.cc === DI.course); }); }
 function groupById(id) { return (S.diary.groups || []).filter(function (g) { return g.id === id; })[0]; }
@@ -2012,7 +2052,10 @@ function diaryCard(l) {
     '<button class="tick" data-dtick="' + h(l.id) + '" data-s="' + s + '"' + (l.cancelled ? ' disabled' : '') + ' aria-label="' + h(lecTitle(l) + ': ' + TICKS[s] + (l.cancelled ? '' : '. Tap to change.')) + '">' + (s === 2 ? '✓' : '') + '</button>' +
     '<div class="r1">' + badge(l.cc) + '<span class="tt">' + h(lecTitle(l)) + '</span><span class="meta">' + h(l.start + ' · Prof. ' + l.prof) + '</span>' + (l.cancelled ? '' : aimChips(l)) + '</div>' +
     '<div class="tp">' + (l.cancelled ? '<span class="ct">' + h(l.topic || '') + '</span> ' + cancelNote(l) : h(l.topic || 'No topic yet') + ' <span class="meta">· ' + TICKS[s] + '</span>') + '</div>' +
-    (l.cancelled ? '' : '<div class="res">' + resChips(l.id) + '<button class="addr" data-radd="' + h(l.id) + '">+ Add a resource</button></div>') + '</article>';
+    (l.cancelled ? '' : '<div class="res">' + resChips(l.id) + '<button class="addr" data-radd="' + h(l.id) + '">+ Add a resource</button></div>') +
+    '<div class="dnote"><label class="sr" for="dn-' + h(l.id) + '">Your notes on ' + h(lecTitle(l)) + '</label>' +
+    '<textarea class="dnta" id="dn-' + h(l.id) + '" data-dnote="' + h(l.id) + '" rows="1" maxlength="10000" placeholder="Your notes on this lecture. Only you see them.">' + h((S.diary.notes || {})[l.id] || '') + '</textarea>' +
+    '<span class="dnst" id="dns-' + h(l.id) + '" aria-live="polite"></span></div></article>';
 }
 function drawDiary() {
   drawProgress();
@@ -2039,6 +2082,7 @@ function drawDiary() {
         : '<div class="empty" style="margin:0">No lectures this week.</div>') + '</div>';
   }
   body.innerHTML = html;
+  $$('.dnta', body).forEach(fitNote);
   $$('#dcourses [data-dcourse]').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-dcourse') === DI.course); });
   drawGroups();
 }
