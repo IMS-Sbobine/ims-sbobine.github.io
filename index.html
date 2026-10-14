@@ -655,6 +655,24 @@ table.lt .cnote{margin-left:44px}
 .rchip.hid{opacity:.55}
 .rchip .pv.sh{background:#F1ECFB;color:#5B2DB0}
 .dnote{grid-column:2;margin-top:8px;position:relative}
+.relbtn{display:inline-flex;align-items:center;gap:6px;height:32px;border:0;border-radius:999px;background:#E8F0FE;color:#1A4FB4;font:inherit;font-size:13px;font-weight:800;padding:0 12px;cursor:pointer}
+.relbtn:hover{background:#D2E3FC}
+.relbtn[aria-expanded="true"]{background:#1A4FB4;color:#FFFFFF}
+.rel{grid-column:2;margin-top:10px;border:2px solid var(--line);border-radius:14px;background:#FFFFFF;padding:12px 14px}
+.rel .rh{font-size:13px;color:var(--faint);margin:0 0 8px;line-height:1.4}
+.ritem{padding:10px 0;border-top:1.5px solid var(--line)}
+.ritem:first-of-type{border-top:0;padding-top:2px}
+.ritem .rl{font-size:11px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:#1A4FB4}
+.ritem .rt{font-size:15px;font-weight:800;line-height:1.3;margin-top:2px}
+.ritem .rs{margin:4px 0 0;padding:0;list-style:none;font-size:13px;line-height:1.45;color:var(--ink2)}
+.ritem .rs b{font-weight:700;color:var(--ink)}
+.ritem .ra{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:6px;font-size:13px}
+.ritem .ra a,.ritem .ra button{font:inherit;font-weight:700;color:#1A4FB4;background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.ritem .ra .nr{color:var(--faint)}
+.relmore{margin-top:6px}
+#repdlg.wide{width:min(980px,96vw);max-width:none}
+.pvf{display:block;width:100%;height:min(74vh,820px);border:0;border-radius:10px;background:#F1F3F4;margin-top:10px}
+@media (max-width:899px){.rel{grid-column:1 / -1}}
 .dnta{width:100%;min-height:40px;resize:none;overflow:hidden;border:2px solid var(--line2);border-radius:12px;background:#FAFBFA;padding:9px 12px;font-size:14px;font-weight:500;line-height:1.45;color:var(--ink)}
 .dnta:focus{outline:none;border-color:var(--ink);background:#FFFFFF}
 .dnta:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
@@ -2111,11 +2129,65 @@ function diaryCard(l) {
     '<button class="tick" data-dtick="' + h(l.id) + '" data-s="' + s + '"' + (l.cancelled ? ' disabled' : '') + ' aria-label="' + h(lecTitle(l) + ': ' + TICKS[s] + (l.cancelled ? '' : '. Tap to change.')) + '">' + (s === 2 ? '✓' : '') + '</button>' +
     '<div class="r1">' + badge(l.cc) + '<span class="tt">' + h(lecTitle(l)) + '</span><span class="meta">' + h(l.start + ' · Prof. ' + l.prof) + '</span>' + (l.cancelled ? '' : aimChips(l)) + '</div>' +
     '<div class="tp">' + (l.cancelled ? '<span class="ct">' + h(l.topic || '') + '</span> ' + cancelNote(l) : h(l.topic || 'No topic yet') + ' <span class="meta">· ' + TICKS[s] + '</span>') + '</div>' +
-    (l.cancelled ? '' : '<div class="res">' + resChips(l.id) + '<button class="addr" data-radd="' + h(l.id) + '">+ Add a resource</button></div>') +
+    (l.cancelled ? '' : '<div class="res">' + resChips(l.id) + '<button class="addr" data-radd="' + h(l.id) + '">+ Add a resource</button>' +
+      '<button class="relbtn" data-rel="' + h(l.id) + '" aria-expanded="' + !!REL.open[l.id] + '" aria-controls="rel-' + h(l.id) + '">Relevant resources</button></div>' +
+      (REL.open[l.id] ? '<div class="rel" id="rel-' + h(l.id) + '" aria-live="polite">' + relHtml(l) + '</div>' : '')) +
     '<div class="dnote"><label class="sr" for="dn-' + h(l.id) + '">Your notes on ' + h(lecTitle(l)) + '</label>' +
     '<textarea class="dnta" id="dn-' + h(l.id) + '" data-dnote="' + h(l.id) + '" rows="1" maxlength="10000" placeholder="Your notes on this lecture. Only you see them.">' + h((S.diary.notes || {})[l.id] || '') + '</textarea>' +
     '<span class="dnst" id="dns-' + h(l.id) + '" aria-live="polite"></span></div></article>';
 }
+// ----- relevant resources: parts of class Drive files that cover the lecture's topic (matched on the server)
+var REL = { open: {}, data: {}, more: {}, busy: {} };
+function relWhere(it, sec) {
+  var w = it.slides ? 'Slide' : 'Page';
+  if (!sec.from) return '';
+  return sec.from === sec.to ? w + ' ' + sec.from : w + 's ' + sec.from + '–' + sec.to;
+}
+function relHtml(l) {
+  var r = REL.data[l.id];
+  if (!r) return '<p class="rh" style="margin:0">Looking through the class Drive…</p>';
+  if (r.error) return '<p class="rh" style="margin:0">' + h(r.error) + ' <button class="linkbtn" data-relretry="' + h(l.id) + '">Try again</button></p>';
+  if (r.state === 'no-topic') return '<p class="rh" style="margin:0">This lecture has no topic yet. Once it has one, the class Drive is searched for it.</p>';
+  if (r.state === 'no-index') return '<p class="rh" style="margin:0">The class Drive hasn\'t been indexed yet.</p>';
+  if (!r.items.length) return '<p class="rh" style="margin:0">Nothing on the class Drive covers this topic properly yet.</p>';
+  var all = REL.more[l.id], list = all ? r.items : r.items.slice(0, 5);
+  return '<p class="rh">The parts of class Drive files that cover “' + h(r.topic) + '”, best first.</p>' +
+    list.map(function (it) {
+      return '<div class="ritem"><div class="rl">' + h(it.label) + '</div><div class="rt">' + h(it.title) + '</div>' +
+        '<ul class="rs">' + it.sections.map(function (sc) { var wh = relWhere(it, sc); return '<li>' + (wh ? '<b>' + h(wh) + '</b> · ' : '') + h(sc.title) + '</li>'; }).join('') + '</ul>' +
+        '<div class="ra"><button data-relprev="' + h(l.id) + '" data-doc="' + h(it.doc) + '">Preview</button><a href="' + h(it.url) + '" target="_blank" rel="noopener">Open in a new tab</a>' +
+        '<button data-reladd="' + h(l.id) + '" data-doc="' + h(it.doc) + '">Add to my diary</button>' +
+        (S.admin ? '<button class="nr" data-relhide="' + h(l.id) + '" data-doc="' + h(it.doc) + '">Not relevant</button>' : '') + '</div></div>';
+    }).join('') +
+    (r.items.length > 5 ? '<button class="linkbtn relmore" data-relmore="' + h(l.id) + '">' + (all ? 'Show fewer' : 'Show ' + (r.items.length - 5) + ' more') + '</button>' : '');
+}
+function relFetch(id) {
+  if (REL.busy[id]) return;
+  REL.busy[id] = true;
+  api('relevant', { lectureId: id }).then(function (r) { REL.busy[id] = false; REL.data[id] = r; relRedraw(id); },
+    function (x) { REL.busy[id] = false; REL.data[id] = { error: x.message }; relRedraw(id); });
+}
+function relRedraw(id) {
+  var box = $('#rel-' + cssId(id));
+  if (box) box.innerHTML = relHtml(byId[id]);
+}
+function relItem(id, doc) { var r = REL.data[id]; return r && r.items ? r.items.filter(function (x) { return x.doc === doc; })[0] : null; }
+function openRelPreview(id, doc) {
+  var it = relItem(id, doc), d = $('#repdlg');
+  if (!it || !d) return;
+  var wh = it.sections.map(function (sc) { return relWhere(it, sc); }).filter(Boolean).join(', ');
+  d.classList.add('wide');
+  d.innerHTML = '<div><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px"><div><div style="font-size:11px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:#1A4FB4">' + h(it.label) + '</div>' +
+    '<h2 id="rep-h" style="margin:2px 0 0;font-size:20px;font-weight:900;line-height:1.25">' + h(it.title) + '</h2>' + (wh ? '<p style="margin:4px 0 0;font-size:14px;color:#3C4043">Look at ' + h(wh) + '.</p>' : '') + '</div>' +
+    '<div style="display:flex;gap:8px;flex-shrink:0"><a class="sbtn" href="' + h(it.url) + '" target="_blank" rel="noopener" style="text-decoration:none">Open in a new tab</a><button class="sbtn2 soft" id="pvclose">Close</button></div></div>' +
+    '<iframe class="pvf" src="https://drive.google.com/file/d/' + encodeURIComponent(it.fileId) + '/preview" title="Preview of ' + h(it.title) + '" allow="autoplay"></iframe>' +
+    '<p style="margin:8px 0 0;font-size:12px;color:#80868B">If the preview stays blank, you aren\'t signed in to Google with an account that can open the class Drive. Open it in a new tab instead.</p></div>';
+  if (d.showModal && !d.open) d.showModal(); else d.setAttribute('open', '');
+  var close = function () { if (d.close) d.close(); else d.removeAttribute('open'); d.classList.remove('wide'); };
+  $('#pvclose').onclick = close;
+  d.addEventListener('close', function once() { d.classList.remove('wide'); d.removeEventListener('close', once); });
+}
+
 function drawDiary() {
   drawProgress();
   var body = $('#dbody'), list = diaryLectures(), html = '';
@@ -2216,6 +2288,34 @@ function diaryClick(e) {
   if (a) { openAim(a.getAttribute('data-daim'), a.getAttribute('data-g') || ''); return; }
   var r = e.target.closest('[data-radd]');
   if (r) { openAddRes(r.getAttribute('data-radd')); return; }
+  var rb = e.target.closest('[data-rel]');
+  if (rb) {
+    var rid = rb.getAttribute('data-rel');
+    REL.open[rid] = !REL.open[rid];
+    drawDiary();
+    if (REL.open[rid] && !REL.data[rid]) relFetch(rid);
+    var nb2 = $('[data-rel="' + rid + '"]'); if (nb2) nb2.focus();
+    return;
+  }
+  var rr = e.target.closest('[data-relretry]');
+  if (rr) { var rrid = rr.getAttribute('data-relretry'); delete REL.data[rrid]; relRedraw(rrid); relFetch(rrid); return; }
+  var rm = e.target.closest('[data-relmore]');
+  if (rm) { var rmid = rm.getAttribute('data-relmore'); REL.more[rmid] = !REL.more[rmid]; relRedraw(rmid); return; }
+  var rp = e.target.closest('[data-relprev]');
+  if (rp) { openRelPreview(rp.getAttribute('data-relprev'), rp.getAttribute('data-doc')); return; }
+  var ra = e.target.closest('[data-reladd]');
+  if (ra) {
+    var aid = ra.getAttribute('data-reladd'), it = relItem(aid, ra.getAttribute('data-doc'));
+    if (it) diaryCall('diaryRes', { scope: aid, items: [{ kind: 'class', url: it.url, title: it.title.slice(0, 120) }] }, 'Added to ' + lecTitle(byId[aid]) + ' in your diary.', ra);
+    return;
+  }
+  var rh = e.target.closest('[data-relhide]');
+  if (rh) {
+    var hid = rh.getAttribute('data-relhide');
+    busy(rh, true, '…');
+    api('relevantHide', { lectureId: hid, doc: rh.getAttribute('data-doc') }).then(function (res) { REL.data[hid] = res; relRedraw(hid); toast('Hidden for this lecture, for everyone.'); }, function (x) { busy(rh, false); toast(x.message, true); });
+    return;
+  }
   var m = e.target.closest('[data-rmore]');
   if (m) { openResMenu(m); return; }
   var sh = e.target.closest('[data-showhid]');
@@ -3565,11 +3665,12 @@ function renderAdmin(v, opt) {
       '<div id="unmatched"></div><div id="authpills" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px"></div><div id="authlist"></div><p style="margin:10px 4px 0;font-size:13px;color:#5F6368">Changes save as you make them. The same chips appear on the dashboard while you\'re signed in.</p></section>') +
     pane('people', '<section><h2 class="h2">Approved classmates and access</h2><div id="accbox"></div></section><section><h2 class="h2">Admins</h2><div id="adminbox"></div></section>') +
     pane('settings', '<section><h2 class="h2">General</h2><div id="setbox"></div></section><section><h2 class="h2">Class password</h2><div id="gatebox"></div></section><section><h2 class="h2">Schedule</h2><div id="schedsrc"></div></section>' +
+      '<section><h2 class="h2">Relevant resources</h2><div class="box" id="relbox"></div></section>' +
       '<section><h2 class="h2">Drive folders</h2><div class="box" id="drivebox"></div></section><section><h2 class="h2">Email</h2><div class="two" id="membox"></div></section>' +
       '<section><h2 class="h2">Test mode</h2><div id="testbox"></div></section>') +
     pane('activity', '<section><h2 class="h2">Activity</h2><div class="box" style="padding:6px 22px" id="actbox"></div></section>') +
     '</main>';
-  renderSched(); renderReports(); renderAccess(); renderUnmatched(); renderAuthPills(); renderAuthList(); renderDrive(); renderMembers(); renderAdmins(); renderTest(); renderActivity(); renderAllClear();
+  renderSched(); renderReports(); renderAccess(); renderUnmatched(); renderAuthPills(); renderAuthList(); renderDrive(); renderRelevant(); renderMembers(); renderAdmins(); renderTest(); renderActivity(); renderAllClear();
   var root = $('#admin');
   root.addEventListener('click', adminClick);
   root.addEventListener('input', function (e) { if (e.target.id === 'mq') { A.mq = e.target.value; $('#memlist').innerHTML = memberRows(); } });
@@ -3702,6 +3803,14 @@ function adminClick(e) {
   if (!t) return;
   var a = t.getAttribute('data-a'), st = S.adminState;
   var fail = function (err) { busy(t, false); toast(err.message, true); };
+  if (a === 'relwarm') {
+    busy(t, true, 'Matching…');
+    api('relevantWarm', {}).then(function (r) { busy(t, false); S.adminState.relevant = r.relevant; toast('Matched ' + r.done + ' ' + pl(r.done, 'lecture', 'lectures') + (r.left ? '. ' + r.left + ' left: press again.' : '. All lectures are up to date.')); }, fail);
+  }
+  if (a === 'relrelink') {
+    busy(t, true, 'Checking…');
+    api('relevantRelink', {}).then(function (r) { S.adminState.relevant = r.relevant; renderRelevant(); toast('Drive links checked.'); }, fail);
+  }
   if (a === 'approve') {
     busy(t, true, 'Publishing…');
     api('approveSchedule', { row: st.schedule.pending.row }).then(function (r) { st.schedule = r.schedule; setData(r.state); renderSched(); renderAuthList(); refreshSecnav(); toast('The new schedule is live.'); }, fail);
@@ -4032,6 +4141,32 @@ function renderAuthList() {
 }
 
 // ----- drive
+// The class Drive's index: built on a laptop (indexer/ in the project), uploaded here
+function renderRelevant() {
+  var r = S.adminState.relevant, box = $('#relbox');
+  if (!box || !r) return;
+  var p = function (t, st) { return '<p style="margin:0 0 10px;font-size:15px;line-height:1.5;color:' + (st ? '#B3261E;font-weight:700' : '#3C4043') + '">' + t + '</p>'; };
+  box.innerHTML = p('Every lecture in the study diary gets the parts of class Drive files that cover its topic. The files are read and split into sections once, on a laptop, with indexer/ in the project; the index it makes is uploaded here. Matching is free.') +
+    (!r.keySet ? p('The Voyage key is missing: add VOYAGE_KEY under Project Settings → Script properties in Apps Script.', true) : '') +
+    (r.loaded ? p('<b>Index from ' + h(r.built) + ':</b> ' + r.sections + ' sections from ' + r.docs + ' files, loaded ' + h(stampIn(r.loadedAt)) + (r.loadedBy ? ' by ' + h(shortName(r.loadedBy).replace(/\.$/, '')) : '') + '. ' +
+        r.linked + ' linked to their Drive file' + (r.missing ? ', <b>' + r.missing + ' not found</b> on the Drive (moved, renamed or deleted), so they\'re left out' : '') + '.') +
+      (r.missingSample.length ? '<ul style="margin:0 0 12px;padding-left:20px;font-size:13px;color:#5F6368">' + r.missingSample.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul>' : '')
+      : p('No index loaded yet.', true)) +
+    '<div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center"><label class="sbtn2" style="cursor:pointer">Upload an index<input type="file" id="relfile" accept=".json,application/json" hidden></label>' +
+    (r.loaded ? '<button class="sbtn2 soft" data-a="relwarm">Match every lecture now</button><button class="sbtn2 soft" data-a="relrelink">Check the Drive links again</button>' : '') + '</div>' +
+    '<div id="relprog" style="margin-top:10px;font-size:14px;color:#3C4043"></div>';
+  var inp = $('#relfile');
+  if (inp) inp.onchange = function () {
+    var f = inp.files[0], out = $('#relprog');
+    if (!f) return;
+    var sent = 0;
+    out.textContent = 'Uploading ' + f.name + '…';
+    uploadOne('index', f, 0, 1, function (n) { sent += n; out.textContent = 'Uploading: ' + Math.round(100 * sent / f.size) + '%'; })
+      .then(function (token) { out.textContent = 'Linking every file to the Drive. This takes a minute or two…'; return api('relevantLoad', { token: token }); })
+      .then(function (res) { S.adminState.relevant = res.relevant; renderRelevant(); toast('Index loaded. Lectures get matched as people open them, and every hour.'); },
+        function (x) { out.innerHTML = '<div class="err-box drop" role="alert">' + h(x.message) + '</div>'; });
+  };
+}
 function renderDrive() {
   var s = S.adminState.settings, box = $('#drivebox');
   if (!box) return;
