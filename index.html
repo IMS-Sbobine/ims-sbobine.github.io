@@ -532,6 +532,15 @@ dialog.dlg::backdrop{background:rgba(27,29,31,.45)}
 .mini.st-cancelled{text-decoration:none}
 table.lt tr.row.cx td{background:repeating-linear-gradient(135deg,#FAFAF9 0 10px,#F3F4F2 10px 20px)}
 .cx .lname b,.cx .r2 b,.cx .ltopic .t,.cx .tp.ct{text-decoration:line-through;color:var(--faint)}
+.xnote{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin-top:8px}
+.xpill{display:inline-flex;align-items:center;min-height:26px;border:0;border-radius:999px;padding:3px 11px;font:inherit;font-size:13px;font-weight:800;line-height:1.25;text-decoration:none!important}
+.xpill.red{background:#FCE8E6;color:#A50E0E}
+.xpill.yel{background:#FEEFC3;color:#7A4A00;cursor:pointer}
+.xpill.yel:hover{background:#FDE293}
+.xwhy{font-size:13px;font-weight:600;color:var(--ink2);line-height:1.35}
+table.lt .xnote{margin-left:44px}
+.cb.st-moved{background:#FEF7E0;color:#8A5300;text-decoration:line-through}
+.spill.st-moved{background:#F1F3F4;color:var(--muted)}
 .cnote{display:inline-block;margin-top:8px;font-size:13px;font-weight:700;line-height:1.35;color:var(--ink2);background:#FFFFFF;border:1.5px solid var(--line);border-radius:8px;padding:4px 8px}
 table.lt .cnote{margin-left:44px}
 .dcard.cx{background:repeating-linear-gradient(135deg,#FAFAF9 0 10px,#F3F4F2 10px 20px)}
@@ -1141,7 +1150,8 @@ function setData(d) {
 }
 function lecturesOn(iso) { return S.data.lectures.filter(function (l) { return l.date === iso; }); }
 function lecTitle(l) { return lectureTitle_(l.module, l.n); }
-function statusLabel(l) { return l.removed ? 'Removed from schedule' : ST[l.st].label; }
+function statusLabel(l) { return l.gone === 'moved' ? 'Rescheduled' : l.removed ? 'Cancelled' : ST[l.st].label; }
+function stClass(l) { return l.gone === 'moved' ? 'st-moved' : l.removed ? 'st-removed' : 'st-' + l.st; }
 function srcNote(l) {
   if (l.src === 'submission') return 'Details obtained from the ' + (l.srcKind === 'slides' ? 'slides' : 'sbobina');
   if (l.src === 'schedule') return 'Details obtained from the schedule';
@@ -1340,7 +1350,7 @@ try {
 // Shared bits: status, chips, names editor
 // =====================================================================================
 function badge(cc, extra) { return '<span class="badge"' + ' style="background:' + ccol(cc) + (extra || '') + '">' + h(cc || '?') + '</span>'; }
-function spill(l, cls) { return '<span class="spill ' + (l.removed ? 'st-removed' : 'st-' + l.st) + (cls ? ' ' + cls : '') + '">' + h(statusLabel(l)) + '</span>'; }
+function spill(l, cls) { return '<span class="spill ' + stClass(l) + (cls ? ' ' + cls : '') + '">' + h(statusLabel(l)) + '</span>'; }
 
 // Admin-only author chips. The server re-checks on every change. Volunteers are grey, with Confirm.
 function authorEditor(l) {
@@ -1447,7 +1457,7 @@ function boardHtml(animate) {
     S.data.lectures.forEach(function (l) {
       if (l.date < days[0] || l.date > days[4]) return;
       var delay = phone ? 0.15 + n * 0.015 : 0.15 + k * 0.05 + n * 0.012;
-      chips += '<button class="cb' + (animate ? ' pop' : '') + ' ' + (l.removed ? 'st-removed' : 'st-' + l.st) + (D.hl === l.id ? ' on' : '') + '" data-jump="' + h(l.id) + '" ' +
+      chips += '<button class="cb' + (animate ? ' pop' : '') + ' ' + stClass(l) + (D.hl === l.id ? ' on' : '') + '" data-jump="' + h(l.id) + '" ' +
         'aria-label="' + h(lecTitle(l) + ', ' + dayLabel_(l.date) + ', ' + statusLabel(l)) + '" style="animation-delay:' + delay.toFixed(3) + 's">' +
         '<span aria-hidden="true" class="cd" style="background:' + ccol(l.cc) + '"></span>' + h(l.abbr + ' ' + l.n) + '</button>';
       n++;
@@ -1469,11 +1479,11 @@ function popHtml(l) {
   var files = l.files.slice(0, 4).map(function (f) { return '<a href="' + h(f.u) + '" target="_blank" rel="noopener">' + h(f.l) + '</a>'; }).join('');
   return '<div class="t">' + badge(l.cc) + '<span>' + h(lecTitle(l)) + '</span></div>' +
     '<div class="m">' + h(dayLabel_(l.date) + ', ' + l.start + '–' + l.end + ' · Prof. ' + l.prof) + '</div>' +
-    '<div class="tp"' + (l.cancelled ? ' style="text-decoration:line-through;color:#80868B"' : '') + '>' + (l.topic ? h(l.topic) : '<span style="color:#80868B">No topic yet</span>') + '</div>' +
-    (l.cancelled ? cancelNote(l) : '') +
+    '<div class="tp"' + (l.cancelled || l.removed ? ' style="text-decoration:line-through;color:#80868B"' : '') + '>' + (l.topic ? h(l.topic) : '<span style="color:#80868B">No topic yet</span>') + '</div>' +
+    goneNote(l, true) +
     '<div class="row">' + spill(l) + (l.who.length ? '<span style="font-size:13px;color:#3C4043">' + h(l.who.join(', ')) + '</span>' : '') + '</div>' +
     (files ? '<div class="row">' + files + '</div>' : '') +
-    (noHover() ? '<button class="btn wide" data-popgo="' + h(l.id) + '" style="margin-top:12px;height:46px">Go to lecture</button>' : '<div class="hint">Click to jump to it in the week below</div>');
+    (noHover() ? '<button class="btn wide" data-popgo="' + h(l.movedTo || l.id) + '" style="margin-top:12px;height:46px">' + (l.movedTo ? 'Go to its new date' : 'Go to lecture') + '</button>' : '<div class="hint">Click to jump to it in the week below</div>');
 }
 function showPop(btn) {
   var l = byId[btn.getAttribute('data-jump')];
@@ -1545,6 +1555,8 @@ function renderDashboard(v, opt) {
   dash.addEventListener('click', function (e) {
     var pg = e.target.closest('[data-popgo]');
     if (pg) { var pid = pg.getAttribute('data-popgo'); hidePop(); return jump(pid); }
+    var gt = e.target.closest('[data-goto]');
+    if (gt) { hidePop(); return jump(gt.getAttribute('data-goto')); }
     var j = e.target.closest('[data-jump]');
     if (j) {
       // on touch screens the first tap shows the details, the second jumps
@@ -1826,11 +1838,18 @@ function renderWeekList() {
   }
 }
 
-function cancelNote(l) { return l.cancelled ? '<span class="cnote">Cancelled' + (l.cnote ? ': ' + h(l.cnote) : '') + '</span>' : ''; }
+function cancelNote(l) { return l.cancelled ? '<span class="xnote"><span class="xpill red">Cancelled</span>' + (l.cnote ? '<span class="xwhy">' + h(l.cnote) + '</span>' : '') + '</span>' : ''; }
+// under a lecture that won't take place: yellow when it moved (and where to), red when it was cancelled or dropped
+function goneNote(l, plain) {
+  if (l.gone === 'moved') return '<span class="xnote">' + (plain ? '<span class="xpill yel">' : '<button class="xpill yel" data-goto="' + h(l.movedTo) + '" aria-label="Rescheduled to ' + h(l.toLabel || 'a new date') + '. Go to it">') +
+    'Rescheduled to ' + h(l.toLabel || 'a new date') + (plain ? '</span>' : ' →</button>') + '</span>';
+  if (l.removed) return '<span class="xnote"><span class="xpill red">Cancelled and removed from the schedule</span></span>';
+  return cancelNote(l);
+}
 function topicBlock(l, phone) {
-  if (l.cancelled) {
+  if (l.cancelled || l.removed) {
     var t = l.topic ? (phone ? '<div class="tp ct">' + h(l.topic) + '</div>' : '<span class="ltopic"><span class="t">' + h(l.topic) + '</span></span>') : '';
-    return t + (phone ? '<div>' + cancelNote(l) + '</div>' : '<div>' + cancelNote(l) + '</div>');
+    return t + '<div>' + goneNote(l) + '</div>';
   }
   var locked = l.topic && (l.src === 'submission' || l.src === 'schedule');
   if (!locked && level() < 2) {
@@ -1847,6 +1866,7 @@ function topicBlock(l, phone) {
 }
 // Names are only sent to approved classmates. They can volunteer, and withdraw only where they volunteered.
 function whoHtml(l, admin) {
+  if (l.gone === 'moved') return '<span class="who none">Listed at its new date</span>';
   if (admin) return authorEditor(l) + (green(l.st) && l.who.join() !== l.asg.join() ? '<span class="subnote">Written by ' + h(l.who.join(', ')) + '</span>' : '');
   var list = l.who.length ? '<span class="who">' + l.who.map(function (n) { return h(n) + (!green(l.st) && l.vol.indexOf(n) >= 0 ? '<span class="vtag"> (volunteer)</span>' : ''); }).join(', ') + '</span>'
     : '<span class="who none">Nobody yet</span>';
@@ -1891,12 +1911,12 @@ function afterLectureChange(r) {
   if (S.page === 'dashboard') { renderWeekList(); refreshOverview(); }
   if (S.page === 'diary') { var mb = $('#minebox'); if (mb) mb.innerHTML = mineHtml() + askHtml(); drawDiary(); }
 }
-function reportBtn(l) { return '<button class="repbtn" data-report="' + h(l.id) + '" aria-label="Report a problem with ' + h(lecTitle(l)) + '">Report a problem</button>'; }
+function reportBtn(l) { return l.gone === 'moved' ? '' : '<button class="repbtn" data-report="' + h(l.id) + '" aria-label="Report a problem with ' + h(lecTitle(l)) + '">Report a problem</button>'; }
 function statusExtras(l) {
   var s = '';
   if (green(l.st) && l.unrev) s += '<span class="subnote">Not reviewed yet</span>';
   if (l.together.length) s += '<span class="subnote">Covered together with ' + h(l.together.join(', ')) + '</span>';
-  if (l.removed) s += '<span class="subnote">Removed from the schedule, kept because it has ' + (l.who.length ? 'authors' : 'files') + '</span>';
+  if (l.movedFrom && l.movedFrom.length) s += '<span class="subnote">Rescheduled from ' + h(l.movedFrom.map(function (x) { return x.label; }).join(', ')) + '</span>';
   return s;
 }
 function filesHtml(l, pills) {
@@ -1906,7 +1926,7 @@ function filesHtml(l, pills) {
 }
 function dashRow(l, newDay, searching, admin) {
   var note = S.data.dayNotes[l.date];
-  return '<tr id="lec-' + h(l.id) + '" class="row' + (newDay ? ' newday' : '') + (D.hl === l.id ? ' hl' : '') + (l.cancelled ? ' cx' : '') + '">' +
+  return '<tr id="lec-' + h(l.id) + '" class="row' + (newDay ? ' newday' : '') + (D.hl === l.id ? ' hl' : '') + (l.cancelled || l.removed ? ' cx' : '') + '">' +
     '<td><span style="display:block;font-weight:800">' + (newDay ? h(searching ? dayLabel_(l.date) : dayLabel_(l.date).replace(/ \w+$/, '')) : '') + '</span>' +
     (newDay && note ? '<span class="daynote" style="margin:4px 0 4px">' + h(note) + '</span>' : '') +
     '<span style="display:block;font-size:13px;color:#5F6368">' + h(l.start + '–' + l.end) + '</span></td>' +
@@ -1916,7 +1936,7 @@ function dashRow(l, newDay, searching, admin) {
     '<td><span class="flinks">' + filesHtml(l) + '</span>' + reportBtn(l) + '</td></tr>';
 }
 function dashCard(l, i, admin) {
-  return '<article id="lec-' + h(l.id) + '" class="dcard' + (l.removed ? ' rm' : '') + (l.cancelled ? ' cx' : '') + (D.hl === l.id ? ' hl' : '') + '">' +
+  return '<article id="lec-' + h(l.id) + '" class="dcard' + (l.removed ? ' rm' : '') + (l.cancelled || l.removed ? ' cx' : '') + (D.hl === l.id ? ' hl' : '') + '">' +
     '<div class="r1"><span class="tm">' + h(l.start + '–' + l.end) + '</span>' + spill(l) + '</div>' +
     '<div class="r2">' + badge(l.cc) + '<b>' + h(lecTitle(l)) + '</b></div>' +
     '<div class="pf">Prof. ' + h(l.prof) + '</div>' + topicBlock(l, true) +
@@ -3623,7 +3643,7 @@ function renderSched() {
       html += '<div style="margin-top:14px">' + (p.items.length ? p.items.map(diffRowHtml).join('') : '<p style="color:#5F6368">The PDF changed but no lecture details did. Approving just records this version.</p>') + '</div>';
       if (p.warnings && p.warnings.length) html += '<p style="font-size:13px;color:#B3261E">The reader had trouble with part of the PDF: ' + h(p.warnings.join('; ')) + '. Check those days by hand.</p>';
     }
-    html += '<div class="actrow"><button class="btn" data-a="approve"' + (p.needsParse ? ' disabled' : '') + ' style="height:52px">Approve and publish</button><button class="btn2" data-a="dismiss" style="height:52px;font-size:16px">Dismiss</button><span style="font-size:14px;color:#5F6368">Approving updates the website for everyone and lets the other admins know. Cancelled lectures stay cancelled.</span></div></div>';
+    html += '<div class="actrow"><button class="btn" data-a="approve"' + (p.needsParse ? ' disabled' : '') + ' style="height:52px">Approve and publish</button><button class="btn2" data-a="dismiss" style="height:52px;font-size:16px">Dismiss</button><span style="font-size:14px;color:#5F6368">Approving updates the website for everyone and lets the other admins know. Moved lectures keep their codes and authors, who get an email. Cancelled lectures stay cancelled, unless the schedule moves them.</span></div></div>';
     top = html; html = '';
   } else {
     html += '<div class="box"><h3 class="h3" style="margin-bottom:4px">The live schedule is up to date</h3><p style="margin:0;font-size:15px;line-height:1.5;color:#3C4043">No new version of the PDF is waiting. Admins get an email as soon as one shows up, and it appears under To do.</p></div>';
@@ -4265,6 +4285,7 @@ function activityText(r) {
   if (r.action === 'hand-undone' && a) return 'Undid the ' + (a.kind === 'swap' ? 'swap' : 'hand-over') + ' of ' + lecName(r.lectureId) + ' between ' + a.from + ' and ' + a.to;
   if (r.action === 'link-author' && a) return 'Linked the author name ' + a.name + (a.email ? ' to ' + a.email : '');
   if (r.action === 'remove-upload' && a) return 'Took down ' + (a.kind === 'slides' ? 'slides' : 'the sbobina') + ' for ' + a.title + (a.restored ? ', the earlier version is back' : '');
+  if (r.action === 'schedule-uncancel') return 'The new schedule lifted the cancellation of ' + lecName(r.lectureId) + ': it was ' + String(r.after || 'rescheduled');
   if (r.action === 'report-resolved') return 'Handled a report on ' + lecName(r.lectureId);
   if (r.action === 'report-dismissed') return 'Dismissed a report on ' + lecName(r.lectureId);
   if (r.action === 'members' && a && typeof a === 'object') {
