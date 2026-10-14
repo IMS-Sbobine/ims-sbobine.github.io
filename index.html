@@ -858,6 +858,10 @@ function parseSchedule(pages) {
   var pad = function (n) { return (n < 10 ? '0' : '') + n; };
 
   var lectures = [], warnings = [], dayNotes = {};
+  var starts = {};
+  pages.forEach(function (page) {
+    page.items.forEach(function (it) { if (clean(it.str) && it.y >= 85 && !/^CLERKSHIP/i.test(clean(it.str))) { var k = Math.round(it.x); starts[k] = (starts[k] || 0) + 1; } });
+  });
 
   pages.forEach(function (page, pi) {
     var items = page.items.filter(function (it) { return clean(it.str); })
@@ -868,6 +872,18 @@ function parseSchedule(pages) {
     items.forEach(function (it) { if (it.y < 90) hdr[it.str.toUpperCase()] = it.x; });
     var shift = hdr.DATE !== undefined ? hdr.DATE - 69 : 0;
     var col = {}; Object.keys(COLS).forEach(function (k) { col[k] = COLS[k] + shift; });
+    // Column widths change between versions too. Cells are left-aligned and headings centred, so each
+    // column starts at the commonest left edge of cell text just left of its heading (counted over every page).
+    var edges = Object.keys(starts).map(Number).filter(function (x) { return starts[x] + (starts[x - 1] || 0) + (starts[x + 1] || 0) >= 3; });
+    var HEAD = { course: 'COURSE', module: 'MODULE', topic: 'TOPIC', room: 'ROOM' }, prev = col.prof + 15;
+    ['course', 'module', 'topic', 'room'].forEach(function (k) {
+      var hx = hdr[HEAD[k]];
+      if (hx === undefined) { prev = col[k]; return; }
+      // the commonest edge between the previous column and this heading, or the default if there's none
+      var best = edges.filter(function (x) { return x > prev && x <= hx + 1; }).sort(function (a, b) { return starts[b] - starts[a] || b - a; })[0];
+      if (best !== undefined) col[k] = best - 4;
+      prev = col[k] + 8;
+    });
 
     // 1) time rows
     var rows = [];
@@ -936,14 +952,37 @@ function parseSchedule(pages) {
         var j = function (k) { return clean(r.cells[k].sort(function (a, b) { return a.y - b.y || a.x - b.x; }).map(function (i) { return i.str; }).join(' ')); };
         var prof = clean([r.profInline, j('prof')].join(' '));
         if (!prof) return; // empty slot
-        var room = j('room'), topic = j('topic'), module = j('module');
+        var room = j('room'), topic = j('topic'), module = j('module'), course = j('course');
         // "MAXILLO-FACIAL SURGERY traumatology": lowercase tail spilled into module column = topic
         var mm = module.match(/^([A-Z0-9 \-\/&']+?)\s+([a-z].*)$/);
         if (mm) { module = mm[1]; topic = clean(mm[2] + ' ' + topic); }
-        lectures.push({ id: d.date + 'T' + r.start, date: d.date, start: r.start, end: r.end,
-          professor: prof, course: j('course'), module: module, topic: topic, room: room });
+        var lec = { id: d.date + 'T' + r.start, date: d.date, start: r.start, end: r.end,
+          professor: prof, course: course, module: module, topic: topic, room: room };
+        // "MEDICAL SCIENCE AND CLINICAL INVESTIGATION INTERNAL MEDICINE" written across the course and
+        // module columns as one piece of text: remember roughly where the module column cut it
+        var over = r.cells.course.filter(function (i) { return i.x + i.w > col.module + 6; })[0];
+        if (!module && over) {
+          var at = course.indexOf(over.str);
+          if (at >= 0) lec.merged = at + over.str.length * (col.module + 4 - over.x) / (over.w || 1);
+        }
+        lectures.push(lec);
       });
     });
+  });
+
+  // split merged course + module text: at a course name seen on its own elsewhere, else at the word nearest the cut
+  var known = {};
+  lectures.forEach(function (l) { if (l.merged === undefined && l.course && l.module) known[l.course] = 1; });
+  lectures.forEach(function (l) {
+    if (l.merged === undefined) return;
+    var s = l.course, cut = Object.keys(known).filter(function (k) { return s.indexOf(k + ' ') === 0; }).sort(function (a, b) { return b.length - a.length; })[0];
+    var i = cut ? cut.length : -1;
+    if (i < 0) {
+      var bd = 1e9;
+      for (var p = s.indexOf(' '); p >= 0; p = s.indexOf(' ', p + 1)) if (Math.abs(p - l.merged) < bd) { bd = Math.abs(p - l.merged); i = p; }
+    }
+    if (i > 0) { l.course = clean(s.slice(0, i)); l.module = clean(s.slice(i)); }
+    delete l.merged;
   });
 
   lectures.sort(function (a, b) { return a.id < b.id ? -1 : a.id > b.id ? 1 : 0; });
