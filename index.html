@@ -593,6 +593,8 @@ table.lt .cnote{margin-left:44px}
 .mchips button{height:38px;padding:0 15px;border-radius:19px;border:2px solid var(--line);background:#FFFFFF;font-size:14px;font-weight:700;display:inline-flex;align-items:center;gap:7px;color:var(--ink)}
 .mchips button .dot{width:10px;height:10px;border-radius:50%;display:inline-block}
 .mchips button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#FFFFFF}
+.mchips.mods{margin:10px 0 4px;padding-left:12px;border-left:3px solid var(--line)}
+.mchips.mods button{height:34px;padding:0 13px;font-size:13px}
 .dlist{display:flex;flex-direction:column;gap:12px;margin-top:14px}
 .dweek{margin:22px 0 0;font-size:22px;font-weight:900;letter-spacing:-.01em}
 #diary .tools h2{min-width:0}
@@ -2012,7 +2014,7 @@ deskMq.addEventListener && deskMq.addEventListener('change', function () {
 // =====================================================================================
 // Study diary: your ticks, aims and resources, your lectures and requests, study groups
 // =====================================================================================
-var DI = { week: null, course: '', showHid: {}, leaving: '', newGroup: false };
+var DI = { week: null, course: '', module: '', showHid: {}, leaving: '', newGroup: false };
 var TICKS = ['Not started yet', 'Started', 'Studied'];
 var COURSE_SHORT = { MS: 'Medical Science', NB: 'Neuro & Behaviour', FS: 'Surgery' };
 
@@ -2039,6 +2041,7 @@ function renderDiary(v) {
     [['', 'All, week by week']].concat(COURSES.map(function (c) { return [c.code, COURSE_SHORT[c.code] || c.name]; })).map(function (x) {
       return '<button data-dcourse="' + x[0] + '" aria-pressed="' + (DI.course === x[0]) + '">' + (x[0] ? '<span aria-hidden="true" class="dot" style="background:' + ccol(x[0]) + '"></span>' : '') + h(x[1]) + '</button>';
     }).join('') + '</div>' +
+    '<div class="mchips mods" role="group" aria-label="Module" id="dmods" hidden></div>' +
     '<div id="dbody"></div></div>' +
     '<aside class="dside" id="dside" aria-label="Study groups"></aside></div>' + stripHtml() + '</main>';
   drawDiary();
@@ -2083,13 +2086,20 @@ function setDiary(d) {
   renderHeader();
 }
 
-function diaryLectures() { return S.data.lectures.filter(function (l) { return !l.removed && (!DI.course || l.cc === DI.course); }); }
+function diaryLectures() { return S.data.lectures.filter(function (l) { return !l.removed && (!DI.course || l.cc === DI.course) && (!DI.module || l.mkey === DI.module); }); }
+// a course's modules, in the order they start
+function courseModules(cc) {
+  var seen = {}, out = [];
+  S.data.lectures.forEach(function (l) { if (l.cc === cc && !l.removed && !seen[l.mkey]) { seen[l.mkey] = 1; out.push({ key: l.mkey, name: l.module }); } });
+  return out;
+}
+function moduleName(key) { var l = S.data.lectures.filter(function (x) { return x.mkey === key; })[0]; return l ? l.module : key; }
 function groupById(id) { return (S.diary.groups || []).filter(function (g) { return g.id === id; })[0]; }
 function drawProgress() {
   var list = diaryLectures().filter(function (l) { return !l.cancelled; }), t = S.diary.ticks, done = 0, half = 0;
   list.forEach(function (l) { if (t[l.id] === 2) done++; else if (t[l.id] === 1) half++; });
   var n = Math.max(1, list.length);
-  $('#dprog').innerHTML = '<span><span class="num">' + done + ' of ' + list.length + '</span> <span class="plab">' + h(DI.course ? (COURSE_SHORT[DI.course] || DI.course) + ' lectures studied' : 'lectures studied this semester') + '</span></span>' +
+  $('#dprog').innerHTML = '<span><span class="num">' + done + ' of ' + list.length + '</span> <span class="plab">' + h(DI.module ? moduleName(DI.module) + ' lectures studied' : DI.course ? (COURSE_SHORT[DI.course] || DI.course) + ' lectures studied' : 'lectures studied this semester') + '</span></span>' +
     '<span class="bar" aria-hidden="true"><i style="width:' + (100 * done / n).toFixed(1) + '%;background:#2BA84A"></i><i style="width:' + (100 * half / n).toFixed(1) + '%;background:#E8A600"></i></span>' +
     '<span class="lg"><span><i style="background:#2BA84A"></i>Studied ' + done + '</span><span><i style="background:#E8A600"></i>Started ' + half + '</span><span><i style="background:#E8EAED"></i>Not yet ' + (list.length - done - half) + '</span></span>';
 }
@@ -2128,7 +2138,7 @@ function diaryCard(l) {
   var s = S.diary.ticks[l.id] || 0;
   return '<article class="dl' + (l.cancelled ? ' cx' : '') + '" id="dl-' + h(l.id) + '">' +
     '<button class="tick" data-dtick="' + h(l.id) + '" data-s="' + s + '"' + (l.cancelled ? ' disabled' : '') + ' aria-label="' + h(lecTitle(l) + ': ' + TICKS[s] + (l.cancelled ? '' : '. Tap to change.')) + '">' + (s === 2 ? '✓' : '') + '</button>' +
-    '<div class="r1">' + badge(l.cc) + '<span class="tt">' + h(lecTitle(l)) + '</span><span class="meta">' + h(l.start + ' · Prof. ' + l.prof) + '</span>' + (l.cancelled ? '' : aimChips(l)) + '</div>' +
+    '<div class="r1">' + badge(l.cc) + '<span class="tt">' + h(lecTitle(l)) + '</span><span class="meta">' + h((DI.course ? dayLabel_(l.date) + ', ' : '') + l.start + ' · Prof. ' + l.prof) + '</span>' + (l.cancelled ? '' : aimChips(l)) + '</div>' +
     '<div class="tp">' + (l.cancelled ? '<span class="ct">' + h(l.topic || '') + '</span> ' + cancelNote(l) : h(l.topic || 'No topic yet') + ' <span class="meta">· ' + TICKS[s] + '</span>') + '</div>' +
     (l.cancelled ? '' : '<div class="res">' + resChips(l.id) + '<button class="addr" data-radd="' + h(l.id) + '">+ Add a resource</button>' +
       '<button class="relbtn" data-rel="' + h(l.id) + '" aria-expanded="' + !!REL.open[l.id] + '" aria-controls="rel-' + h(l.id) + '">Relevant resources</button></div>' +
@@ -2203,13 +2213,7 @@ function drawDiary() {
     html += '<section class="modres" aria-labelledby="h-cres"><h3 id="h-cres">' + h(cname) + ': resources for the whole course</h3>' +
       '<p class="sub" style="margin:4px 0 10px">For the big files that cover the whole course, like full-course notes or a textbook. They show here, above every lecture of the course.</p>' +
       '<div class="res" style="margin-top:0">' + resChips(scope) + '<button class="addr" data-radd="' + h(scope) + '">+ Add a resource for the whole course</button></div></section>';
-    var wk = -1, day = '';
-    html += '<div class="dlist">' + list.map(function (l) {
-      var w = weekOf(l.date), out = '';
-      if (w !== wk) { wk = w; out += '<h2 class="dweek">Week ' + (w + 1) + '<span>' + rangeLabel(w, true) + '</span></h2>'; day = ''; }
-      if (l.date !== day) { day = l.date; out += '<div class="dday">' + h(dayLabel_(l.date)) + '</div>'; }
-      return out + diaryCard(l);
-    }).join('') + '</div>';
+    html += '<div class="dlist" style="margin-top:14px">' + (list.length ? list.map(diaryCard).join('') : '<div class="empty" style="margin:0">No lectures here.</div>') + '</div>';
   } else {
     var k = DI.week, days = weekDays(k), d0 = '';
     var wl = list.filter(function (l) { return l.date >= days[0] && l.date <= days[4]; });
@@ -2222,6 +2226,13 @@ function drawDiary() {
   body.innerHTML = html;
   $$('.dnta', body).forEach(fitNote);
   $$('#dcourses [data-dcourse]').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-dcourse') === DI.course); });
+  var mb = $('#dmods'), mods = DI.course ? courseModules(DI.course) : [];
+  if (mb) {
+    mb.hidden = mods.length < 2;
+    mb.innerHTML = mods.length < 2 ? '' : [{ key: '', name: 'All' }].concat(mods).map(function (m) {
+      return '<button data-dmod="' + h(m.key) + '" aria-pressed="' + (DI.module === m.key) + '">' + h(m.name) + '</button>';
+    }).join('');
+  }
   drawGroups();
 }
 
@@ -2288,7 +2299,9 @@ function diaryClick(e) {
     return;
   }
   var c = e.target.closest('[data-dcourse]');
-  if (c) { DI.course = c.getAttribute('data-dcourse'); drawDiary(); return; }
+  if (c) { DI.course = c.getAttribute('data-dcourse'); DI.module = ''; drawDiary(); return; }
+  var dm = e.target.closest('[data-dmod]');
+  if (dm) { DI.module = dm.getAttribute('data-dmod'); drawDiary(); return; }
   var w = e.target.closest('[data-dw]');
   if (w) { var dv = +w.getAttribute('data-dw'); DI.week = dv ? Math.max(0, Math.min(SEM.weeks - 1, DI.week + dv)) : curWeek(); drawDiary(); return; }
   var a = e.target.closest('[data-daim]');
