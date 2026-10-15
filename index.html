@@ -663,6 +663,7 @@ table.lt .cnote{margin-left:44px}
 .ritem{padding:10px 0;border-top:1.5px solid var(--line)}
 .ritem:first-of-type{border-top:0;padding-top:2px}
 .ritem .rl{font-size:11px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:#1A4FB4}
+.rsame{display:inline-block;margin-left:8px;padding:1px 7px;border-radius:999px;background:#E6F4EA;color:#1E7B37;letter-spacing:.2px}
 .ritem .rt{font-size:15px;font-weight:800;line-height:1.3;margin-top:2px}
 .ritem .rs{margin:4px 0 0;padding:0;list-style:none;font-size:13px;line-height:1.45;color:var(--ink2)}
 .ritem .rs b{font-weight:700;color:var(--ink)}
@@ -2137,7 +2138,7 @@ function diaryCard(l) {
     '<span class="dnst" id="dns-' + h(l.id) + '" aria-live="polite"></span></div></article>';
 }
 // ----- relevant resources: parts of class Drive files that cover the lecture's topic (matched on the server)
-var REL = { open: {}, data: {}, more: {}, busy: {} };
+var REL = { open: {}, data: {}, more: {}, busy: {}, tries: {} };
 function relWhere(it, sec) {
   var w = it.slides ? 'Slide' : 'Page';
   if (!sec.from) return '';
@@ -2147,13 +2148,15 @@ function relHtml(l) {
   var r = REL.data[l.id];
   if (!r) return '<p class="rh" style="margin:0">Looking through the class Drive…</p>';
   if (r.error) return '<p class="rh" style="margin:0">' + h(r.error) + ' <button class="linkbtn" data-relretry="' + h(l.id) + '">Try again</button></p>';
-  if (r.state === 'no-topic') return '<p class="rh" style="margin:0">This lecture has no topic yet. Once it has one, the class Drive is searched for it.</p>';
+  if (r.state === 'no-topic') return '<p class="rh" style="margin:0">This lecture has no topic yet, so there\'s nothing to search the class Drive for. Once it has a topic, or its slides are uploaded, matches show here.</p>' +
+    '<button class="linkbtn" data-reltopic="' + h(l.id) + '" style="font-size:13px">Add its topic on the dashboard</button>';
+  if (r.state === 'reading-slides') return '<p class="rh" style="margin:0">This lecture has no topic yet, so its slides are being read to search the class Drive. This takes a moment…</p>';
   if (r.state === 'no-index') return '<p class="rh" style="margin:0">The class Drive hasn\'t been indexed yet.</p>';
   if (!r.items.length) return '<p class="rh" style="margin:0">Nothing on the class Drive covers this topic properly yet.</p>';
   var all = REL.more[l.id], list = all ? r.items : r.items.slice(0, 5);
-  return '<p class="rh">The parts of class Drive files that cover “' + h(r.topic) + '”, best first.</p>' +
+  return '<p class="rh">' + (r.from === 'slides' ? 'This lecture has no topic yet, so these are matched to its slides. Best first.' : 'The parts of class Drive files that cover “' + h(r.topic) + '”, best first.') + '</p>' +
     list.map(function (it) {
-      return '<div class="ritem"><div class="rl">' + h(it.label) + '</div><div class="rt">' + h(it.title) + '</div>' +
+      return '<div class="ritem"><div class="rl">' + h(it.label) + (it.same ? '<span class="rsame">Same professor</span>' : '') + '</div><div class="rt">' + h(it.title) + '</div>' +
         '<ul class="rs">' + it.sections.map(function (sc) { var wh = relWhere(it, sc); return '<li>' + (wh ? '<b>' + h(wh) + '</b> · ' : '') + h(sc.title) + '</li>'; }).join('') + '</ul>' +
         '<div class="ra"><button data-relprev="' + h(l.id) + '" data-doc="' + h(it.doc) + '">Preview</button><a href="' + h(it.url) + '" target="_blank" rel="noopener">Open in a new tab</a>' +
         '<button data-reladd="' + h(l.id) + '" data-doc="' + h(it.doc) + '">Add to my diary</button>' +
@@ -2164,7 +2167,11 @@ function relHtml(l) {
 function relFetch(id) {
   if (REL.busy[id]) return;
   REL.busy[id] = true;
-  api('relevant', { lectureId: id }).then(function (r) { REL.busy[id] = false; REL.data[id] = r; relRedraw(id); },
+  api('relevant', { lectureId: id }).then(function (r) {
+    REL.busy[id] = false; REL.data[id] = r; relRedraw(id);
+    // slides being read: ask again shortly, a few times
+    if (r.state === 'reading-slides' && (REL.tries[id] = (REL.tries[id] || 0) + 1) < 6) setTimeout(function () { if (REL.open[id]) relFetch(id); }, 4000);
+  },
     function (x) { REL.busy[id] = false; REL.data[id] = { error: x.message }; relRedraw(id); });
 }
 function relRedraw(id) {
@@ -2297,6 +2304,8 @@ function diaryClick(e) {
     var nb2 = $('[data-rel="' + rid + '"]'); if (nb2) nb2.focus();
     return;
   }
+  var rt = e.target.closest('[data-reltopic]');
+  if (rt) { var tid = rt.getAttribute('data-reltopic'); go('dashboard'); setTimeout(function () { jump(tid); var inp = $('[data-topic="' + tid + '"]'); if (inp) inp.focus(); }, 400); return; }
   var rr = e.target.closest('[data-relretry]');
   if (rr) { var rrid = rr.getAttribute('data-relretry'); delete REL.data[rrid]; relRedraw(rrid); relFetch(rrid); return; }
   var rm = e.target.closest('[data-relmore]');
