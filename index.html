@@ -665,6 +665,17 @@ table.lt .cnote{margin-left:44px}
 .ritem{padding:10px 0;border-top:1.5px solid var(--line)}
 .ritem:first-of-type{border-top:0;padding-top:2px}
 .ritem .rl{font-size:11px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:#1A4FB4}
+.stiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.stile{background:#FFFFFF;border:2px solid var(--line);border-radius:16px;padding:16px 18px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.stile b{font-size:34px;font-weight:900;letter-spacing:-.5px;line-height:1.05;font-variant-numeric:tabular-nums}
+.stile span{font-size:14px;font-weight:700;color:var(--ink2)}
+.stile small{font-size:13px;color:var(--faint)}
+.slist{margin:6px 0 0;padding-left:18px;font-size:14px;line-height:1.6;color:var(--ink2)}
+.stbox{overflow-x:auto}
+table.stt{border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums;min-width:100%}
+table.stt th,table.stt td{padding:7px 9px;border-bottom:1px solid #E8EAED;text-align:left;white-space:nowrap}
+table.stt thead th{font-size:11px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;color:#5F6368;white-space:normal;vertical-align:bottom;min-width:62px}
+table.stt input.sin{width:72px;height:32px;padding:0 8px;font-size:13px}
 .rsame{display:inline-block;margin-left:8px;padding:1px 7px;border-radius:999px;background:#E6F4EA;color:#1E7B37;letter-spacing:.2px}
 .ritem .rt{font-size:15px;font-weight:800;line-height:1.3;margin-top:2px}
 .ritem .rs{margin:4px 0 0;padding:0;list-style:none;font-size:13px;line-height:1.45;color:var(--ink2)}
@@ -1094,11 +1105,41 @@ var ICON = {
 // =====================================================================================
 // Server calls
 // =====================================================================================
+// ----- usage counts: page views and what people do with Relevant resources, sent in small batches.
+// The server stores a keyed hash of who, never an address, and nothing anyone types.
+var DEV = null, TQ = [], TT = null;
+function devId() {
+  if (DEV) return DEV;
+  try { DEV = window.localStorage.getItem('st.dev'); } catch (e) {}
+  if (!DEV || !/^[a-z0-9]{12,40}$/.test(DEV)) {
+    DEV = '';
+    var a = 'abcdefghijklmnopqrstuvwxyz0123456789', b = new Uint8Array(20);
+    (window.crypto || window.msCrypto).getRandomValues(b);
+    for (var i = 0; i < b.length; i++) DEV += a.charAt(b[i] % a.length);
+    try { window.localStorage.setItem('st.dev', DEV); } catch (e) {}
+  }
+  return DEV;
+}
+function track(e, l) {
+  if (S.reqEnv === 'test' || S.viewAs) return;
+  TQ.push({ e: e, l: l || '' });
+  if (TQ.length >= 20) return flushTrack();
+  clearTimeout(TT);
+  TT = setTimeout(flushTrack, 8000);
+}
+function flushTrack() {
+  clearTimeout(TT);
+  if (!TQ.length) return;
+  var ev = TQ.splice(0, 25);
+  api('track', { events: ev }).then(null, function () {});
+}
+document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') flushTrack(); });
+
 function api(name, req) {
   return new Promise(function (resolve, reject) {
     // an admin seeing "test mode for everyone" as a classmate gets the test portal
     var env = S.reqEnv === 'live' && S.universal.on && S.viewAs && S.page !== 'admin' ? 'test' : S.reqEnv;
-    var r = Object.assign({ env: env, key: S.key, tok: S.tok, pt: S.pt, viewAs: env === 'test' && S.page !== 'admin' ? S.viewAs : 0 }, req || {});
+    var r = Object.assign({ env: env, key: S.key, tok: S.tok, pt: S.pt, dev: devId(), viewAs: env === 'test' && S.page !== 'admin' ? S.viewAs : 0 }, req || {});
     GS.run.withSuccessHandler(function (res) {
       if (res && res.ok) return resolve(res.data);
       var e = new Error((res && res.error) || 'The server didn\'t answer. Check your connection and try again.');
@@ -1296,6 +1337,7 @@ function renderPage(opt) {
   opt = opt || {};
   hidePop();
   renderHeader();
+  track(S.locked && S.page !== 'signin' ? 'view:gate' : 'view:' + S.page);
   var v = $('#view');
   v.onclick = v.oninput = v.onchange = v.onkeydown = null;
   if (S.page === 'signin') {
@@ -1519,6 +1561,7 @@ function showPop(btn) {
     document.body.appendChild(POP.el);
   }
   POP.el.setAttribute('aria-label', lecTitle(l) + ' details');
+  track('board:pop', l.id);
   POP.el.innerHTML = popHtml(l);
   POP.el.hidden = false; POP.id = l.id;
   POP.el.classList.toggle('hov', !noHover());
@@ -2168,7 +2211,7 @@ function relHtml(l) {
     list.map(function (it) {
       return '<div class="ritem"><div class="rl">' + h(it.label) + (it.same ? '<span class="rsame">Same professor</span>' : '') + '</div><div class="rt">' + h(it.title) + '</div>' +
         '<ul class="rs">' + it.sections.map(function (sc) { var wh = relWhere(it, sc); return '<li>' + (wh ? '<b>' + h(wh) + '</b> · ' : '') + h(sc.title) + '</li>'; }).join('') + '</ul>' +
-        '<div class="ra"><button data-relprev="' + h(l.id) + '" data-doc="' + h(it.doc) + '">Preview</button><a href="' + h(it.url) + '" target="_blank" rel="noopener">Open in a new tab</a>' +
+        '<div class="ra"><button data-relprev="' + h(l.id) + '" data-doc="' + h(it.doc) + '">Preview</button><a href="' + h(it.url) + '" target="_blank" rel="noopener" data-relnew="' + h(l.id) + '">Open in a new tab</a>' +
         '<button data-reladd="' + h(l.id) + '" data-doc="' + h(it.doc) + '">Add to my diary</button>' +
         (S.admin ? '<button class="nr" data-relhide="' + h(l.id) + '" data-doc="' + h(it.doc) + '">Not relevant</button>' : '') + '</div></div>';
     }).join('') +
@@ -2312,6 +2355,7 @@ function diaryClick(e) {
   if (rb) {
     var rid = rb.getAttribute('data-rel');
     REL.open[rid] = !REL.open[rid];
+    if (REL.open[rid]) track('rel:open', rid);
     drawDiary();
     if (REL.open[rid] && !REL.data[rid]) relFetch(rid);
     var nb2 = $('[data-rel="' + rid + '"]'); if (nb2) nb2.focus();
@@ -2324,11 +2368,13 @@ function diaryClick(e) {
   var rm = e.target.closest('[data-relmore]');
   if (rm) { var rmid = rm.getAttribute('data-relmore'); REL.more[rmid] = !REL.more[rmid]; relRedraw(rmid); return; }
   var rp = e.target.closest('[data-relprev]');
-  if (rp) { openRelPreview(rp.getAttribute('data-relprev'), rp.getAttribute('data-doc')); return; }
+  if (rp) { track('rel:preview', rp.getAttribute('data-relprev')); openRelPreview(rp.getAttribute('data-relprev'), rp.getAttribute('data-doc')); return; }
+  var rn = e.target.closest('[data-relnew]');
+  if (rn) { track('rel:newtab', rn.getAttribute('data-relnew')); return; }
   var ra = e.target.closest('[data-reladd]');
   if (ra) {
     var aid = ra.getAttribute('data-reladd'), it = relItem(aid, ra.getAttribute('data-doc'));
-    if (it) diaryCall('diaryRes', { scope: aid, items: [{ kind: 'class', url: it.url, title: it.title.slice(0, 120) }] }, 'Added to ' + lecTitle(byId[aid]) + ' in your diary.', ra);
+    if (it) { track('rel:add', aid); diaryCall('diaryRes', { scope: aid, items: [{ kind: 'class', url: it.url, title: it.title.slice(0, 120) }] }, 'Added to ' + lecTitle(byId[aid]) + ' in your diary.', ra); }
     return;
   }
   var rh = e.target.closest('[data-relhide]');
@@ -3691,6 +3737,7 @@ function renderAdmin(v, opt) {
       '<section><h2 class="h2">Drive folders</h2><div class="box" id="drivebox"></div></section><section><h2 class="h2">Email</h2><div class="two" id="membox"></div></section>' +
       '<section><h2 class="h2">Test mode</h2><div id="testbox"></div></section>') +
     pane('activity', '<section><h2 class="h2">Activity</h2><div class="box" style="padding:6px 22px" id="actbox"></div></section>') +
+    pane('stats', '<section><h2 class="h2">Stats</h2><div id="statsbox"><div class="loading">Loading…</div></div></section>') +
     '</main>';
   renderSched(); renderReports(); renderAccess(); renderUnmatched(); renderAuthPills(); renderAuthList(); renderDrive(); renderRelevant(); renderMembers(); renderAdmins(); renderTest(); renderActivity(); renderAllClear();
   var root = $('#admin');
@@ -3714,7 +3761,7 @@ function renderAdmin(v, opt) {
   if (!(opt && opt.hash)) { try { GS.url.getLocation(function (loc) { if (loc.hash && OLDSEC[loc.hash]) showTab(OLDSEC[loc.hash]); }); } catch (e) {} }
 }
 // Tabs: To do (everything waiting on an admin), Lectures, People, Settings, Activity
-var ATABS = [['todo', 'To do'], ['lectures', 'Lectures'], ['people', 'People'], ['settings', 'Settings'], ['activity', 'Activity']];
+var ATABS = [['todo', 'To do'], ['lectures', 'Lectures'], ['people', 'People'], ['settings', 'Settings'], ['activity', 'Activity'], ['stats', 'Stats']];
 // older links (emails, bookmarks) pointed at sections of the single long page
 var OLDSEC = { todo: 'todo', schedule: 'todo', reports: 'todo', requests: 'todo', lectures: 'lectures', authors: 'lectures', people: 'people', members: 'people', admins: 'people',
   settings: 'settings', drive: 'settings', email: 'settings', test: 'settings', activity: 'activity' };
@@ -3733,6 +3780,7 @@ function pane(id, html) { return '<div class="apane astack" role="tabpanel" id="
 function showTab(id) {
   if (!id) return;
   A.tab = id;
+  if (id === 'stats') loadStats();
   $$('#atabs [data-tab]').forEach(function (b) { var on = b.getAttribute('data-tab') === id; b.setAttribute('aria-selected', on); b.tabIndex = on ? 0 : -1; });
   $$('#admin .apane').forEach(function (p) { p.hidden = p.id !== 'pane-' + id; });
 }
@@ -3825,6 +3873,9 @@ function adminClick(e) {
   if (!t) return;
   var a = t.getAttribute('data-a'), st = S.adminState;
   var fail = function (err) { busy(t, false); toast(err.message, true); };
+  if (a === 'statscsv') { statsCsv(); return; }
+  if (a === 'statsreload') { loadStats(); return; }
+  if (a === 'clsize') { busy(t, true, 'Saving…'); api('statsSave', { classSize: $('#clsize').value }).then(function (r) { A.stats = r; renderStats(); toast('Saved.'); }, fail); return; }
   if (a === 'relwarm') {
     busy(t, true, 'Matching…');
     api('relevantWarm', {}).then(function (r) { busy(t, false); S.adminState.relevant = r.relevant; toast('Matched ' + r.done + ' ' + pl(r.done, 'lecture', 'lectures') + (r.left ? '. ' + r.left + ' left: press again.' : '. All lectures are up to date.')); }, fail);
@@ -4463,6 +4514,73 @@ function activityText(r) {
   }
   return r.action;
 }
+// ----- usage counts
+function loadStats() {
+  var box = $('#statsbox');
+  if (!box) return;
+  api('stats').then(function (d) { A.stats = d; renderStats(); }, function (x) { box.innerHTML = '<div class="err-box">' + h(x.message) + '</div>'; });
+}
+function pct(a, b) { return b ? Math.round(100 * a / b) + '%' : '–'; }
+function weekLabel(iso) { var d = new Date(iso + 'T12:00:00Z'); return d.getUTCDate() + ' ' + MON_[d.getUTCMonth()]; }
+function statsRows(d) {
+  return d.weeks.map(function (w) {
+    var lv = w.levels || {};
+    return [weekLabel(w.week) + (w.partial ? ' (so far)' : ''), w.active, pct(w.active, d.classSize), lv[1] || 0, lv[2] || 0, lv[3] || 0, lv[4] || 0, pct(w.dashOnly, w.active), w.diaryUsers, w.ticks,
+      w.relOpen, w.relClick, w.relAdd, w.volunteer, w.hand.asked + ' / ' + w.hand.accepted + ' / ' + w.hand.expired, w.submit, w.signins, w.approvals, w.errors, w.week];
+  });
+}
+var STATS_HEAD = ['Week of', 'Active', 'Of class', 'L1', 'L2', 'L3', 'L4', 'Only looked', 'Diary users', 'Ticks', 'Panel opens', 'Match opens', 'Added', 'Volunteered', 'Hand-overs asked / taken / expired', 'Uploads', 'New sign-ins', 'Approvals', 'Errors'];
+function renderStats() {
+  var d = A.stats, box = $('#statsbox');
+  if (!box || !d) return;
+  var ws = d.weeks, cur = ws[ws.length - 1] || {}, last = ws.length > 1 ? ws[ws.length - 2] : null, co = d.coordination;
+  var tile = function (big, label, sub) { return '<div class="stile"><b>' + big + '</b><span>' + label + '</span>' + (sub ? '<small>' + sub + '</small>' : '') + '</div>'; };
+  var rows = statsRows(d);
+  box.innerHTML = '<p class="sub" style="margin:0 0 14px;max-width:760px">Pseudonymous counts: each person is a keyed hash, never an address, and nothing anyone types is recorded. Raw events are kept for two weeks, then only the weekly totals. Your own visits count too.</p>' +
+    '<div class="stiles">' +
+    tile(pct(last ? last.active : cur.active, d.classSize), 'of the class active ' + (last ? 'last week' : 'this week'), (last ? last.active : cur.active) + ' of ' + d.classSize + ' people' + (last ? ' · ' + cur.active + ' so far this week' : '')) +
+    tile(co.medianDays === null ? '–' : co.medianDays + ' days', 'median from lecture to sbobina', co.submitted + ' of ' + co.held + ' held lectures have one') +
+    tile(String(cur.relOpen + (last ? last.relOpen : 0)), 'Relevant resources opened, this week and last', (cur.relClick + (last ? last.relClick : 0)) + ' matches opened, ' + (cur.relAdd + (last ? last.relAdd : 0)) + ' added to diaries') +
+    '</div>' +
+    '<div class="two" style="margin-top:18px">' +
+    '<div class="box" style="flex:1 1 320px"><h3 class="h3">Coordination so far</h3><ul class="slist">' +
+    '<li><b>' + pct(co.assignedBefore, co.held) + '</b> of the ' + co.held + ' held lectures had an author before they took place</li>' +
+    '<li><b>' + pct(co.late, co.submitted) + '</b> of sbobine came in after the ' + co.grace + '-day grace period</li>' +
+    '<li><b>' + co.overdueNow + '</b> overdue right now, <b>' + co.noAuthors + '</b> held with no authors</li></ul></div>' +
+    '<div class="box" style="flex:1 1 320px"><h3 class="h3">Diary, groups and the AI</h3><ul class="slist">' +
+    '<li><b>' + d.diary.people + '</b> people have ticked lectures; <b>' + d.diary.studied + '</b> lectures marked studied in all</li>' +
+    '<li><b>' + d.diary.groups + '</b> study groups, <b>' + d.diary.groupsWithOthers + '</b> with more than one person</li>' +
+    '<li>Relevant resources found nothing for <b>' + pct(d.relevant.empty, d.relevant.matched) + '</b> of the ' + d.relevant.matched + ' lectures matched</li>' +
+    '<li><b>' + d.schedule.changes + '</b> schedule changes found, <b>' + d.mailProblems + '</b> emails that didn\'t arrive</li></ul></div></div>' +
+    '<h3 class="h3" style="margin-top:22px">Week by week</h3><div class="tablebox stbox"><table class="stt"><thead><tr>' + STATS_HEAD.map(function (x) { return '<th scope="col">' + h(x) + '</th>'; }).join('') + '<th scope="col">Your hours</th><th scope="col">AI spend ($)</th></tr></thead><tbody>' +
+    rows.map(function (r, i) {
+      var w = ws[i];
+      return '<tr>' + r.slice(0, -1).map(function (x, j) { return j ? '<td>' + h(String(x)) + '</td>' : '<th scope="row">' + h(String(x)) + '</th>'; }).join('') +
+        '<td><input class="inp sin" data-sw="' + h(w.week) + '" data-k="hours" value="' + h(String(w.hours)) + '" inputmode="decimal" aria-label="Your hours, week of ' + h(weekLabel(w.week)) + '"></td>' +
+        '<td><input class="inp sin" data-sw="' + h(w.week) + '" data-k="spend" value="' + h(String(w.spend)) + '" inputmode="decimal" aria-label="AI spend, week of ' + h(weekLabel(w.week)) + '"></td></tr>';
+    }).join('') + '</tbody></table></div>' +
+    '<p class="sub" style="margin:8px 0 0;font-size:13px">"Only looked": people who just opened the dashboard. Levels: 1 class password, 2 signed in, 3 approved, 4 admin. Your hours and AI spend save when you leave the box.</p>' +
+    '<h3 class="h3" style="margin-top:22px">Do people come back?</h3>' +
+    (d.retention.length ? '<div class="tablebox stbox"><table class="stt"><thead><tr><th scope="col">First seen, week of</th><th scope="col">People</th><th scope="col">Back 3 weeks later</th><th scope="col">Back 7 weeks later</th></tr></thead><tbody>' +
+      d.retention.map(function (r) { return '<tr><th scope="row">' + h(weekLabel(r.week)) + '</th><td>' + r.size + '</td><td>' + (r.w4 === null ? 'not yet' : r.w4 + ' (' + pct(r.w4, r.size) + ')') + '</td><td>' + (r.w8 === null ? 'not yet' : r.w8 + ' (' + pct(r.w8, r.size) + ')') + '</td></tr>'; }).join('') + '</tbody></table></div>'
+      : '<p class="sub" style="margin:0">Shows once there are a few weeks of visits.</p>') +
+    '<div style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin-top:20px"><label class="fld" style="margin:0">People in the class<input class="inp" id="clsize" value="' + d.classSize + '" inputmode="numeric" style="width:120px"></label>' +
+    '<button class="sbtn2 soft" data-a="clsize">Save</button><button class="sbtn2" data-a="statscsv">Download the weekly table (CSV)</button><button class="sbtn2 soft" data-a="statsreload">Refresh</button></div>';
+  $$('#statsbox [data-sw]').forEach(function (inp) {
+    inp.onchange = function () {
+      var req = { week: inp.getAttribute('data-sw') }; req[inp.getAttribute('data-k')] = inp.value;
+      api('statsSave', req).then(function (r) { A.stats = r; toast('Saved.'); }, function (x) { toast(x.message, true); });
+    };
+  });
+}
+function statsCsv() {
+  var d = A.stats, esc = function (v) { v = String(v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+  var lines = [STATS_HEAD.concat(['Your hours', 'AI spend ($)']).map(esc).join(',')].concat(statsRows(d).map(function (r, i) { return r.slice(0, -1).concat([d.weeks[i].hours, d.weeks[i].spend]).map(esc).join(','); }));
+  var url = URL.createObjectURL(new Blob([lines.join('\n')], { type: 'text/csv' })), a = document.createElement('a');
+  a.href = url; a.download = 'study-tracker-weekly.csv'; document.body.appendChild(a); a.click();
+  setTimeout(function () { URL.revokeObjectURL(url); a.remove(); }, 500);
+}
+
 function renderActivity() {
   var box = $('#actbox'), list = S.adminState.activity;
   if (!box) return;
