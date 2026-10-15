@@ -1192,6 +1192,13 @@ function lockOut(me) {
 // =====================================================================================
 var byId = {};
 var SEM = { start: 0, weeks: 1 };
+// Lower case without accents, for searching: "ayca" finds "Ayça", "gonzalez" finds "González", "lodz" finds "Łódź"
+var FOLD_X = { 'ı': 'i', 'ł': 'l', 'ø': 'o', 'ß': 'ss', 'æ': 'ae', 'œ': 'oe', 'đ': 'd', 'ð': 'd', 'þ': 'th', 'ħ': 'h' };
+function fold(t) {
+  t = String(t || '').toLowerCase();
+  if (t.normalize) t = t.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  return t.replace(/[ıłøßæœđðþħ]/g, function (ch) { return FOLD_X[ch]; });
+}
 function isoMs(iso) { var p = iso.split('-'); return Date.UTC(+p[0], +p[1] - 1, +p[2]); }
 function msIso(ms) { var d = new Date(ms); return d.getUTCFullYear() + '-' + pad(d.getUTCMonth() + 1) + '-' + pad(d.getUTCDate()); }
 function mondayMs(iso) { var ms = isoMs(iso), wd = (new Date(ms).getUTCDay() + 6) % 7; return ms - wd * DAY; }
@@ -1440,7 +1447,7 @@ function spill(l, cls) {
 // written yet (to be held, being written or overdue) 0.75. A lecture shared by several authors is split between them.
 var WEIGHT = { fresh: 1, edited: 0.5, asis: 0.25, todo: 0.75 };
 function workload() {
-  var by = {}, key = function (n) { return String(n).trim().toLowerCase(); };
+  var by = {}, key = function (n) { return fold(String(n).trim()); };   // "Ayca" and "Ayça" are the same person
   var get = function (n) { var k = key(n); return by[k] || (by[k] = { name: n, fresh: 0, edited: 0, asis: 0, todo: 0, score: 0, days: {} }); };
   (S.data.members || []).forEach(get);
   S.data.lectures.forEach(function (l) {
@@ -1456,15 +1463,15 @@ function workload() {
 // Every approved classmate not on this lecture, lightest workload first. On a tie, whoever's nearest lecture
 // (before or after this one) is furthest away comes first, then by name.
 function suggestFor(l) {
-  var on = l.asg.map(function (x) { return x.toLowerCase(); }), t = isoMs(l.date);
+  var on = l.asg.map(fold), t = isoMs(l.date);
   var gap = function (p) { var ds = Object.keys(p.days); return ds.length ? Math.min.apply(null, ds.map(function (d) { return Math.abs(isoMs(d) - t); })) / 86400000 : Infinity; };
-  return workload().filter(function (p) { return p.member && on.indexOf(p.name.toLowerCase()) < 0; })
+  return workload().filter(function (p) { return p.member && on.indexOf(fold(p.name)) < 0; })
     .map(function (p) { p.gap = gap(p); return p; })
     .sort(function (a, b) { return a.score - b.score || b.gap - a.gap || a.name.localeCompare(b.name); });
 }
 function pickListHtml(l, q) {
-  q = String(q || '').trim().toLowerCase();
-  var list = suggestFor(l).filter(function (p) { return !q || p.name.toLowerCase().indexOf(q) >= 0; });
+  q = fold(String(q || '').trim());
+  var list = suggestFor(l).filter(function (p) { return !q || fold(p.name).indexOf(q) >= 0; });
   if (!list.length) return '<div class="pkempty">' + (q ? 'Nobody on the approved list matches. Press Enter to add this name anyway.' : 'Everyone on the approved list is already on it.') + '</div>';
   return list.map(function (p) {
     var far = p.gap === Infinity ? 'no lectures yet' : p.gap === 0 ? 'has a lecture that day' : 'nearest lecture ' + Math.round(p.gap) + ' ' + pl(Math.round(p.gap), 'day', 'days') + ' away';
@@ -1914,9 +1921,9 @@ function matches(l) {
   if (D.filter === 'assigned' && l.st !== 'assigned') return false;
   if (D.filter === 'submitted' && !green(l.st)) return false;
   if (D.filter === 'slides' && !l.sl.length) return false;
-  var q = D.q.trim().toLowerCase();
+  var q = fold(D.q.trim());
   if (!q) return true;
-  var hay = [l.module, l.abbr, l.prof, l.topic, l.who.join(' '), l.asg.join(' '), courseInfo_(l.course).name, 'l' + l.n, dayLabel_(l.date)].join(' | ').toLowerCase();
+  var hay = fold([l.module, l.abbr, l.prof, l.topic, l.who.join(' '), l.asg.join(' '), courseInfo_(l.course).name, 'l' + l.n, dayLabel_(l.date)].join(' | '));
   return q.split(/\s+/).every(function (w) { return hay.indexOf(w) >= 0; });
 }
 var FILTERS = [['all', 'All lectures'], ['open', 'No authors yet'], ['overdue', 'Overdue'], ['writing', 'Being written'], ['assigned', 'To be held'], ['submitted', 'Submitted'], ['slides', 'Has slides']];
@@ -2982,10 +2989,10 @@ function renderPickBody() {
   var body = $('#pickbody');
   if (!body) return;
   if (U.q.trim()) {
-    var q = U.q.trim().toLowerCase();
+    var q = fold(U.q.trim());
     var res = S.data.lectures.filter(function (l) {
       if (l.removed) return false;
-      var hay = [l.module, l.abbr, l.prof, l.topic, courseInfo_(l.course).name, 'l' + l.n, l.who.join(' ')].join(' | ').toLowerCase();
+      var hay = fold([l.module, l.abbr, l.prof, l.topic, courseInfo_(l.course).name, 'l' + l.n, l.who.join(' ')].join(' | '));
       return q.split(/\s+/).every(function (w) { return hay.indexOf(w) >= 0; });
     });
     var html = '<div class="dayhead" style="margin-left:40px"><h2 aria-live="polite">' + res.length + ' ' + pl(res.length, 'lecture', 'lectures') + ' found</h2></div>', prev = '';
@@ -4387,8 +4394,8 @@ function deliveryHtml(list) {
 
 // ----- members and access
 function memberRows() {
-  var ac = S.adminState.access, q = (A.mq || '').trim().toLowerCase();
-  var list = ac.members.filter(function (m) { return !q || (m.name + ' ' + m.email).toLowerCase().indexOf(q) >= 0; });
+  var ac = S.adminState.access, q = fold((A.mq || '').trim());
+  var list = ac.members.filter(function (m) { return !q || fold(m.name + ' ' + m.email).indexOf(q) >= 0; });
   if (!list.length) return '<p style="margin:12px 0 0;font-size:15px;color:#5F6368">' + (q ? 'Nobody matches.' : 'Nobody yet. Add people above, or approve requests.') + '</p>';
   return list.map(function (m) {
     var nameCell = A.editName === m.email
