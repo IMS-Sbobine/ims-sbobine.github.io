@@ -123,14 +123,14 @@ select.inp{padding-right:8px}
 
 /* badges, pills */
 .badge{font-size:12px;font-weight:900;height:22px;min-width:30px;padding:0 6px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;color:#FFFFFF;flex:0 0 auto}
-.spill{display:inline-flex;align-items:center;height:30px;padding:0 12px;border-radius:15px;font-size:14px;font-weight:800;white-space:nowrap}
+.spill{display:inline-flex;align-items:center;min-height:30px;padding:5px 12px;border-radius:15px;font-size:14px;font-weight:800;line-height:1.25;max-width:100%;white-space:normal;text-align:left}
 .mini{width:18px;height:18px;flex:0 0 18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;line-height:1}
 .st-submitted,.st-reused,.st-reused-asis{background:var(--green);color:#FFFFFF}
 .st-writing{background:var(--yellow);color:var(--ink)}
 .st-assigned{background:var(--fyellow);color:var(--ink)}
 .st-open{background:var(--grey2);color:var(--ink)}
 .st-overdue{background:var(--red);color:#FFFFFF}
-.st-removed{background:#1B1D1F;color:#FF8A80}
+.st-removed{background:#FFFFFF;color:#C5221F;box-shadow:inset 0 0 0 2px #C5221F}
 .mini.st-assigned{border:2px solid var(--yline)}
 .mini.st-open{background:var(--grey)}
 
@@ -395,7 +395,7 @@ table.lt tr.row.hl{background:var(--hl);box-shadow:inset 0 0 0 2px var(--blue)}
 .dcard.hl{background:var(--hl);box-shadow:0 0 0 2px var(--blue)}
 .dcard .r1{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .dcard .tm{font-size:13px;font-weight:700;color:var(--muted)}
-.dcard .spill{height:26px;padding:0 10px;font-size:13px;border-radius:13px}
+.dcard .spill{min-height:26px;padding:4px 10px;font-size:13px;border-radius:13px}
 .dcard .r2{display:flex;align-items:center;gap:8px;margin-top:6px}
 .dcard .r2 b{font-size:17px;font-weight:900}
 .dcard.rm .r2 b{text-decoration:line-through}
@@ -529,7 +529,7 @@ dialog.dlg::backdrop{background:rgba(27,29,31,.45)}
 .hbadge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;margin-left:4px;border-radius:9px;background:var(--red);color:#FFFFFF!important;font-size:11px;font-weight:900;text-decoration:none!important}
 @media (max-width:899px){.mine{margin-top:22px;padding:16px;border-radius:20px;box-shadow:5px 5px 0 var(--ink)}.hreq .acts{width:100%}.hreq .acts .sbtn,.hreq .acts .sbtn2{flex:1 1 0}}
 /* cancelled lectures */
-.st-cancelled{background:#1B1D1F;color:#FF8A80}
+.st-cancelled{background:#FFFFFF;color:#C5221F;box-shadow:inset 0 0 0 2px #C5221F}
 .cb.st-cancelled{text-decoration:line-through}
 .mini.st-cancelled{text-decoration:none}
 table.lt tr.row.cx td{background:repeating-linear-gradient(135deg,#FAFAF9 0 10px,#F3F4F2 10px 20px)}
@@ -538,7 +538,7 @@ table.lt tr.row.cx td{background:repeating-linear-gradient(135deg,#FAFAF9 0 10px
 .deal strong{color:var(--ink);font-weight:800}
 .xnote{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin-top:8px}
 .xpill{display:inline-flex;align-items:center;min-height:26px;border:0;border-radius:999px;padding:3px 11px;font:inherit;font-size:13px;font-weight:800;line-height:1.25;text-decoration:none!important}
-.xpill.red{background:#1B1D1F;color:#FF8A80}
+.xpill.red{background:#FFFFFF;color:#C5221F;box-shadow:inset 0 0 0 2px #C5221F}
 .xpill.yel{background:#FEEFC3;color:#7A4A00;cursor:pointer}
 .xpill.yel:hover{background:#FDE293}
 .xwhy{font-size:13px;font-weight:600;color:var(--ink2);line-height:1.35}
@@ -682,11 +682,15 @@ table.stt{border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-n
 table.stt th,table.stt td{padding:7px 9px;border-bottom:1px solid #E8EAED;text-align:left;white-space:nowrap}
 table.stt thead th{font-size:11px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;color:#5F6368;white-space:normal;vertical-align:bottom;min-width:62px}
 table.stt input.sin{width:72px;height:32px;padding:0 8px;font-size:13px}
-.sugg{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:6px;width:100%}
-.sugg .sl{font-size:12px;font-weight:700;color:var(--faint)}
-.schip{height:28px;border:1.5px dashed #9AA0A6;border-radius:999px;background:transparent;font:inherit;font-size:12px;font-weight:700;color:var(--ink2);padding:0 10px;cursor:pointer}
-.schip:hover{border-style:solid;border-color:var(--ink);color:var(--ink)}
-.schip span{color:var(--faint);font-weight:600;margin-left:2px}
+.pick{flex-basis:100%;margin-top:6px;border:2px solid var(--line);border-radius:12px;background:#FFFFFF;box-shadow:0 6px 18px rgba(0,0,0,.08);overflow:hidden}
+.pkhead{display:flex;justify-content:space-between;padding:7px 12px;font-size:11px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;color:#5F6368;border-bottom:1.5px solid var(--line)}
+.pkrows{max-height:260px;overflow-y:auto}
+.pkrow{display:flex;width:100%;justify-content:space-between;align-items:center;gap:10px;padding:7px 12px;border:0;border-bottom:1px solid #F1F3F4;background:transparent;font:inherit;text-align:left;cursor:pointer}
+.pkrow:hover,.pkrow:focus-visible{background:#F1F3F4}
+.pkrow .pn{font-size:13px;font-weight:700;color:var(--ink)}
+.pkrow .pn small{display:block;font-size:11px;font-weight:500;color:#80868B}
+.pkrow .ps{font-size:13px;font-weight:800;font-variant-numeric:tabular-nums}
+.pkempty{padding:10px 12px;font-size:13px;color:#5F6368}
 .rsame{display:inline-block;margin-left:8px;padding:1px 7px;border-radius:999px;background:#E6F4EA;color:#1E7B37;letter-spacing:.2px}
 .ritem .rt{font-size:15px;font-weight:800;line-height:1.3;margin-top:2px}
 .ritem .rs{margin:4px 0 0;padding:0;list-style:none;font-size:13px;line-height:1.45;color:var(--ink2)}
@@ -1223,8 +1227,10 @@ function setData(d) {
 }
 function lecturesOn(iso) { return S.data.lectures.filter(function (l) { return l.date === iso; }); }
 function lecTitle(l) { return lectureTitle_(l.module, l.n); }
-function statusLabel(l) { return l.gone === 'moved' ? 'Rescheduled to ' + (l.toLabel || 'a new date') : l.removed ? 'Cancelled, off the schedule' : ST[l.st].label; }
-function stClass(l) { return l.gone === 'moved' ? 'st-moved' : l.removed ? 'st-removed' : 'st-' + l.st; }
+function statusLabel(l) { return l.gone === 'moved' ? 'Rescheduled to ' + (l.toLabel || 'a new date') : l.removed ? 'Cancelled' : ST[l.st].label; }
+function stClass(l) { return l.gone === 'moved' ? 'st-moved' : l.removed ? 'st-cancelled' : 'st-' + l.st; }
+// the grey line under a Cancelled chip: why
+function cancelWhy(l) { return l.removed && l.gone !== 'moved' ? 'Removed from the official schedule' : l.cancelled ? l.cnote : ''; }
 function srcNote(l) {
   if (l.src === 'submission') return 'Details obtained from the ' + (l.srcKind === 'slides' ? 'slides' : 'sbobina');
   if (l.src === 'schedule') return 'Details obtained from the schedule';
@@ -1426,13 +1432,13 @@ try {
 function badge(cc, extra) { return '<span class="badge"' + ' style="background:' + ccol(cc) + (extra || '') + '">' + h(cc || '?') + '</span>'; }
 function spill(l, cls) {
   // a rescheduled lecture's chip takes you to its new date
-  if (l.gone === 'moved' && l.movedTo && !cls) return '<button class="spill st-moved" data-goto="' + h(l.movedTo) + '" aria-label="' + h(statusLabel(l)) + '. Go to it">' + h(statusLabel(l)) + ' →</button>';
+  if (l.gone === 'moved' && l.movedTo && !cls) return '<button class="spill st-moved" data-goto="' + h(l.movedTo) + '" aria-label="' + h(statusLabel(l)) + '. Go to it">' + h(statusLabel(l)) + '</button>';
   return '<span class="spill ' + stClass(l) + (cls ? ' ' + cls : '') + '">' + h(statusLabel(l)) + '</span>'; }
 
 // Admin-only author chips. The server re-checks on every change. Volunteers are grey, with Confirm.
-// Workload per person: a new sbobina counts 1, last year's with edits 0.5, last year's as is 0.25, one still to
-// write 1 (it will most likely be new). A lecture shared by several authors is split between them.
-var WEIGHT = { fresh: 1, edited: 0.5, asis: 0.25, todo: 1 };
+// Workload per person: a new sbobina counts 1, last year's with edits 0.5, last year's as is 0.25, and one not
+// written yet (to be held, being written or overdue) 0.75. A lecture shared by several authors is split between them.
+var WEIGHT = { fresh: 1, edited: 0.5, asis: 0.25, todo: 0.75 };
 function workload() {
   var by = {}, key = function (n) { return String(n).trim().toLowerCase(); };
   var get = function (n) { var k = key(n); return by[k] || (by[k] = { name: n, fresh: 0, edited: 0, asis: 0, todo: 0, score: 0, days: {} }); };
@@ -1447,19 +1453,23 @@ function workload() {
   var out = Object.keys(by).map(function (k) { var p = by[k]; p.member = (S.data.members || []).some(function (m) { return key(m) === k; }); p.score = Math.round(p.score * 100) / 100; return p; });
   return out.sort(function (a, b) { return a.score - b.score || a.name.localeCompare(b.name); });
 }
-// The approved classmates with the lightest load who aren't on this lecture, preferring those with nothing that day
-function suggestFor(l, n) {
-  var on = l.asg.map(function (x) { return x.toLowerCase(); });
+// Every approved classmate not on this lecture, lightest workload first. On a tie, whoever's nearest lecture
+// (before or after this one) is furthest away comes first, then by name.
+function suggestFor(l) {
+  var on = l.asg.map(function (x) { return x.toLowerCase(); }), t = isoMs(l.date);
+  var gap = function (p) { var ds = Object.keys(p.days); return ds.length ? Math.min.apply(null, ds.map(function (d) { return Math.abs(isoMs(d) - t); })) / 86400000 : Infinity; };
   return workload().filter(function (p) { return p.member && on.indexOf(p.name.toLowerCase()) < 0; })
-    .sort(function (a, b) { return a.score - b.score || (a.days[l.date] ? 1 : 0) - (b.days[l.date] ? 1 : 0) || a.name.localeCompare(b.name); }).slice(0, n || 3);
+    .map(function (p) { p.gap = gap(p); return p; })
+    .sort(function (a, b) { return a.score - b.score || b.gap - a.gap || a.name.localeCompare(b.name); });
 }
-function suggestHtml(l) {
-  if (!S.admin || green(l.st) || l.removed || l.cancelled || l.asg.length >= MAX_AUTHORS) return '';
-  var list = suggestFor(l, 3);
-  if (!list.length) return '';
-  return '<span class="sugg"><span class="sl">Lightest load:</span>' + list.map(function (p) {
-    return '<button class="schip" data-suggest="' + h(l.id) + '" data-name="' + h(p.name) + '" title="Workload ' + p.score + '" aria-label="Add ' + h(p.name) + ' (workload ' + p.score + ') to ' + h(lecTitle(l)) + '">' + h(p.name) + ' <span>' + p.score + '</span></button>';
-  }).join('') + '</span>';
+function pickListHtml(l, q) {
+  q = String(q || '').trim().toLowerCase();
+  var list = suggestFor(l).filter(function (p) { return !q || p.name.toLowerCase().indexOf(q) >= 0; });
+  if (!list.length) return '<div class="pkempty">' + (q ? 'Nobody on the approved list matches. Press Enter to add this name anyway.' : 'Everyone on the approved list is already on it.') + '</div>';
+  return list.map(function (p) {
+    var far = p.gap === Infinity ? 'no lectures yet' : p.gap === 0 ? 'has a lecture that day' : 'nearest lecture ' + Math.round(p.gap) + ' ' + pl(Math.round(p.gap), 'day', 'days') + ' away';
+    return '<button type="button" class="pkrow" data-suggest="' + h(l.id) + '" data-name="' + h(p.name) + '" aria-label="Add ' + h(p.name) + ', workload ' + p.score + ', ' + far + '"><span class="pn">' + h(p.name) + '<small>' + h(far) + '</small></span><span class="ps">' + p.score + '</span></button>';
+  }).join('');
 }
 function renderWorkload() {
   var box = $('#workbox');
@@ -1468,7 +1478,7 @@ function renderWorkload() {
   if (!list.length) { box.innerHTML = '<p class="sub" style="margin:0">Nobody has lectures yet.</p>'; return; }
   var ms = list.filter(function (p) { return p.member; }), base = ms.length ? ms : list;
   var tot = base.reduce(function (a, p) { return a + p.score; }, 0), mem = base.length;
-  box.innerHTML = '<p class="sub" style="margin:0 0 12px;max-width:760px">Each person\'s share of the writing. A new sbobina counts 1, last year\'s with edits 0.5, last year\'s used as is 0.25, and one still to write 1. A lecture with several authors is split between them. The average for approved classmates is <b>' + (Math.round(tot / mem * 100) / 100) + '</b>. When you add authors, the lightest loads are suggested.</p>' +
+  box.innerHTML = '<p class="sub" style="margin:0 0 12px;max-width:760px">Each person\'s share of the writing. A new sbobina counts 1, last year\'s with edits 0.5, last year\'s used as is 0.25, and one not written yet (to be held, being written or overdue) 0.75. A lecture with several authors is split between them. The average for approved classmates is <b>' + (Math.round(tot / mem * 100) / 100) + '</b>. When you press + Add on a lecture, everyone approved is listed, lightest load first.</p>' +
     '<div class="tablebox stbox"><table class="stt"><thead><tr><th scope="col">Name</th><th scope="col">New</th><th scope="col">Last year\'s, edited</th><th scope="col">Last year\'s, as is</th><th scope="col">Still to write</th><th scope="col">Workload</th></tr></thead><tbody>' +
     list.map(function (p) {
       return '<tr><th scope="row">' + h(p.name) + (p.member ? '' : ' <span class="meta">not on the approved list</span>') + '</th><td>' + p.fresh + '</td><td>' + p.edited + '</td><td>' + p.asis + '</td><td>' + p.todo + '</td><td><b>' + p.score + '</b></td></tr>';
@@ -1480,7 +1490,7 @@ function authorEditor(l) {
     return '<span class="chip' + (vol ? ' vol' : '') + '"' + (vol ? ' title="Volunteered"' : '') + '>' + h(n) +
       (vol ? '<button class="chipc" data-confirmvol="' + h(l.id) + '" data-name="' + h(n) + '" aria-label="' + h(n) + ' volunteered. Make them an assigned author of ' + h(lecTitle(l)) + '">Confirm</button>' : '') +
       '<button class="chipx" data-unassign="' + h(l.id) + '" data-name="' + h(n) + '" aria-label="Remove ' + h(n) + ' from ' + h(lecTitle(l)) + '">×</button></span>';
-  }).join('') + '<button class="add" data-addname="' + h(l.id) + '" aria-label="Add an author to ' + h(lecTitle(l)) + '">+ Add</button>' + suggestHtml(l) + '</span>';
+  }).join('') + '<button class="add" data-addname="' + h(l.id) + '" aria-label="Add an author to ' + h(lecTitle(l)) + '">+ Add</button></span>';
 }
 function wireAuthorEditors(root, onChange) {
   root.addEventListener('click', function (e) {
@@ -1488,13 +1498,21 @@ function wireAuthorEditors(root, onChange) {
     if (add) {
       var id = add.getAttribute('data-addname'), l = byId[id];
       var inp = document.createElement('input');
-      inp.className = 'addin'; inp.setAttribute('list', 'names-dl'); inp.setAttribute('aria-label', 'Add an author to ' + lecTitle(l));
+      inp.className = 'addin'; inp.setAttribute('aria-label', 'Add an author to ' + lecTitle(l) + '. Pick from the list below or type a name');
       inp.placeholder = 'Name and surname'; inp.autocomplete = 'off';
+      // the approved list, lightest workload first; typing narrows it
+      var pick = document.createElement('div');
+      pick.className = 'pick'; pick.setAttribute('role', 'listbox'); pick.setAttribute('aria-label', 'Approved classmates, lightest workload first');
+      pick.innerHTML = '<div class="pkhead"><span>Approved, lightest load first</span><span>Workload</span></div><div class="pkrows">' + pickListHtml(l, '') + '</div>';
+      pick.addEventListener('mousedown', function (ev) { ev.preventDefault(); });   // keep the box open while choosing
       add.replaceWith(inp);
+      inp.after(pick);
+      inp.addEventListener('input', function () { $('.pkrows', pick).innerHTML = pickListHtml(l, inp.value); });
       inp.focus();
       var done = false;
       var finish = function (save) {
         if (done) return; done = true;
+        pick.remove();
         var name = inp.value.trim();
         if (!save || !name) { onChange(id); return; }
         inp.disabled = true;
@@ -1507,7 +1525,8 @@ function wireAuthorEditors(root, onChange) {
     }
     var sg = e.target.closest('[data-suggest]');
     if (sg) {
-      var sid = sg.getAttribute('data-suggest'), sn = sg.getAttribute('data-name');
+      var sid = sg.getAttribute('data-suggest'), sn = sg.getAttribute('data-name'), box = sg.closest('.pick');
+      if (box) { var ip = box.previousElementSibling; if (ip && ip.classList.contains('addin')) { ip.value = ''; ip.disabled = true; } }
       sg.disabled = true;
       api('assign', { lectureId: sid, name: sn }).then(function (r) { updateLecture(r.lecture, r.counts, r.names); onChange(sid); renderWorkload(); toast('Added ' + sn + ' to ' + lecTitle(r.lecture) + '.'); },
         function (err) { toast(err.message, true); onChange(sid); });
@@ -1609,7 +1628,7 @@ function popHtml(l) {
   return '<div class="t">' + badge(l.cc) + '<span>' + h(lecTitle(l)) + '</span></div>' +
     '<div class="m">' + h(dayLabel_(l.date) + ', ' + l.start + '–' + l.end + ' · Prof. ' + l.prof) + '</div>' +
     '<div class="tp"' + (l.cancelled || l.removed ? ' style="text-decoration:line-through;color:#80868B"' : '') + '>' + (l.topic ? h(l.topic) : '<span style="color:#80868B">No topic yet</span>') + '</div>' +
-    (l.cancelled && l.cnote ? '<div class="xwhy" style="margin-top:6px">' + h(l.cnote) + '</div>' : '') +
+    (cancelWhy(l) ? '<div class="xwhy" style="margin-top:6px;color:#5F6368">' + h(cancelWhy(l)) + '</div>' : '') +
     '<div class="row">' + spill(l) + (l.who.length ? '<span style="font-size:13px;color:#3C4043">' + h(l.who.join(', ')) + '</span>' : '') + '</div>' +
     (files ? '<div class="row">' + files + '</div>' : '') +
     (noHover() ? '<button class="btn wide" data-popgo="' + h(l.movedTo || l.id) + '" style="margin-top:12px;height:46px">' + (l.movedTo ? 'Go to its new date' : 'Go to lecture') + '</button>' : '<div class="hint">Click to jump to it in the week below</div>');
@@ -1762,7 +1781,7 @@ function askAccess(t) {
   var nm = ($('#rqname') || {}).value || '';
   if (!nm.trim()) { toast('Add your name first.', true); return; }
   var deal = $('#rqdeal');
-  if (deal && !deal.checked) { toast('Tick the box first: being approved means you write sbobine too.', true); deal.focus(); return; }
+  if (deal && !deal.checked) { toast('Tick the box first: to read the sbobine, you write sbobine too.', true); deal.focus(); return; }
   busy(t, true, 'Sending…');
   api('requestAccess', { name: nm.trim() }).then(function (r) {
     if (r.approved) { toast('You\'re already approved. Loading…'); S.data = null; return renderPage(); }
@@ -2046,7 +2065,7 @@ function statusExtras(l) {
   if (green(l.st) && l.unrev) s += '<span class="subnote">Not reviewed yet</span>';
   if (l.together.length) s += '<span class="subnote">Covered together with ' + h(l.together.join(', ')) + '</span>';
   if (l.movedFrom && l.movedFrom.length) s += '<span class="subnote">Rescheduled from ' + h(l.movedFrom.map(function (x) { return x.label; }).join(', ')) + '</span>';
-  if (l.cancelled && l.cnote) s += '<span class="subnote" style="color:var(--ink2)">' + h(l.cnote) + '</span>';
+  if (cancelWhy(l)) s += '<span class="subnote">' + h(cancelWhy(l)) + '</span>';
   return s;
 }
 function filesHtml(l, pills) {
@@ -3130,7 +3149,7 @@ function requestBox(bare) {
       : '<div class="graybox drop" role="status" style="margin-top:16px"><strong style="font-weight:800">Your request is with the admins.</strong> You\'ll get an email once you\'re approved. Then you\'ll be given lectures to write up, and you can upload sbobine here and see who\'s writing what.</div>';
   }
   var inner = '<p style="margin:0;font-size:14px;line-height:1.45;color:#3C4043">Approved classmates write and upload sbobine, see who\'s writing what, volunteer for lectures and skip the class password.</p>' +
-    '<p class="deal"><strong>Being approved means you write sbobine too.</strong> Everyone approved is given lectures to write up, shared out evenly, and is expected to upload them on time. If you only want to read, you don\'t need to be approved.</p>' +
+    '<p class="deal"><strong>To read the class\'s sbobine, you write sbobine too.</strong> Only approved classmates can open them, and everyone approved is given lectures to write up, shared out evenly, and uploads them on time.</p>' +
     '<label class="fld" style="margin-top:10px">Your name and surname<input class="inp" id="rqname" value="' + h(S.me ? S.me.name : '') + '" autocomplete="name" maxlength="80"></label>' +
     '<label class="check" style="margin-top:10px"><input type="checkbox" id="rqdeal"><span aria-hidden="true" class="bx">✓</span>I\'ll write and upload the sbobine I\'m given</label>' +
     '<div style="margin-top:10px"><button class="sbtn" data-u="reqaccess">Ask to be approved</button></div>';
