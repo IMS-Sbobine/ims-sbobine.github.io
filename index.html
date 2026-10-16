@@ -698,6 +698,8 @@ table.lt .cnote{margin-left:44px}
 .daims{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .dcols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}
 .dc{min-width:0;display:flex;flex-direction:column}
+.dcols.one{grid-template-columns:minmax(0,1fr)}
+.dcw{grid-column:1 / -1;border-top:1px solid var(--line2);padding-top:14px}
 .dlab{display:block;font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:#5F6368;margin:4px 0 6px}
 .ddetail .res{grid-column:auto;margin:0}
 .ddetail .rel{grid-column:auto;margin:0;border:0;padding:0;border-radius:0}
@@ -747,6 +749,9 @@ table.lt .cnote{margin-left:44px}
   .ddin>.dh,.ddin>.dtp,.ddin>.dstates,.ddin>.daims{padding:0 2px}
   .dcols{grid-template-columns:minmax(0,1fr);gap:12px}
   .dc{background:#FFFFFF;border-radius:16px;padding:14px 16px}
+  .dcw{border-top:0;padding-top:14px}
+  .dcols:not(.one) .dcn{border-radius:16px 16px 0 0;padding-bottom:6px}
+  .dcr{border-radius:0 0 16px 16px;margin-top:-12px;padding-top:6px}
   .dstates{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
   .dst{height:44px;padding:0 6px}
   .ddetail .dh h2{font-size:21px}
@@ -2556,12 +2561,13 @@ function detailHtml(l) {
     (l.cancelled ? '' : '<div class="dstates" role="group" aria-label="How far you are">' + TICKS.map(function (t, k) {
       return '<button class="dst s' + k + '" data-dset="' + h(l.id) + '" data-s="' + k + '" aria-pressed="' + (s === k) + '">' + h(k ? t : 'Not started') + '</button>';
     }).join('') + '</div><div class="daims">' + aimChips(l) + '</div>') +
-    '<div class="dcols"><div class="dc">' +
+    // your notes and your resources side by side, what the class Drive has on it across the full width below
+    '<div class="dcols' + (l.cancelled ? ' one' : '') + '"><div class="dc dcn">' +
     '<label class="dlab" for="dn-' + h(l.id) + '">Your notes</label>' +
     '<textarea class="dnta" id="dn-' + h(l.id) + '" data-dnote="' + h(l.id) + '" rows="4" maxlength="10000" placeholder="Your notes on this lecture. Only you see them.">' + h(note) + '</textarea>' +
-    '<span class="dnst" id="dns-' + h(l.id) + '" aria-live="polite"></span>' +
-    (l.cancelled ? '' : '<span class="dlab">Your resources</span><div class="res">' + resChips(l.id) + '<button class="addr" data-radd="' + h(l.id) + '">+ Add a resource</button></div>') + '</div>' +
-    (l.cancelled ? '' : '<div class="dc"><span class="dlab">Relevant resources</span><div class="rel" id="rel-' + h(l.id) + '" aria-live="polite">' + relHtml(l) + '</div></div>') +
+    '<span class="dnst" id="dns-' + h(l.id) + '" aria-live="polite"></span></div>' +
+    (l.cancelled ? '' : '<div class="dc dcr"><span class="dlab">Your resources</span><div class="res">' + resChips(l.id) + '<button class="addr" data-radd="' + h(l.id) + '">+ Add a resource</button></div></div>' +
+      '<div class="dc dcw"><span class="dlab">Relevant resources</span><div class="rel" id="rel-' + h(l.id) + '" aria-live="polite">' + relHtml(l) + '</div></div>') +
     '</div></div>';
 }
 function drawDetail() {
