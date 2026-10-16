@@ -2427,7 +2427,7 @@ function scrollToToday() {
 deskMq.addEventListener && deskMq.addEventListener('change', function () { if (S.page === 'diary' && S.diary) { drawList(); diaryLayout(); } });
 
 // ----- notes: saved a moment after you stop typing, and when you leave the box
-var NOTE = { timers: {}, sent: {} };
+var NOTE = { timers: {}, sent: {}, flying: {}, again: {} };
 function fitNote(el) { el.style.height = 'auto'; el.style.height = Math.max(40, el.scrollHeight + 4) + 'px'; }
 function noteTyped(el) {
   var id = el.getAttribute('data-dnote');
@@ -2444,10 +2444,13 @@ function saveNote(id) {
   var text = (S.diary.notes || {})[id] || '';
   if (NOTE.sent[id] === text) return;
   if (NOTE.sent[id] === undefined && text === '') return;
-  NOTE.sent[id] = text;
+  if (NOTE.flying[id]) { NOTE.again[id] = true; return; }   // one save at a time; the newest text follows
+  NOTE.sent[id] = text; NOTE.flying[id] = true;
   var st = function (m) { var x = $('#dns-' + cssId(id)); if (x) x.textContent = m; };
   st('Saving…');
-  api('diaryNote', { lectureId: id, text: text }).then(function () { if ((S.diary.notes || {})[id] === text) st('Saved'); }, function (x) { NOTE.sent[id] = undefined; st('Not saved: ' + x.message); });
+  var next = function () { NOTE.flying[id] = false; if (NOTE.again[id]) { NOTE.again[id] = false; saveNote(id); } };
+  api('diaryNote', { lectureId: id, text: text }).then(function () { if ((S.diary.notes || {})[id] === text) st('Saved'); next(); },
+    function (x) { NOTE.sent[id] = undefined; st('Not saved: ' + x.message); next(); });
 }
 window.addEventListener('beforeunload', function () { Object.keys(NOTE.timers).forEach(function (id) { saveNote(id); }); });
 function setDiary(d) {
@@ -2725,6 +2728,7 @@ function drawGroups() {
 function groupCard(g) {
   var pb = function (p) { return p ? '<div class="mbar2" aria-hidden="true"><i style="width:' + (100 * p.studied / Math.max(1, p.total)).toFixed(0) + '%"></i></div>' : ''; };
   var members = g.members.map(function (m) {
+    if (m.me && m.progress) m.progress = myProgress();
     var right = m.progress ? '<span class="cnum">' + m.progress.studied + ' / ' + m.progress.total + '</span>'
       : '<span class="lock">' + (m.me ? 'Private' : g.share ? 'Keeps it private' : 'Hidden') + '</span>';
     return '<div class="mem"><span class="av" aria-hidden="true" style="background:' + avColor(m.id) + '">' + h((m.name || '?').charAt(0)) + '</span>' +
@@ -2761,7 +2765,21 @@ function setTickTo(id, s, focusSel) {
   if (s) S.diary.ticks[id] = s; else delete S.diary.ticks[id];
   drawProgress(); drawList(); if (DI.sel === id) drawDetail();
   var nb = $(focusSel); if (nb) nb.focus({ preventScroll: true });
-  diaryCall('diaryTick', { lectureId: id, state: s }, lecTitle(l) + ': ' + TICKS[s] + '.');
+  drawGroups();
+  // the page already shows it; the server's answer only matters if it went wrong
+  TICKQ.n++;
+  api('diaryTick', { lectureId: id, state: s }).then(function () { TICKQ.n--; toast(lecTitle(l) + ': ' + TICKS[s] + '.'); },
+    function (x) {
+      TICKQ.n--; toast(x.message, true);
+      api('diary').then(function (d) { if (!TICKQ.n) { setDiary(d); drawDiary(); } });
+    });
+}
+var TICKQ = { n: 0 };
+// your own progress in a group card, from your ticks as they are now
+function myProgress() {
+  var t = S.diary.ticks || {}, s = 0, h = 0, n = 0;
+  S.data.lectures.forEach(function (l) { if (l.removed || l.cancelled) return; n++; if (t[l.id] === 2) s++; else if (t[l.id] === 1) h++; });
+  return { studied: s, started: h, total: n };
 }
 function diaryClick(e) {
   var t = e.target.closest('[data-dtick]');
