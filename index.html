@@ -2478,7 +2478,7 @@ function chip(r, tag, sh, hid) {
 }
 // Rename in place: the chip's name becomes a text box. Enter or leaving it saves, Escape keeps the old name.
 function renameRes(id) {
-  var r = S.diary.res.filter(function (x) { return x.id === id; })[0];
+  var r = S.diary.res.concat(S.diary.shared || []).filter(function (x) { return x.id === id; })[0];
   var b = $('[data-rmore="' + cssId(id) + '"]'), cp = b && b.closest('.rchip');
   if (!r || !cp) return;
   var inp = document.createElement('input');
@@ -3116,6 +3116,7 @@ function openResMenu(btn) {
       var rid = m.getAttribute('data-for'), act = b.getAttribute('data-rmi'), g = b.getAttribute('data-g');
       m.hidden = true;
       if (act === 'rename') { renameRes(rid); return; }
+      if (act === 'unname') { diaryCall('diaryRes', { rename: rid, reset: true }, 'Back to its original name.'); return; }
       if (act === 'remove') diaryCall('diaryRes', { remove: rid }, 'Removed from your diary.');
       if (act === 'driveshare') { var dr = S.diary.res.filter(function (x) { return x.id === rid; })[0]; if (dr) shareDriveFile(dr.fileId, dr.groups || [], dr.title); return; }
       if (act === 'hide' || act === 'show') diaryCall('diaryHide', { id: rid, hide: act === 'hide' }, act === 'hide' ? 'Hidden from your diary. The others still see it.' : 'It\'s back in your diary.');
@@ -3133,7 +3134,9 @@ function openResMenu(btn) {
   m.setAttribute('data-for', id);
   var items = '<a role="menuitem" href="' + h(r.url) + '" target="_blank" rel="noopener">Open</a>';
   if (mine) {
-    items += '<button role="menuitem" data-rmi="rename">Rename</button>' + (S.diary.groups || []).map(function (g) {
+    if ((mine.groups || []).length) items += '<p class="sub" style="margin:6px 10px 4px;font-size:12px">You added it, so its name is the one your groups see.</p>';
+    items += '<button role="menuitem" data-rmi="rename">Rename</button>' +
+      (mine.orig ? '<button role="menuitem" data-rmi="unname">Use the original name</button>' : '') + (S.diary.groups || []).map(function (g) {
       var on = (mine.groups || []).indexOf(g.id) >= 0;
       return '<button role="menuitem" data-rmi="' + (on ? 'unshare' : 'share') + '" data-g="' + h(g.id) + '">' + (on ? 'Stop sharing with ' : 'Share with ') + h(g.name) + '</button>';
     }).join('') + (mine.kind === 'drive' && mine.fileId && (mine.groups || []).length ? '<button role="menuitem" data-rmi="driveshare">Let the group open it in Drive</button>' : '') +
@@ -3141,8 +3144,10 @@ function openResMenu(btn) {
     if (!(S.diary.groups || []).length) items += '<p class="sub" style="margin:6px 10px 4px;font-size:12px">Only you see this. Join or make a study group to share it.</p>';
   } else {
     var hid = (S.diary.hidden || []).indexOf(id) >= 0;
-    items += '<button role="menuitem" data-rmi="' + (hid ? 'show' : 'hide') + '">' + (hid ? 'Show it again' : 'Hide it from my diary') + '</button>' +
-      '<p class="sub" style="margin:6px 10px 4px;font-size:12px">Shared by ' + h(theirs.by) + '. Hiding only affects your diary.</p>';
+    items += '<button role="menuitem" data-rmi="rename">Rename</button>' +
+      (theirs.renamed ? '<button role="menuitem" data-rmi="unname">Use ' + h(theirs.by) + '’s name</button>' : '') +
+      '<button role="menuitem" data-rmi="' + (hid ? 'show' : 'hide') + '">' + (hid ? 'Show it again' : 'Hide it from my diary') + '</button>' +
+      '<p class="sub" style="margin:6px 10px 4px;font-size:12px">Shared by ' + h(theirs.by) + '. Renaming or hiding it only changes your diary.</p>';
   }
   m.innerHTML = items;
   m.hidden = false;
