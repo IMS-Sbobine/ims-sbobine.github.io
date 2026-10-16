@@ -647,7 +647,8 @@ table.lt .cnote{margin-left:44px}
 .dgbtn .cnt{min-width:18px;height:18px;border-radius:9px;background:#D93025;color:#FFFFFF;font-size:11px;display:inline-flex;align-items:center;justify-content:center;padding:0 4px}
 .dfil{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px;margin-top:18px}
 .dfil .mchips{margin:0}
-.dwk{display:flex;align-items:center;gap:10px}
+.dwk{display:flex;align-items:center;gap:10px;margin-top:14px}
+.dwk:empty{display:none}
 .dwk h2{margin:0;font-size:18px;font-weight:900;min-width:150px;text-align:center}
 .dwk h2 span{display:block;font-size:13px;font-weight:600;color:var(--muted)}
 .dg2{margin-top:14px}
@@ -715,7 +716,7 @@ table.lt .cnote{margin-left:44px}
   .dg2.sel .dsidecol{flex:1 1 0px}
   .ddetail{overflow:hidden;max-height:0;opacity:0;visibility:hidden;transition:max-height .5s cubic-bezier(.32,.72,0,1),opacity .3s ease,margin .4s,visibility 0s .5s}
   .dg2.sel .ddetail{max-height:2400px;opacity:1;visibility:visible;margin-bottom:14px;transition:max-height .5s cubic-bezier(.32,.72,0,1),opacity .3s ease,margin .4s,visibility 0s 0s}
-  .dlist2{height:max(480px,calc(100vh - 250px));overflow-y:auto;overflow-x:hidden}
+  .dlist2{height:max(480px,calc(100vh - 250px));overflow-y:auto;overflow-x:hidden;transition:height .42s cubic-bezier(.32,.72,0,1)}
   .dlistcol .dside{margin-top:22px;position:static}
   .phone-only{display:none!important}
   .ddim{display:none}
@@ -2295,12 +2296,17 @@ function renderDiary(v) {
     '<div class="dfil"><div class="mchips" role="group" aria-label="Show" id="dcourses">' +
     [['', 'All, week by week']].concat(COURSES.map(function (c) { return [c.code, COURSE_SHORT[c.code] || c.name]; })).map(function (x) {
       return '<button data-dcourse="' + x[0] + '" aria-pressed="' + (DI.course === x[0]) + '">' + (x[0] ? '<span aria-hidden="true" class="dot" style="background:' + ccol(x[0]) + '"></span>' : '') + h(x[1]) + '</button>';
-    }).join('') + '</div><div class="dwk" id="dwk"></div></div>' +
+    }).join('') + '</div></div>' +
     '<div class="mchips mods" role="group" aria-label="Module" id="dmods" hidden></div>' +
+    '<div class="dwk" id="dwk"></div>' +
     '<div class="dg2" id="dg2"><section class="dlistcol" aria-label="Lectures"><div class="dlist2" id="dlist"></div><p class="dhint" id="dhint"></p></section>' +
     '<div class="dsidecol"><section class="ddetail" id="ddetail" aria-label="Lecture"></section><aside class="dside" id="dside" aria-label="Study groups"></aside></div></div>' +
     '<div class="ddim" id="ddim" aria-hidden="true"></div>' + stripHtml() + '</main>';
   drawDiary();
+  // with a lecture open, the list takes the lecture pane's height, following it as it grows or shrinks
+  if (DI.ro) DI.ro.disconnect();
+  DI.ro = window.ResizeObserver ? new ResizeObserver(fitList) : null;
+  if (DI.ro) DI.ro.observe($('#ddetail'));
   var root = $('#diary');
   root.addEventListener('click', diaryClick);
   root.addEventListener('submit', diarySubmit);
@@ -2399,10 +2405,16 @@ function diaryLayout() {
   // desktop, with a lecture open: the groups go under the list, leaving the lecture the whole right side
   var gs = $('#dside'), home = $(DI.sel && desk() ? '.dlistcol' : '.dsidecol', g);
   if (gs && home && gs.parentNode !== home) home.appendChild(gs);
+  fitList();
   var lock = !desk() && (DI.sel || DI.groups);
   document.documentElement.style.overflow = lock ? 'hidden' : '';
   var c = $('#dgcount'), n = (S.diary.invited || []).length;
   if (c) c.innerHTML = n ? ' <span class="cnt">' + n + '</span>' : '';
+}
+function fitList() {
+  var box = $('#dlist'), d = $('#ddetail .ddin');
+  if (!box) return;
+  box.style.height = DI.sel && desk() && d ? Math.max(320, d.offsetHeight) + 'px' : '';
 }
 function scrollToToday() {
   setTimeout(function () {
