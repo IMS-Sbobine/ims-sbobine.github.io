@@ -2411,11 +2411,18 @@ function diaryLayout() {
   var c = $('#dgcount'), n = (S.diary.invited || []).length;
   if (c) c.innerHTML = n ? ' <span class="cnt">' + n + '</span>' : '';
 }
+// With a lecture open, the list and the lecture pane end level: both take the taller of the list's usual
+// height and the lecture's own, so the list never shrinks and a short lecture pane stretches down to it
 function fitList() {
   var box = $('#dlist'), d = $('#ddetail .ddin');
   if (!box) return;
-  box.style.height = DI.sel && desk() && d ? Math.max(320, d.offsetHeight) + 'px' : '';
+  if (!(DI.sel && desk() && d)) { box.style.height = ''; if (d) d.style.minHeight = ''; return; }
+  d.style.minHeight = '';
+  var own = d.offsetHeight, usual = Math.max(480, window.innerHeight - 250), hgt = Math.max(own, usual);
+  box.style.height = hgt + 'px';
+  d.style.minHeight = hgt + 'px';
 }
+window.addEventListener('resize', function () { if (S.page === 'diary') fitList(); });
 function scrollToToday() {
   setTimeout(function () {
     var box = $('#dlist'), el = box && $('[data-today="1"]', box);
