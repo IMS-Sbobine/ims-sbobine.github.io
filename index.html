@@ -2285,8 +2285,8 @@ function renderDiary(v) {
   // study groups below. On a phone the lecture and the groups are screens that slide in from the right.
   v.innerHTML = '<main class="wrap" id="diary">' +
     '<div class="dtop"><h1 class="dh1 rise">Your study diary</h1><button class="dgbtn phone-only" data-dgroups="1">Groups<span id="dgcount"></span></button></div>' +
-    '<div class="prog" id="dprog" aria-live="polite"></div>' +
     '<div id="minebox">' + mineHtml() + askHtml() + '</div>' +
+    '<div class="prog" id="dprog" aria-live="polite"></div>' +
     '<div class="dfil"><div class="mchips" role="group" aria-label="Show" id="dcourses">' +
     [['', 'All, week by week']].concat(COURSES.map(function (c) { return [c.code, COURSE_SHORT[c.code] || c.name]; })).map(function (x) {
       return '<button data-dcourse="' + x[0] + '" aria-pressed="' + (DI.course === x[0]) + '">' + (x[0] ? '<span aria-hidden="true" class="dot" style="background:' + ccol(x[0]) + '"></span>' : '') + h(x[1]) + '</button>';
