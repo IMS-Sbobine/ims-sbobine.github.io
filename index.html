@@ -629,6 +629,8 @@ table.lt .cnote{margin-left:44px}
 .rchip .pv{font-size:10px;font-weight:800;padding:1px 6px;border-radius:6px;background:#FFFFFF;color:var(--muted);white-space:nowrap}
 .rchip .more{border:0;background:none;width:26px;height:26px;border-radius:50%;font-size:16px;line-height:1;font-weight:900;color:var(--muted)}
 .rchip .more:hover{background:#FFFFFF;color:var(--ink)}
+.rchip.ren{padding:2px;background:#FFFFFF;box-shadow:inset 0 0 0 2px var(--blue)}
+.rnin{border:0;background:transparent;font:inherit;font-size:13px;font-weight:700;color:var(--ink);padding:0 8px;min-height:26px;width:260px;max-width:100%;outline:0}
 .addr{border:2px dashed #9AA0A6;background:transparent;height:30px;border-radius:15px;padding:0 11px;font-size:13px;font-weight:700;color:var(--ink)}
 .addr:hover{border-color:var(--ink)}
 .modres{background:#FFFFFF;border:2px solid var(--ink);border-radius:18px;padding:16px;margin-top:16px}
@@ -2379,6 +2381,10 @@ function closeDiaryPane() {
   drawList(); diaryLayout();
   var r = was && $('#dr-' + cssId(was) + ' .dopen'); if (r) r.focus({ preventScroll: true });
 }
+// After switching course or module, a lecture that isn't in the new list closes
+function dropSelOutside() {
+  if (DI.sel && !diaryLectures().some(function (l) { return l.id === DI.sel; })) DI.sel = '';
+}
 function diaryLayout() {
   var m = $('#diary'), g = $('#dg2');
   if (!m || !g) return;
@@ -2469,6 +2475,29 @@ function resChips(scope) {
 function chip(r, tag, sh, hid) {
   return '<span class="rchip' + (hid ? ' hid' : '') + '"><a href="' + h(r.url) + '" target="_blank" rel="noopener"><span class="k">' + (r.kind === 'class' ? 'Class' : r.kind === 'drive' ? 'Drive' : 'Link') + '</span>' + h(r.title) + '</a>' +
     '<span class="pv' + (sh ? ' sh' : '') + '">' + h(tag) + '</span><button class="more" data-rmore="' + h(r.id) + '" aria-label="More for ' + h(r.title) + '" aria-haspopup="menu">⋯</button></span>';
+}
+// Rename in place: the chip's name becomes a text box. Enter or leaving it saves, Escape keeps the old name.
+function renameRes(id) {
+  var r = S.diary.res.filter(function (x) { return x.id === id; })[0];
+  var b = $('[data-rmore="' + cssId(id) + '"]'), cp = b && b.closest('.rchip');
+  if (!r || !cp) return;
+  var inp = document.createElement('input');
+  inp.className = 'rnin'; inp.value = r.title; inp.maxLength = 120; inp.setAttribute('aria-label', 'New name for ' + r.title);
+  cp.classList.add('ren'); cp.innerHTML = ''; cp.appendChild(inp);
+  inp.focus(); inp.select();
+  var done = false;
+  var finish = function (save) {
+    if (done) return; done = true;
+    var name = inp.value.replace(/\s+/g, ' ').trim();
+    if (!save || !name || name === r.title) { drawDiary(); return; }
+    inp.disabled = true;
+    diaryCall('diaryRes', { rename: id, title: name }, 'Renamed.');
+  };
+  inp.addEventListener('keydown', function (ev) {
+    if (ev.key === 'Enter') { ev.preventDefault(); finish(true); }
+    if (ev.key === 'Escape') { ev.preventDefault(); ev.stopPropagation(); finish(false); }
+  });
+  inp.addEventListener('blur', function () { finish(true); });
 }
 // ----- aims: yours, and each group's (anyone in the group can change those)
 function aimChips(l) {
@@ -2720,9 +2749,9 @@ function diaryClick(e) {
   if (e.target.closest('[data-dclose]') || e.target.closest('[data-dgclose]')) { closeDiaryPane(); return; }
   if (e.target.closest('[data-dgroups]')) { DI.groups = true; DI.sel = ''; drawList(); diaryLayout(); var gb = $('#dside .backb'); if (gb) gb.focus({ preventScroll: true }); return; }
   var c = e.target.closest('[data-dcourse]');
-  if (c) { DI.course = c.getAttribute('data-dcourse'); DI.module = ''; drawDiary(); scrollToToday(); return; }
+  if (c) { DI.course = c.getAttribute('data-dcourse'); DI.module = ''; dropSelOutside(); drawDiary(); scrollToToday(); return; }
   var dm = e.target.closest('[data-dmod]');
-  if (dm) { DI.module = dm.getAttribute('data-dmod'); drawDiary(); scrollToToday(); return; }
+  if (dm) { DI.module = dm.getAttribute('data-dmod'); dropSelOutside(); drawDiary(); scrollToToday(); return; }
   var w = e.target.closest('[data-dw]');
   if (w) { var dv = +w.getAttribute('data-dw'); if (dv) diaryWeek(dv); else if (DI.week !== curWeek()) diaryWeek(curWeek() - DI.week); return; }
   var a = e.target.closest('[data-daim]');
@@ -3086,6 +3115,7 @@ function openResMenu(btn) {
       if (!b) return;
       var rid = m.getAttribute('data-for'), act = b.getAttribute('data-rmi'), g = b.getAttribute('data-g');
       m.hidden = true;
+      if (act === 'rename') { renameRes(rid); return; }
       if (act === 'remove') diaryCall('diaryRes', { remove: rid }, 'Removed from your diary.');
       if (act === 'driveshare') { var dr = S.diary.res.filter(function (x) { return x.id === rid; })[0]; if (dr) shareDriveFile(dr.fileId, dr.groups || [], dr.title); return; }
       if (act === 'hide' || act === 'show') diaryCall('diaryHide', { id: rid, hide: act === 'hide' }, act === 'hide' ? 'Hidden from your diary. The others still see it.' : 'It\'s back in your diary.');
@@ -3103,7 +3133,7 @@ function openResMenu(btn) {
   m.setAttribute('data-for', id);
   var items = '<a role="menuitem" href="' + h(r.url) + '" target="_blank" rel="noopener">Open</a>';
   if (mine) {
-    items += (S.diary.groups || []).map(function (g) {
+    items += '<button role="menuitem" data-rmi="rename">Rename</button>' + (S.diary.groups || []).map(function (g) {
       var on = (mine.groups || []).indexOf(g.id) >= 0;
       return '<button role="menuitem" data-rmi="' + (on ? 'unshare' : 'share') + '" data-g="' + h(g.id) + '">' + (on ? 'Stop sharing with ' : 'Share with ') + h(g.name) + '</button>';
     }).join('') + (mine.kind === 'drive' && mine.fileId && (mine.groups || []).length ? '<button role="menuitem" data-rmi="driveshare">Let the group open it in Drive</button>' : '') +
