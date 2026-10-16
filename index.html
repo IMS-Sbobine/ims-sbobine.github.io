@@ -716,8 +716,7 @@ table.lt .cnote{margin-left:44px}
   .ddetail{overflow:hidden;max-height:0;opacity:0;visibility:hidden;transition:max-height .5s cubic-bezier(.32,.72,0,1),opacity .3s ease,margin .4s,visibility 0s .5s}
   .dg2.sel .ddetail{max-height:2400px;opacity:1;visibility:visible;margin-bottom:14px;transition:max-height .5s cubic-bezier(.32,.72,0,1),opacity .3s ease,margin .4s,visibility 0s 0s}
   .dlist2{height:max(480px,calc(100vh - 250px));overflow-y:auto;overflow-x:hidden}
-  .dg2.sel .dside{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;align-items:start}
-  .dg2.sel .dside>h2,.dg2.sel .dside>p,.dg2.sel .dside>.hreq{grid-column:1 / -1}
+  .dlistcol .dside{margin-top:22px;position:static}
   .phone-only{display:none!important}
   .ddim{display:none}
 }
@@ -2397,6 +2396,9 @@ function diaryLayout() {
   g.classList.toggle('sel', !!DI.sel);
   m.classList.toggle('lopen', !!DI.sel);
   m.classList.toggle('gopen', !!DI.groups);
+  // desktop, with a lecture open: the groups go under the list, leaving the lecture the whole right side
+  var gs = $('#dside'), home = $(DI.sel && desk() ? '.dlistcol' : '.dsidecol', g);
+  if (gs && home && gs.parentNode !== home) home.appendChild(gs);
   var lock = !desk() && (DI.sel || DI.groups);
   document.documentElement.style.overflow = lock ? 'hidden' : '';
   var c = $('#dgcount'), n = (S.diary.invited || []).length;
