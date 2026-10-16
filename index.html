@@ -639,6 +639,118 @@ table.lt .cnote{margin-left:44px}
 .menu [role="menuitem"]{border:0;background:none;text-align:left;padding:9px 10px;border-radius:9px;font-size:14px;font-weight:700;color:var(--ink);text-decoration:none}
 .menu [role="menuitem"]:hover,.menu [role="menuitem"]:focus-visible{background:var(--bg)}
 .dgrid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:28px;align-items:start}
+/* study diary: the list, the lecture pane beside it, the groups below */
+.dtop{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.dgbtn{height:38px;border-radius:19px;border:2px solid var(--ink);background:#FFFFFF;font-size:14px;font-weight:800;padding:0 14px;display:inline-flex;align-items:center;gap:6px;flex-shrink:0}
+.dgbtn .cnt{min-width:18px;height:18px;border-radius:9px;background:#D93025;color:#FFFFFF;font-size:11px;display:inline-flex;align-items:center;justify-content:center;padding:0 4px}
+.dfil{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px;margin-top:18px}
+.dfil .mchips{margin:0}
+.dwk{display:flex;align-items:center;gap:10px}
+.dwk h2{margin:0;font-size:18px;font-weight:900;min-width:150px;text-align:center}
+.dwk h2 span{display:block;font-size:13px;font-weight:600;color:var(--muted)}
+.dg2{margin-top:14px}
+.dlist2{background:#FFFFFF;border-radius:16px;position:relative;touch-action:pan-y;overscroll-behavior:contain}
+.dlist2::-webkit-scrollbar{width:10px}.dlist2::-webkit-scrollbar-thumb{background:var(--line);border-radius:5px;border:2px solid #FFFFFF}
+.dhead{margin:0;padding:12px 16px 4px;font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--faint)}
+.dempty{margin:0;padding:24px 16px;color:var(--muted)}
+.dhint{margin:8px 4px 0;font-size:12px;color:var(--faint)}
+.dcres{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:12px 16px;border-bottom:1px solid var(--line2)}
+.dcres .dlab{margin:0}
+.dcres .res{margin:0}
+#diary .drow{display:flex;flex-direction:row;align-items:center;gap:12px;padding:0 0 0 16px;border-top:0;font-size:inherit;border-bottom:1px solid #F3F4F2;transition:background .2s;scroll-margin-top:40px}
+.drow.on{background:var(--hl);box-shadow:inset 3px 0 0 var(--blue)}
+.drow .tick{grid-row:auto;width:28px;height:28px;flex:0 0 28px;border-radius:8px;font-size:14px}
+.dopen{flex:1;min-width:0;display:flex;align-items:center;gap:8px;border:0;background:transparent;font:inherit;color:inherit;text-align:left;padding:9px 16px 9px 0;cursor:pointer}
+.dopen .lc{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.dopen .l1,.dopen .l2{display:flex;align-items:center;gap:8px;min-width:0}
+.dopen .l1 b{font-size:14px;font-weight:800;white-space:nowrap}
+.dopen .badge,.dopen .cbadge{flex-shrink:0}
+.dopen .tp{font-size:13px;color:var(--ink2);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dopen .tp.none{color:#9AA0A6}
+.dopen .l2{font-size:12px;color:var(--muted)}
+.dopen .wh{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.dopen .sp{flex:1 1 0}
+.drow.cx .dopen b,.drow.cx .tp{text-decoration:line-through;color:var(--faint)}
+.aimp{font-size:11px;font-weight:700;border-radius:999px;padding:2px 8px;white-space:nowrap;flex-shrink:0}
+.aimp.own{background:#F1F3F4;color:#3C4043}.aimp.late{background:#FCE8E6;color:#A50E0E}.aimp.grp{background:#EFE7FB;color:#4A1D96}.aimp.done{background:#E6F4EA;color:#1E7B37}
+.rnm{font-size:11px;font-weight:700;color:var(--ink);background:#F3F4F2;border-radius:999px;padding:2px 8px;white-space:nowrap;max-width:170px;overflow:hidden;text-overflow:ellipsis;flex-shrink:1}
+.rnm i{font-style:normal;font-size:9px;font-weight:800;color:#80868B;letter-spacing:.4px;margin-right:4px}
+.rcp{font-size:11px;font-weight:800;color:#1A4FB4;background:#E8F0FE;border-radius:999px;padding:2px 9px;white-space:nowrap;flex-shrink:0}
+.rc{font-size:11px;font-weight:800;color:#1A4FB4;white-space:nowrap}
+.clip{display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:800;color:var(--ink);min-width:28px;justify-content:flex-end;flex-shrink:0}
+.clip.zero{color:#C4C7CA}
+.chev{color:#9AA0A6;font-weight:800;font-size:18px;margin-left:auto}
+.ddin{background:#FFFFFF;border-radius:16px;padding:20px 24px;display:flex;flex-direction:column;gap:12px}
+.ddetail .dh{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.ddetail .dh h2{margin:0;font-size:22px;font-weight:800}
+.ddetail .meta{font-size:13px;color:var(--muted)}
+.ddetail .sp{flex:1}
+.dx{width:36px;height:36px;border-radius:50%;border:0;background:#F1F3F4;font-size:18px;font-weight:800}
+.dx:hover{background:var(--line2)}
+.dtp{margin:0;font-size:15px;color:var(--ink2);line-height:1.45}
+.dstates{display:flex;gap:6px;flex-wrap:wrap}
+.dst{height:36px;border-radius:18px;border:2px solid var(--line);background:#FFFFFF;font-size:13px;font-weight:800;padding:0 14px;color:var(--ink)}
+.dst.s0[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#FFFFFF}
+.dst.s1[aria-pressed="true"]{background:#E8A600;border-color:#E8A600}
+.dst.s2[aria-pressed="true"]{background:#2BA84A;border-color:#2BA84A;color:#FFFFFF}
+.daims{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.dcols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}
+.dc{min-width:0;display:flex;flex-direction:column}
+.dlab{display:block;font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:#5F6368;margin:4px 0 6px}
+.ddetail .res{grid-column:auto;margin:0}
+.ddetail .rel{grid-column:auto;margin:0;border:0;padding:0;border-radius:0}
+.ddetail .dnta{min-height:84px}
+.backb{align-self:flex-start;font-size:15px!important;font-weight:800;color:var(--blue)!important;text-decoration:none!important;min-height:44px;display:inline-flex;align-items:center}
+.dsidecol .dside{margin-top:0;position:static}
+@media (min-width:900px){
+  .dg2{display:flex;gap:20px;align-items:flex-start}
+  .dlistcol{flex:1 1 0px;min-width:0;transition:flex-basis .42s cubic-bezier(.32,.72,0,1),flex-grow .42s cubic-bezier(.32,.72,0,1)}
+  .dg2.sel .dlistcol{flex:0 0 470px}
+  .dsidecol{flex:0 0 300px;min-width:0;display:flex;flex-direction:column;transition:flex-basis .42s cubic-bezier(.32,.72,0,1),flex-grow .42s cubic-bezier(.32,.72,0,1)}
+  .dg2.sel .dsidecol{flex:1 1 0px}
+  .ddetail{overflow:hidden;max-height:0;opacity:0;visibility:hidden;transition:max-height .5s cubic-bezier(.32,.72,0,1),opacity .3s ease,margin .4s,visibility 0s .5s}
+  .dg2.sel .ddetail{max-height:2400px;opacity:1;visibility:visible;margin-bottom:14px;transition:max-height .5s cubic-bezier(.32,.72,0,1),opacity .3s ease,margin .4s,visibility 0s 0s}
+  .dlist2{height:max(480px,calc(100vh - 250px));overflow-y:auto;overflow-x:hidden}
+  .dg2.sel .dside{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;align-items:start}
+  .dg2.sel .dside>h2,.dg2.sel .dside>p,.dg2.sel .dside>.hreq{grid-column:1 / -1}
+  .phone-only{display:none!important}
+  .ddim{display:none}
+}
+@media (max-width:899px){
+  .desk-only{display:none!important}
+  .dh1{font-size:36px}
+  .dfil{flex-direction:column;flex-wrap:nowrap;align-items:stretch}
+  .dfil .mchips{flex-wrap:nowrap;overflow-x:auto;margin:0 -16px;padding:0 16px;scrollbar-width:none}
+  .dfil .mchips::-webkit-scrollbar{display:none}
+  .dfil .mchips button{flex-shrink:0}
+  .dwk{justify-content:space-between;gap:8px;min-width:0}
+  .dwk h2{min-width:0;flex:1 1 0px;overflow:hidden;font-size:17px}
+  .dwk h2 span{font-size:12px}
+  .dwk .round{flex-shrink:0}
+  .dwk>button:last-child{flex-shrink:0;white-space:nowrap}
+  .mchips.mods{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+  .mchips.mods button{flex-shrink:0}
+  .dlistcol{transition:transform .45s cubic-bezier(.32,.72,0,1)}
+  #diary.lopen .dlistcol,#diary.gopen .dlistcol{transform:translateX(-30%)}
+  #diary .drow{padding-left:14px}
+  .dopen{padding:8px 12px 8px 0}
+  .dopen .l1 b{font-size:13px}
+  .dopen .tp{font-size:12px}
+  .dopen .l2{font-size:11px}
+  .dopen .rc{display:none}
+  .chev{width:12px}
+  .ddetail,.dsidecol .dside{position:fixed;inset:0;z-index:70;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;margin:0;padding:max(8px,env(safe-area-inset-top)) 16px calc(28px + env(safe-area-inset-bottom));box-sizing:border-box;box-shadow:-6px 0 24px rgba(0,0,0,.12);transform:translateX(100%);visibility:hidden;transition:transform .45s cubic-bezier(.32,.72,0,1),visibility 0s .45s;touch-action:pan-y}
+  #diary.lopen .ddetail,#diary.gopen .dsidecol .dside{transform:none;visibility:visible;transition:transform .45s cubic-bezier(.32,.72,0,1),visibility 0s 0s}
+  .ddin{padding:0;background:transparent;gap:12px}
+  .ddin>.dh,.ddin>.dtp,.ddin>.dstates,.ddin>.daims{padding:0 2px}
+  .dcols{grid-template-columns:minmax(0,1fr);gap:12px}
+  .dc{background:#FFFFFF;border-radius:16px;padding:14px 16px}
+  .dstates{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+  .dst{height:44px;padding:0 6px}
+  .ddetail .dh h2{font-size:21px}
+  .ddim{position:fixed;inset:0;z-index:65;background:#000000;opacity:0;pointer-events:none;transition:opacity .45s cubic-bezier(.32,.72,0,1)}
+  #diary.lopen .ddim,#diary.gopen .ddim{opacity:.18;pointer-events:auto}
+}
 .dmain{min-width:0}
 .dside{display:flex;flex-direction:column;gap:14px;margin-top:26px;position:sticky;top:16px}
 @media (max-width:1023px){.dgrid{grid-template-columns:minmax(0,1fr)}.dside{position:static}}
@@ -2149,7 +2261,7 @@ deskMq.addEventListener && deskMq.addEventListener('change', function () {
 // =====================================================================================
 // Study diary: your ticks, aims and resources, your lectures and requests, study groups
 // =====================================================================================
-var DI = { week: null, course: '', module: '', showHid: {}, leaving: '', newGroup: false };
+var DI = { week: null, course: '', module: '', sel: '', groups: false, showHid: {}, leaving: '', newGroup: false, relCounts: {}, dragged: false };
 var TICKS = ['Not started yet', 'Started', 'Studied'];
 var COURSE_SHORT = { MS: 'Medical Science', NB: 'Neuro & Behaviour', FS: 'Surgery' };
 
@@ -2167,26 +2279,126 @@ function renderDiary(v) {
     return;
   }
   if (DI.week === null) DI.week = curWeek();
+  // The list on the left; picking a lecture narrows it to shorthand and opens the lecture beside it, with the
+  // study groups below. On a phone the lecture and the groups are screens that slide in from the right.
   v.innerHTML = '<main class="wrap" id="diary">' +
-    '<h1 class="dh1 rise">Your study diary</h1>' +
-    '<div id="minebox">' + mineHtml() + askHtml() + '</div>' +
-    '<div class="dgrid"><div class="dmain">' +
+    '<div class="dtop"><h1 class="dh1 rise">Your study diary</h1><button class="dgbtn phone-only" data-dgroups="1">Groups<span id="dgcount"></span></button></div>' +
     '<div class="prog" id="dprog" aria-live="polite"></div>' +
-    '<div class="mchips" role="group" aria-label="Show" id="dcourses">' +
+    '<div id="minebox">' + mineHtml() + askHtml() + '</div>' +
+    '<div class="dfil"><div class="mchips" role="group" aria-label="Show" id="dcourses">' +
     [['', 'All, week by week']].concat(COURSES.map(function (c) { return [c.code, COURSE_SHORT[c.code] || c.name]; })).map(function (x) {
       return '<button data-dcourse="' + x[0] + '" aria-pressed="' + (DI.course === x[0]) + '">' + (x[0] ? '<span aria-hidden="true" class="dot" style="background:' + ccol(x[0]) + '"></span>' : '') + h(x[1]) + '</button>';
-    }).join('') + '</div>' +
+    }).join('') + '</div><div class="dwk" id="dwk"></div></div>' +
     '<div class="mchips mods" role="group" aria-label="Module" id="dmods" hidden></div>' +
-    '<div id="dbody"></div></div>' +
-    '<aside class="dside" id="dside" aria-label="Study groups"></aside></div>' + stripHtml() + '</main>';
+    '<div class="dg2" id="dg2"><section class="dlistcol" aria-label="Lectures"><div class="dlist2" id="dlist"></div><p class="dhint" id="dhint"></p></section>' +
+    '<div class="dsidecol"><section class="ddetail" id="ddetail" aria-label="Lecture"></section><aside class="dside" id="dside" aria-label="Study groups"></aside></div></div>' +
+    '<div class="ddim" id="ddim" aria-hidden="true"></div>' + stripHtml() + '</main>';
   drawDiary();
   var root = $('#diary');
   root.addEventListener('click', diaryClick);
   root.addEventListener('submit', diarySubmit);
   root.addEventListener('input', function (e) { if (e.target.matches && e.target.matches('[data-dnote]')) noteTyped(e.target); });
   root.addEventListener('focusout', function (e) { if (e.target.matches && e.target.matches('[data-dnote]')) saveNote(e.target.getAttribute('data-dnote')); });
+  root.addEventListener('keydown', function (e) { if (e.key === 'Escape' && (DI.sel || DI.groups)) { e.preventDefault(); closeDiaryPane(); } });
   wireHand(root);
+  wireWeekSwipe($('#dlist'));
+  wireEdgeBack($('#ddetail'));
+  wireEdgeBack($('#dside'));
+  $('#ddim').addEventListener('click', closeDiaryPane);
+  // how many relevant resources each lecture has (already worked out on the server), for the list's shorthand
+  api('relevantCounts').then(function (r) { DI.relCounts = r || {}; drawList(); }, function () {});
+  if (DI.course) scrollToToday();
 }
+// Weeks: swipe the list, or scroll sideways on a trackpad, to change week
+function wireWeekSwipe(el) {
+  if (!el) return;
+  var acc = 0, flipAt = 0, down = null;
+  el.addEventListener('wheel', function (e) {
+    if (DI.course || Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+    acc += e.deltaX;
+    var now = Date.now();
+    if (Math.abs(acc) > 90 && now - flipAt > 550) { flipAt = now; diaryWeek(acc > 0 ? 1 : -1); acc = 0; }
+  }, { passive: true });
+  el.addEventListener('pointerdown', function (e) { down = { x: e.clientX, y: e.clientY }; DI.dragged = false; });
+  el.addEventListener('pointermove', function (e) { if (down && Math.abs(e.clientX - down.x) > 12 && Math.abs(e.clientX - down.x) > Math.abs(e.clientY - down.y)) DI.dragged = true; });
+  var up = function (e) {
+    var d = down; down = null;
+    if (d && !DI.course && DI.dragged && Math.abs(e.clientX - d.x) > 60) diaryWeek(e.clientX < d.x ? 1 : -1);
+    setTimeout(function () { DI.dragged = false; }, 0);
+  };
+  el.addEventListener('pointerup', up);
+  el.addEventListener('pointercancel', function () { down = null; DI.dragged = false; });
+}
+function diaryWeek(dir) {
+  var w = Math.max(0, Math.min(SEM.weeks - 1, DI.week + dir));
+  if (w === DI.week) return;
+  DI.week = w;
+  drawWeekNav();
+  drawList();
+  var l = $('#dlist'); if (l) l.scrollTop = 0;
+  var sl = $('#dslide');
+  if (sl && sl.animate && !reduced()) sl.animate([{ transform: 'translateX(' + (dir * 60) + 'px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 320, easing: 'cubic-bezier(.32,.72,0,1)' });
+}
+// Phones: swipe from the left edge of a pushed screen to go back, the screen following the finger
+function wireEdgeBack(el) {
+  if (!el) return;
+  var start = null, dx = 0;
+  el.addEventListener('pointerdown', function (e) {
+    if (desk() || e.pointerType === 'mouse' || e.clientX > 28) return;
+    start = e.clientX; dx = 0;
+    el.style.transition = 'none';
+    try { el.setPointerCapture(e.pointerId); } catch (x) {}
+  });
+  el.addEventListener('pointermove', function (e) {
+    if (start === null) return;
+    dx = Math.max(0, e.clientX - start);
+    el.style.transform = 'translateX(' + dx + 'px)';
+    var dim = $('#ddim'); if (dim) dim.style.opacity = String(0.18 * (1 - Math.min(1, dx / window.innerWidth)));
+  });
+  var end = function () {
+    if (start === null) return;
+    start = null;
+    el.style.transition = ''; el.style.transform = '';
+    var dim = $('#ddim'); if (dim) dim.style.opacity = '';
+    if (dx > 110) closeDiaryPane();
+  };
+  el.addEventListener('pointerup', end);
+  el.addEventListener('pointercancel', end);
+}
+function openDiaryLecture(id) {
+  var toggle = desk() && DI.sel === id;
+  DI.sel = toggle ? '' : id;
+  DI.groups = false;
+  if (DI.sel) { REL.open[id] = true; if (!REL.data[id]) relFetch(id); track('rel:open', id); }
+  drawList(); drawDetail(); diaryLayout();
+  if (DI.sel && !desk()) { var d = $('#ddetail'); if (d) { d.scrollTop = 0; var b = $('.backb', d); if (b) b.focus({ preventScroll: true }); } }
+}
+function closeDiaryPane() {
+  var was = DI.sel;
+  DI.sel = ''; DI.groups = false;
+  drawList(); diaryLayout();
+  var r = was && $('#dr-' + cssId(was) + ' .dopen'); if (r) r.focus({ preventScroll: true });
+}
+function diaryLayout() {
+  var m = $('#diary'), g = $('#dg2');
+  if (!m || !g) return;
+  g.classList.toggle('sel', !!DI.sel);
+  m.classList.toggle('lopen', !!DI.sel);
+  m.classList.toggle('gopen', !!DI.groups);
+  var lock = !desk() && (DI.sel || DI.groups);
+  document.documentElement.style.overflow = lock ? 'hidden' : '';
+  var c = $('#dgcount'), n = (S.diary.invited || []).length;
+  if (c) c.innerHTML = n ? ' <span class="cnt">' + n + '</span>' : '';
+}
+function scrollToToday() {
+  setTimeout(function () {
+    var box = $('#dlist'), el = box && $('[data-today="1"]', box);
+    if (!box) return;
+    if (desk()) box.scrollTop = el ? el.offsetTop - 44 : 0;
+    else if (el) window.scrollTo(0, el.getBoundingClientRect().top + window.pageYOffset - 120);
+  }, 0);
+}
+deskMq.addEventListener && deskMq.addEventListener('change', function () { if (S.page === 'diary' && S.diary) { drawList(); diaryLayout(); } });
 
 // ----- notes: saved a moment after you stop typing, and when you leave the box
 var NOTE = { timers: {}, sent: {} };
@@ -2269,18 +2481,99 @@ function aimChips(l) {
   });
   return out || '<button class="linkbtn aimset" data-daim="' + h(l.id) + '">Set an aim</button>';
 }
-function diaryCard(l) {
-  var s = S.diary.ticks[l.id] || 0;
-  return '<article class="dl' + (l.cancelled ? ' cx' : '') + '" id="dl-' + h(l.id) + '">' +
+function lecCode(l) { return DI.module ? '#' + l.n : l.abbr + ' #' + l.n; }
+function myRes(scope) {
+  var hidden = S.diary.hidden || [];
+  return S.diary.res.filter(function (r) { return r.scope === scope; })
+    .concat((S.diary.shared || []).filter(function (r) { return r.scope === scope && hidden.indexOf(r.id) < 0; }));
+}
+// The aim to show in a row: the earliest of yours and your groups'
+function rowAim(l) {
+  var list = [];
+  if (S.diary.aims[l.id]) list.push({ date: S.diary.aims[l.id], who: '' });
+  (S.diary.groups || []).forEach(function (g) { var x = g.aims[l.id]; if (x) list.push({ date: x.date, who: g.name }); });
+  if (!list.length) return null;
+  list.sort(function (a, b) { return a.date < b.date ? -1 : 1; });
+  var a = list[0], studied = S.diary.ticks[l.id] === 2, d = dayLabel_(a.date), short = !desk();
+  if (studied) return { cls: 'done', label: short ? d.replace(/^\w+ /, '') : 'Aim met: ' + d };
+  if (a.date < S.data.today) return { cls: 'late', label: (short ? 'Passed ' : 'Aim passed: ') + (short ? d.replace(/^\w+ /, '') : d) };
+  if (a.who) return { cls: 'grp', label: (short ? 'Group ' + d.replace(/^\w+ /, '') : a.who + ': ' + d) };
+  return { cls: 'own', label: short ? d.replace(/^\w+ /, '') : 'Aim ' + d };
+}
+var CLIP = '<svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5l-8.6 8.6a5 5 0 0 1-7.1-7.1l8.6-8.6a3.4 3.4 0 0 1 4.8 4.8l-8.6 8.6a1.7 1.7 0 0 1-2.4-2.4l7.9-7.9"></path></svg>';
+function rowHtml(l, compact, today) {
+  var s = S.diary.ticks[l.id] || 0, on = DI.sel === l.id, a = rowAim(l), res = myRes(l.id), rc = DI.relCounts[l.id] || 0;
+  var topic = l.cancelled ? 'Cancelled' + (l.cnote ? ': ' + l.cnote : '') : l.topic || 'No topic yet';
+  var extra = compact
+    ? (rc ? '<span class="rc">' + rc + ' rel.</span>' : '') + '<span class="clip' + (res.length ? '' : ' zero') + '" title="' + res.length + ' ' + pl(res.length, 'resource', 'resources') + ' pinned">' + CLIP + res.length + '</span>'
+    : res.slice(0, 2).map(function (r) { return '<span class="rnm"><i>' + (r.kind === 'class' ? 'CLASS' : r.kind === 'drive' ? 'DRIVE' : 'LINK') + '</i>' + h(r.title) + '</span>'; }).join('') +
+      (res.length > 2 ? '<span class="rnm">+' + (res.length - 2) + '</span>' : '') + (rc ? '<span class="rcp">Relevant · ' + rc + '</span>' : '');
+  return '<div class="drow' + (on ? ' on' : '') + (l.cancelled ? ' cx' : '') + '" id="dr-' + h(l.id) + '"' + (today ? ' data-today="1"' : '') + '>' +
     '<button class="tick" data-dtick="' + h(l.id) + '" data-s="' + s + '"' + (l.cancelled ? ' disabled' : '') + ' aria-label="' + h(lecTitle(l) + ': ' + TICKS[s] + (l.cancelled ? '' : '. Tap to change.')) + '">' + (s === 2 ? '✓' : '') + '</button>' +
-    '<div class="r1">' + badge(l.cc) + '<span class="tt">' + h(lecTitle(l)) + '</span><span class="meta">' + h((DI.course ? dayLabel_(l.date) + ', ' : '') + l.start + ' · Prof. ' + l.prof) + '</span>' + (l.cancelled ? '' : aimChips(l)) + '</div>' +
-    '<div class="tp">' + (l.cancelled ? '<span class="ct">' + h(l.topic || '') + '</span> ' + cancelNote(l) : h(l.topic || 'No topic yet') + ' <span class="meta">· ' + TICKS[s] + '</span>') + '</div>' +
-    (l.cancelled ? '' : '<div class="res">' + resChips(l.id) + '<button class="addr" data-radd="' + h(l.id) + '">+ Add a resource</button>' +
-      '<button class="relbtn" data-rel="' + h(l.id) + '" aria-expanded="' + !!REL.open[l.id] + '" aria-controls="rel-' + h(l.id) + '">Relevant resources</button></div>' +
-      (REL.open[l.id] ? '<div class="rel" id="rel-' + h(l.id) + '" aria-live="polite">' + relHtml(l) + '</div>' : '')) +
-    '<div class="dnote"><label class="sr" for="dn-' + h(l.id) + '">Your notes on ' + h(lecTitle(l)) + '</label>' +
-    '<textarea class="dnta" id="dn-' + h(l.id) + '" data-dnote="' + h(l.id) + '" rows="1" maxlength="10000" placeholder="Your notes on this lecture. Only you see them.">' + h((S.diary.notes || {})[l.id] || '') + '</textarea>' +
-    '<span class="dnst" id="dns-' + h(l.id) + '" aria-live="polite"></span></div></article>';
+    '<button class="dopen" data-dopen="' + h(l.id) + '" aria-expanded="' + on + '" aria-controls="ddetail" aria-label="' + h(lecTitle(l) + ', ' + dayLabel_(l.date) + ' ' + l.start + '. Open it') + '">' +
+    '<span class="lc"><span class="l1">' + (DI.module ? '' : badge(l.cc)) + '<b>' + h(lecCode(l)) + '</b><span class="tp' + (l.topic || l.cancelled ? '' : ' none') + '">' + h(topic) + '</span></span>' +
+    '<span class="l2"><span class="wh">' + h(dayLabel_(l.date) + ', ' + l.start + ' · Prof. ' + l.prof) + '</span>' +
+    (a && !l.cancelled ? '<span class="aimp ' + a.cls + '">' + h(a.label) + '</span>' : '') + '<span class="sp"></span>' + (l.cancelled ? '' : extra) + '</span></span>' +
+    '<span class="chev phone-only" aria-hidden="true">›</span></button></div>';
+}
+function diaryBack() { return DI.module ? moduleName(DI.module) : DI.course ? (COURSE_SHORT[DI.course] || DI.course) : 'Week ' + (DI.week + 1); }
+function detailHtml(l) {
+  var s = S.diary.ticks[l.id] || 0, note = (S.diary.notes || {})[l.id] || '';
+  return '<div class="ddin" id="dl-' + h(l.id) + '">' +
+    '<button class="linkbtn backb phone-only" data-dclose="1">‹ ' + h(diaryBack()) + '</button>' +
+    '<div class="dh">' + badge(l.cc) + '<h2>' + h(lecTitle(l)) + '</h2><span class="meta">' + h(dayLabel_(l.date) + ', ' + l.start + ' · Prof. ' + l.prof) + '</span><span class="sp"></span>' +
+    '<button class="dx desk-only" data-dclose="1" aria-label="Close ' + h(lecTitle(l)) + '">×</button></div>' +
+    (l.cancelled ? '<div>' + cancelNote(l) + '</div>' : '<p class="dtp">' + h(l.topic || 'No topic yet') + '</p>') +
+    (l.cancelled ? '' : '<div class="dstates" role="group" aria-label="How far you are">' + TICKS.map(function (t, k) {
+      return '<button class="dst s' + k + '" data-dset="' + h(l.id) + '" data-s="' + k + '" aria-pressed="' + (s === k) + '">' + h(k ? t : 'Not started') + '</button>';
+    }).join('') + '</div><div class="daims">' + aimChips(l) + '</div>') +
+    '<div class="dcols"><div class="dc">' +
+    '<label class="dlab" for="dn-' + h(l.id) + '">Your notes</label>' +
+    '<textarea class="dnta" id="dn-' + h(l.id) + '" data-dnote="' + h(l.id) + '" rows="4" maxlength="10000" placeholder="Your notes on this lecture. Only you see them.">' + h(note) + '</textarea>' +
+    '<span class="dnst" id="dns-' + h(l.id) + '" aria-live="polite"></span>' +
+    (l.cancelled ? '' : '<span class="dlab">Your resources</span><div class="res">' + resChips(l.id) + '<button class="addr" data-radd="' + h(l.id) + '">+ Add a resource</button></div>') + '</div>' +
+    (l.cancelled ? '' : '<div class="dc"><span class="dlab">Relevant resources</span><div class="rel" id="rel-' + h(l.id) + '" aria-live="polite">' + relHtml(l) + '</div></div>') +
+    '</div></div>';
+}
+function drawDetail() {
+  var box = $('#ddetail');
+  if (!box) return;
+  // the pane keeps the last lecture while it closes, so it doesn't empty mid-animation
+  var id = DI.sel || box.getAttribute('data-id'), l = id && byId[id];
+  if (!l) { box.innerHTML = ''; return; }
+  box.setAttribute('data-id', id);
+  box.setAttribute('aria-label', lecTitle(l));
+  box.innerHTML = detailHtml(l);
+  $$('.dnta', box).forEach(fitNote);
+}
+function drawWeekNav() {
+  var w = $('#dwk');
+  if (!w) return;
+  var k = DI.week;
+  w.innerHTML = DI.course ? '' : '<button class="round" data-dw="-1" aria-label="Previous week"' + (k <= 0 ? ' disabled' : '') + '>' + ICON.left + '</button>' +
+    '<h2 aria-live="polite">Week ' + (k + 1) + '<span>' + rangeLabel(k, true) + '</span></h2>' +
+    '<button class="round" data-dw="1" aria-label="Next week"' + (k >= SEM.weeks - 1 ? ' disabled' : '') + '>' + ICON.right + '</button>' +
+    '<button class="pillbtn desk-only" data-dw="0">This week</button>';
+}
+function drawList() {
+  var box = $('#dlist');
+  if (!box) return;
+  var top = box.scrollTop, weeks = !DI.course, compact = !!DI.sel || !desk(), list = diaryLectures(), html = '', prev = '';
+  if (weeks) { var days = weekDays(DI.week); list = list.filter(function (l) { return l.date >= days[0] && l.date <= days[4]; }); }
+  var first = (list.filter(function (l) { return l.date >= S.data.today; })[0] || {}).id;
+  if (DI.course && !DI.module) {
+    var scope = 'course:' + DI.course;
+    html += '<div class="dcres"><span class="dlab">For the whole course</span><div class="res">' + resChips(scope) + '<button class="addr" data-radd="' + h(scope) + '">+ Add</button></div></div>';
+  }
+  list.forEach(function (l) {
+    if (weeks && l.date !== prev) { html += '<h3 class="dhead">' + h(dayLabel_(l.date)) + '</h3>'; prev = l.date; }
+    html += rowHtml(l, compact, l.id === first);
+  });
+  if (!list.length) html += '<p class="dempty">' + (weeks ? 'No lectures this week.' : 'No lectures here.') + '</p>';
+  box.innerHTML = '<div id="dslide">' + html + '</div>';
+  box.scrollTop = top;
+  var hint = $('#dhint');
+  if (hint) hint.textContent = weeks ? (desk() ? 'Swipe, or scroll sideways on a trackpad, to change week.' : 'Swipe the list sideways to change week.') : 'Scroll for the whole semester; it opens at today.';
 }
 // ----- relevant resources: parts of class Drive files that cover the lecture's topic (matched on the server)
 var REL = { open: {}, data: {}, more: {}, busy: {}, tries: {} };
@@ -2314,6 +2607,7 @@ function relFetch(id) {
   REL.busy[id] = true;
   api('relevant', { lectureId: id }).then(function (r) {
     REL.busy[id] = false; REL.data[id] = r; relRedraw(id);
+    if (r.state === 'ok' && DI.relCounts[id] !== (r.items || []).length) { DI.relCounts[id] = (r.items || []).length; drawList(); }
     // slides being read: ask again shortly, a few times
     if (r.state === 'reading-slides' && (REL.tries[id] = (REL.tries[id] || 0) + 1) < 6) setTimeout(function () { if (REL.open[id]) relFetch(id); }, 4000);
   },
@@ -2342,24 +2636,7 @@ function openRelPreview(id, doc) {
 
 function drawDiary() {
   drawProgress();
-  var body = $('#dbody'), list = diaryLectures(), html = '';
-  if (DI.course) {
-    var scope = 'course:' + DI.course, cname = (COURSES.filter(function (c) { return c.code === DI.course; })[0] || {}).name || DI.course;
-    html += '<section class="modres" aria-labelledby="h-cres"><h3 id="h-cres">' + h(cname) + ': resources for the whole course</h3>' +
-      '<p class="sub" style="margin:4px 0 10px">For the big files that cover the whole course, like full-course notes or a textbook. They show here, above every lecture of the course.</p>' +
-      '<div class="res" style="margin-top:0">' + resChips(scope) + '<button class="addr" data-radd="' + h(scope) + '">+ Add a resource for the whole course</button></div></section>';
-    html += '<div class="dlist" style="margin-top:14px">' + (list.length ? list.map(diaryCard).join('') : '<div class="empty" style="margin:0">No lectures here.</div>') + '</div>';
-  } else {
-    var k = DI.week, days = weekDays(k), d0 = '';
-    var wl = list.filter(function (l) { return l.date >= days[0] && l.date <= days[4]; });
-    html += '<div class="tools" style="margin:22px 0 4px"><div class="l"><button class="round" data-dw="-1" aria-label="Previous week"' + (k <= 0 ? ' disabled' : '') + '>' + ICON.left + '</button>' +
-      '<h2 aria-live="polite">Week ' + (k + 1) + ', ' + rangeLabel(k, true) + '</h2><button class="round" data-dw="1" aria-label="Next week"' + (k >= SEM.weeks - 1 ? ' disabled' : '') + '>' + ICON.right + '</button>' +
-      '<button class="pillbtn" data-dw="0">This week</button></div></div>' +
-      '<div class="dlist">' + (wl.length ? wl.map(function (l) { var out = l.date !== d0 ? '<div class="dday">' + h(dayLabel_(l.date)) + '</div>' : ''; d0 = l.date; return out + diaryCard(l); }).join('')
-        : '<div class="empty" style="margin:0">No lectures this week.</div>') + '</div>';
-  }
-  body.innerHTML = html;
-  $$('.dnta', body).forEach(fitNote);
+  drawWeekNav();
   $$('#dcourses [data-dcourse]').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-dcourse') === DI.course); });
   var mb = $('#dmods'), mods = DI.course ? courseModules(DI.course) : [];
   if (mb) {
@@ -2368,7 +2645,10 @@ function drawDiary() {
       return '<button data-dmod="' + h(m.key) + '" aria-pressed="' + (DI.module === m.key) + '">' + h(m.name) + '</button>';
     }).join('');
   }
+  drawList();
+  drawDetail();
   drawGroups();
+  diaryLayout();
 }
 
 // ----- the groups column
@@ -2385,7 +2665,7 @@ function drawGroups() {
       '<div style="display:flex;gap:8px;margin-top:12px"><button class="sbtn" id="gnewgo">Create</button><button type="button" class="sbtn2 soft" data-gnew="0">Cancel</button></div>' +
       '<p class="sub" style="margin:10px 0 0;font-size:13px">You can then invite anyone by email. You can be in up to 10 groups.</p></form>'
     : '<button class="btn2" data-gnew="1" style="align-self:flex-start">+ New study group</button>';
-  box.innerHTML = '<h2 class="h2" style="margin:0">Study groups</h2>' + inv +
+  box.innerHTML = '<button class="linkbtn backb phone-only" data-dgclose="1">‹ Your diary</button><h2 class="h2" style="margin:0">Study groups</h2>' + inv +
     (cards || (DI.newGroup ? '' : '<p class="sub" style="margin:0">Study with classmates: see each other\'s progress if you all want to, share resources and set dates to finish lectures by.</p>')) + create;
   if (DI.newGroup) { var gi = $('#gname'); if (gi) gi.focus(); }
 }
@@ -2423,36 +2703,32 @@ function diaryCall(name, req, msg, btn) {
   if (btn) busy(btn, true, '…');
   return api(name, req).then(function (d) { setDiary(d); drawDiary(); if (msg) toast(typeof msg === 'function' ? msg(d) : msg); }, function (x) { if (btn) busy(btn, false); toast(x.message, true); drawDiary(); });
 }
+function setTickTo(id, s, focusSel) {
+  var l = byId[id];
+  if (s) S.diary.ticks[id] = s; else delete S.diary.ticks[id];
+  drawProgress(); drawList(); if (DI.sel === id) drawDetail();
+  var nb = $(focusSel); if (nb) nb.focus({ preventScroll: true });
+  diaryCall('diaryTick', { lectureId: id, state: s }, lecTitle(l) + ': ' + TICKS[s] + '.');
+}
 function diaryClick(e) {
   var t = e.target.closest('[data-dtick]');
-  if (t) {
-    var id = t.getAttribute('data-dtick'), s = ((S.diary.ticks[id] || 0) + 1) % 3, l = byId[id];
-    if (s) S.diary.ticks[id] = s; else delete S.diary.ticks[id];
-    drawDiary();
-    var nb = $('[data-dtick="' + id + '"]'); if (nb) nb.focus();
-    diaryCall('diaryTick', { lectureId: id, state: s }, lecTitle(l) + ': ' + TICKS[s] + '.');
-    return;
-  }
+  if (t) { var id = t.getAttribute('data-dtick'); setTickTo(id, ((S.diary.ticks[id] || 0) + 1) % 3, '[data-dtick="' + id + '"]'); return; }
+  var ds = e.target.closest('[data-dset]');
+  if (ds) { var sid = ds.getAttribute('data-dset'), k = +ds.getAttribute('data-s'); setTickTo(sid, k, '[data-dset="' + sid + '"][data-s="' + k + '"]'); return; }
+  var op = e.target.closest('[data-dopen]');
+  if (op) { if (DI.dragged) return; openDiaryLecture(op.getAttribute('data-dopen')); return; }
+  if (e.target.closest('[data-dclose]') || e.target.closest('[data-dgclose]')) { closeDiaryPane(); return; }
+  if (e.target.closest('[data-dgroups]')) { DI.groups = true; DI.sel = ''; drawList(); diaryLayout(); var gb = $('#dside .backb'); if (gb) gb.focus({ preventScroll: true }); return; }
   var c = e.target.closest('[data-dcourse]');
-  if (c) { DI.course = c.getAttribute('data-dcourse'); DI.module = ''; drawDiary(); return; }
+  if (c) { DI.course = c.getAttribute('data-dcourse'); DI.module = ''; drawDiary(); scrollToToday(); return; }
   var dm = e.target.closest('[data-dmod]');
-  if (dm) { DI.module = dm.getAttribute('data-dmod'); drawDiary(); return; }
+  if (dm) { DI.module = dm.getAttribute('data-dmod'); drawDiary(); scrollToToday(); return; }
   var w = e.target.closest('[data-dw]');
-  if (w) { var dv = +w.getAttribute('data-dw'); DI.week = dv ? Math.max(0, Math.min(SEM.weeks - 1, DI.week + dv)) : curWeek(); drawDiary(); return; }
+  if (w) { var dv = +w.getAttribute('data-dw'); if (dv) diaryWeek(dv); else if (DI.week !== curWeek()) diaryWeek(curWeek() - DI.week); return; }
   var a = e.target.closest('[data-daim]');
   if (a) { openAim(a.getAttribute('data-daim'), a.getAttribute('data-g') || ''); return; }
   var r = e.target.closest('[data-radd]');
   if (r) { openAddRes(r.getAttribute('data-radd')); return; }
-  var rb = e.target.closest('[data-rel]');
-  if (rb) {
-    var rid = rb.getAttribute('data-rel');
-    REL.open[rid] = !REL.open[rid];
-    if (REL.open[rid]) track('rel:open', rid);
-    drawDiary();
-    if (REL.open[rid] && !REL.data[rid]) relFetch(rid);
-    var nb2 = $('[data-rel="' + rid + '"]'); if (nb2) nb2.focus();
-    return;
-  }
   var rt = e.target.closest('[data-reltopic]');
   if (rt) { var tid = rt.getAttribute('data-reltopic'); go('dashboard'); setTimeout(function () { jump(tid); var inp = $('[data-topic="' + tid + '"]'); if (inp) inp.focus(); }, 400); return; }
   var rr = e.target.closest('[data-relretry]');
