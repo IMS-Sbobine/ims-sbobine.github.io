@@ -923,6 +923,67 @@ table.stt input.sin{width:72px;height:32px;padding:0 8px;font-size:13px}
   #tour .tc-dots{margin-top:12px}
 }
 @media (prefers-reduced-motion: reduce){#tour .t-spot,#tour .t-card{transition:none}}
+.sfoot a{color:inherit;font-weight:700}
+
+/* ---------- help ---------- */
+.htop{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.help .dlead{max-width:760px}
+.hgrid{display:grid;grid-template-columns:200px minmax(0,1fr);gap:40px;margin-top:28px;align-items:start}
+.hnav{position:sticky;top:20px;display:flex;flex-direction:column;gap:2px}
+.hnav a{display:block;padding:8px 12px;border-radius:10px;font-size:14px;font-weight:700;color:var(--ink2);text-decoration:none}
+.hnav a:hover{background:#FFFFFF;color:var(--ink)}
+.hbody{display:flex;flex-direction:column;gap:18px;max-width:820px;min-width:0}
+.hsec{background:#FFFFFF;border-radius:20px;padding:24px 28px;scroll-margin-top:16px}
+.hsh{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.hsec h2{margin:0;font-size:24px;font-weight:900}
+.hshow{height:38px;font-size:14px;padding:0 14px}
+.hlead{margin:8px 0 0;font-size:15px;line-height:1.5;color:var(--ink2)}
+.hdl{margin:14px 0 0;display:flex;flex-direction:column}
+.hdl>div{display:grid;grid-template-columns:170px minmax(0,1fr);gap:16px;padding:12px 0;border-top:1px solid var(--line2)}
+.hdl dt{font-size:14px;font-weight:800}
+.hdl dd{margin:0;font-size:15px;line-height:1.55;color:var(--ink2)}
+.hk{display:inline-block;padding:0 7px;border-radius:6px;font-weight:700}
+.hk.g{background:#DDF3E3;color:var(--green-ink)}.hk.y{background:var(--fyellow);color:#7A5900}.hk.r{background:var(--red-bg);color:var(--red-ink)}.hk.n{background:var(--grey2);color:var(--ink2)}
+.htab{margin-top:16px;overflow-x:auto}
+.htab table{width:100%;border-collapse:collapse;font-size:14px}
+.htab th,.htab td{padding:9px 10px;border-top:1px solid var(--line2);text-align:left;vertical-align:top}
+.htab thead th{border-top:0;font-size:13px;font-weight:800;color:var(--muted);text-align:center;white-space:nowrap}
+.htab tbody th{font-weight:600;color:var(--ink)}
+.htab td{text-align:center;width:96px}
+.htab .me{background:var(--hl)}
+.htab thead .me{color:var(--ink);border-radius:10px 10px 0 0}
+.htab .you{display:block;margin:3px auto 0;width:max-content;padding:1px 8px;border-radius:8px;background:var(--blue);color:#FFFFFF;font-size:11px;font-weight:800}
+.htab .yes{color:var(--green-ink);font-weight:900;font-size:16px}.htab .no{color:var(--note)}
+.hpriv th{width:34%}
+.hpriv td{text-align:left;width:auto;color:var(--ink2);line-height:1.5}
+.hyou{margin:12px 0 0;padding:10px 14px;border-radius:12px;background:var(--hl);font-size:14px;font-weight:600;line-height:1.45}
+.hq{border-top:1px solid var(--line2);padding:2px 0}
+.hq:first-of-type{margin-top:12px}
+.hq summary{cursor:pointer;padding:12px 0;font-size:15px;font-weight:800}
+.hq p{margin:0 0 14px;font-size:15px;line-height:1.55;color:var(--ink2)}
+@media (max-width:899px){
+  .hgrid{display:block;margin-top:18px}
+  .hnav{position:static;flex-direction:row;overflow-x:auto;gap:6px;margin:0 -20px 16px;padding:2px 20px 6px;scrollbar-width:none}
+  .hnav a{flex:0 0 auto;background:#FFFFFF;border-radius:16px;padding:7px 12px;font-size:13px}
+  .hbody{gap:14px}
+  .hsec{padding:18px 16px;border-radius:18px}
+  .hsec h2{font-size:21px}
+  .hdl>div{display:block;padding:10px 0}
+  .hdl dt{margin-bottom:3px}
+  .htab th,.htab td{padding:8px 6px}
+  .htab td{width:62px}
+  .htab thead th{white-space:normal;font-size:12px}
+  .hpriv th,.hpriv td{display:block;width:auto;border-top:0;padding:0}
+  .hpriv tr{display:block;border-top:1px solid var(--line2);padding:10px 0}
+  .hpriv th{margin-bottom:3px}
+}
+@media print{
+  html,body{background:#FFFFFF}
+  #hdr,#banner,#sfoot,#toast,.hnav,.hshow,.hprint{display:none!important}
+  .hgrid{display:block;margin-top:12px}
+  .hsec{padding:12px 0;border-radius:0;break-inside:avoid-page}
+  .help .rise{animation:none!important;opacity:1!important;transform:none!important}
+}
 </style>
 </head>
 <body>
@@ -938,7 +999,7 @@ table.stt input.sin{width:72px;height:32px;padding:0 8px;font-size:13px}
 <script>
 var BOOT = (function () {
   var q = new URLSearchParams(location.search);
-  var pages = ['dashboard', 'diary', 'upload', 'admin', 'signin'];
+  var pages = ['dashboard', 'diary', 'upload', 'help', 'admin', 'signin'];
   return { page: pages.indexOf(q.get('page')) >= 0 ? q.get('page') : 'dashboard', env: q.get('env') === 'test' ? 'test' : 'live',
     url: location.origin + location.pathname, data: null, error: '' };
 })();
@@ -1550,6 +1611,7 @@ function renderPage(opt) {
   }
   if (S.page === 'upload') return renderUpload(v, opt);
   if (S.page === 'diary') return renderDiary(v, opt);
+  if (S.page === 'help') return renderHelp(v);
   return renderDashboard(v, opt);
 }
 
@@ -1557,7 +1619,7 @@ document.addEventListener('click', function (e) {
   var g = e.target.closest('[data-go]');
   if (g) { e.preventDefault(); var to = g.getAttribute('data-go'); if (to !== S.page || to === 'upload') { if (to === 'upload' && S.page === 'upload' && U.step === 'done') resetUpload(); go(to); } return; }
   var tl = e.target.closest('[data-act="tour"]');
-  if (tl) { e.preventDefault(); startTour(); return; }
+  if (tl) { e.preventDefault(); startTour(tl.getAttribute('data-step')); return; }
   var so = e.target.closest('[data-act="signout"]');
   if (so) { e.preventDefault(); signOut(); }
   var uo = e.target.closest('[data-act="uni-off"]');
@@ -5111,19 +5173,140 @@ function renderActivity() {
 }
 
 // =====================================================================================
+// Help: how everything works, tab by tab, with "Show me" running the tour from that part
+// =====================================================================================
+var HELP_ACCESS = [
+  ['See the semester, the topics and where each lecture is up to', 1],
+  ['Open the slides', 1],
+  ['Report a problem with a topic or a file', 1],
+  ['Add a missing topic', 2],
+  ['Keep a study diary: ticks, notes, aims and resources', 2],
+  ['Relevant resources for each lecture', 2],
+  ['Study groups', 2],
+  ['Upload slides', 2],
+  ['See who\'s writing each lecture', 3],
+  ['Volunteer for a lecture, hand one over or swap it', 3],
+  ['Upload sbobine', 3],
+  ['Open this year\'s sbobine, the ones uploaded here', 3],
+  ['Use the site without the class password', 3]
+];
+function helpSec(id, title, intro, items, step) {
+  return '<section class="hsec" id="h-' + id + '" aria-labelledby="hh-' + id + '"><div class="hsh"><h2 id="hh-' + id + '">' + h(title) + '</h2>' +
+    (step ? '<button class="sbtn2 hshow" data-act="tour" data-step="' + step + '">Show me on the page</button>' : '') + '</div>' +
+    (intro ? '<p class="hlead">' + intro + '</p>' : '') +
+    (items ? '<dl class="hdl">' + items.map(function (x) { return '<div><dt>' + x[0] + '</dt><dd>' + x[1] + '</dd></div>'; }).join('') + '</dl>' : '') + '</section>';
+}
+function renderHelp(v) {
+  var lv = Math.min(3, level()), pend = !!(S.me && S.me.pending), ph = !desk();
+  var you = lv >= 3 ? 'You\'re an approved classmate, so all of this is open to you.'
+    : lv === 2 ? 'You\'re signed in but not approved yet' + (pend ? ', and your request is with the admins.' : '. Ask to be approved at the top of your study diary.')
+    : 'You\'re in with the class password. Sign in to get the middle column, then ask to be approved for the last one.';
+  var cols = ['Class password', 'Signed in', 'Approved'];
+  var table = '<div class="htab"><table><thead><tr><th scope="col"><span class="sr">What</span></th>' + cols.map(function (c, i) {
+    return '<th scope="col"' + (i + 1 === lv ? ' class="me"' : '') + '>' + c + (i + 1 === lv ? '<span class="you">You</span>' : '') + '</th>';
+  }).join('') + '</tr></thead><tbody>' + HELP_ACCESS.map(function (r) {
+    return '<tr><th scope="row">' + h(r[0]) + '</th>' + [1, 2, 3].map(function (k) {
+      var ok = k >= r[1];
+      return '<td' + (k === lv ? ' class="me"' : '') + '>' + (ok ? '<span class="yes" aria-label="Yes">✓</span>' : '<span class="no" aria-label="No">–</span>') + '</td>';
+    }).join('') + '</tr>';
+  }).join('') + '</tbody></table></div>';
+  var tap = ph ? 'Tap' : 'Click';
+  var secs = [
+    ['start', 'Getting started'], ['dashboard', 'The dashboard'], ['diary', 'Your study diary'], ['groups', 'Study groups'],
+    ['upload', 'Uploading'], ['mine', 'Your lectures'], ['privacy', 'Who sees what'], ['faq', 'Questions']
+  ];
+  var faq = [
+    ['Why can\'t I open a sbobina?', 'This year\'s sbobine, the ones uploaded here, open only for approved classmates, once the folder has been shared with their Google account. Open it signed in to Google with the address you were approved with. If it still won\'t open, use <b>Report a problem</b> on the lecture.'],
+    ['I\'m signed in. Why do I still need the class password?', 'Until you\'re approved, the class password is what lets you in. Once an admin approves you, you won\'t be asked for it again.'],
+    ['Someone invited me to a group, but nothing arrived.', 'Look in your spam folder, then sign in with the address they invited and open your study diary: the invitation waits at the top of the study groups. If they typed a different address, ask them to invite that one.'],
+    ['A lecture was cancelled. What happens to what I pinned?', 'It stays, and you can still open it. Nothing new can be pinned to a cancelled lecture, and it no longer counts in your progress.'],
+    ['I renamed a file a classmate shared. Who sees the new name?', 'Only you. Everyone else sees the name the person who added it gave it. The file\'s ⋯ menu can put their name back.'],
+    ['I uploaded the wrong file.', 'Upload the right one for the same lecture and choose <b>Replace a part</b>: the wrong one moves to the Superseded folder. Or use <b>Report a problem</b> and the admins will sort it out.'],
+    ['Can I see the tour again?', '<b>Take the tour</b> is at the bottom of every page, and each part of this page has <b>Show me on the page</b>.']
+  ];
+  v.innerHTML = '<main class="wrap help" id="help">' +
+    '<div class="htop"><h1 class="dh1 rise">Help</h1><button class="sbtn2 hprint" data-hprint="1">Print or save as PDF</button></div>' +
+    '<p class="dlead rise" style="animation-delay:.06s">How everything works, tab by tab. Rather see it on the page? Each part has <b>Show me on the page</b>, which runs the tour from there.</p>' +
+    '<div class="hgrid"><nav class="hnav" aria-label="On this page">' + secs.map(function (x) { return '<a href="#h-' + x[0] + '" data-hgo="' + x[0] + '">' + h(x[1]) + '</a>'; }).join('') + '</nav><div class="hbody">' +
+    helpSec('start', 'Getting started',
+      'The Study Tracker is the class\'s semester in one place: every lecture, who\'s writing it up, and its slides and sbobine. It also gives each of you a private study diary. What you can do depends on how you\'re in:',
+      null, 'welcome') .replace('</section>', table + '<p class="hyou">' + h(you) + '</p><dl class="hdl">' +
+      '<div><dt>Signing in</dt><dd>Use your Google account, or a six-digit code we email you. No password to remember.</dd></div>' +
+      '<div><dt>Getting approved</dt><dd>Once signed in, ask from the top of your study diary or on the Upload page. An admin approves you and you get an email. <b>To read the class\'s sbobine, you write sbobine too:</b> everyone approved is given lectures to write up, shared out evenly, and uploads them on time.</dd></div></dl></section>') +
+    helpSec('dashboard', 'The dashboard', 'The whole class\'s semester.', [
+      ['The semester board', 'Every lecture, week by week. The dot is the course; the colour is how far it\'s got: <span class="hk g">green</span> written up, <span class="hk y">yellow</span> being written, <span class="hk r">red</span> overdue, <span class="hk n">grey</span> no authors yet. Struck through means cancelled or moved. ' + (ph ? 'Tap a lecture once for its details and again to jump to it.' : 'Point at a lecture for its details and click it to jump to it.')],
+      ['The week', 'Use the arrows or <b>This week</b> to move around. The search looks through every week, by professor, module or topic, and accents don\'t matter. <b>Show</b> narrows it down: no authors yet, overdue, being written, to be held, submitted, or has slides.'],
+      ['Topics', 'A lecture without a topic shows a box to add it, for anyone signed in. Topics that came from the slides, the sbobina or the schedule are fixed.'],
+      ['Files', 'Each lecture links its slides, open to everyone, and its sbobina, for approved classmates.'],
+      ['Report a problem', 'On every lecture: a wrong or inappropriate topic or file, or anything else. The admins get a note and take a look.'],
+      ['Authors', 'For approved classmates: who\'s writing each lecture. <b>I\'ll write it</b> (or <b>Join them</b>) volunteers you, <b>Withdraw</b> takes you off one you volunteered for, and <b>Hand over</b> passes one of yours on.'],
+      ['Class Drive and emails', 'At the bottom: the class folders on Google Drive. <b>Get the emails</b> opens a ready email to the mailing list; press Send and you\'ll hear whenever something is uploaded.']
+    ], 'board') +
+    helpSec('diary', 'Your study diary', 'For anyone signed in, and private to you.', [
+      ['Ticks and progress', tap + ' the box beside a lecture once when you\'ve started it, again when you\'ve studied it, and a third time to clear it. The bar at the top adds them up.'],
+      ['Week by week, or by course', 'See the week\'s lectures, or pick a course and then a module to see all of its lectures in order. ' + (ph ? 'Swipe the list sideways' : 'Use the arrows, or scroll sideways on the list,') + ' to change week.'],
+      ['A lecture', tap + ' a lecture to open it: set how far you are, <b>Set an aim</b> (a date to have it studied by, just yours or a group\'s), write notes, which save as you type, and pin resources.'],
+      ['Your resources', '<b>+ Add a resource</b> pins a web link, the class\'s sbobine or slides from any lecture, a file from your Google Drive, or a file from your device, which goes into your own Drive. In a course\'s view you can pin things for the whole course too. Each one\'s ⋯ menu renames it or shares it with a group.'],
+      ['Relevant resources', 'The parts of files on the class Drive that cover the lecture\'s topic, best first, open to everyone. <b>Preview</b> them, open them, or <b>Add to my diary</b>. A lecture needs a topic, or its slides, for this to work.'],
+      ['Cancelled lectures', 'What you pinned to one stays and still opens, but nothing new can be pinned to it.']
+    ], 'diary') +
+    helpSec('groups', 'Study groups', 'Study with classmates. On a phone they\'re behind <b>Groups</b>, at the top of the diary.', [
+      ['Making one', '<b>+ New study group</b>, give it a name, then invite classmates by email. They get an email and accept in their study diary, signed in with that address. Whoever made the group can take people out; anyone can leave.'],
+      ['Progress', 'Turn on <b>Share my progress</b> and the others who share theirs see yours, and you see theirs. Leave it off and your ticks stay private.'],
+      ['Shared aims', 'When you set an aim, choose the group: everyone in it sees it and can change it.'],
+      ['Shared resources', 'Tick a group when you add a resource, or share it later from its ⋯ menu, and it shows up in everyone\'s diary. If Google Drive can\'t share the file with someone, you can let anyone with the link open it instead.'],
+      ['Names', 'A shared file shows the name the person who added it gave it. If you rename it, only you see your name for it. You can also hide someone\'s shared resource from your own diary.']
+    ], 'groups') +
+    helpSec('upload', 'Uploading', 'Four steps: pick the lecture, say whether it\'s the sbobina or the slides, check the details, and add the files.', [
+      ['Slides', 'Anyone signed in, any time, as a PowerPoint or a PDF. A PowerPoint is turned into a PDF for you. Open to the whole class.'],
+      ['Sbobine', 'Approved classmates, from the day of the lecture, as a Word file, a PDF or both; a Word file on its own is fine, the PDF is made for you. You add who worked on it, whether it\'s been reviewed, and whether last year\'s sbobina was reused. Shared with the group only.'],
+      ['Where it goes', 'Each file gets a tidy, consistent name and is filed in the course\'s Drive folder, and the group gets an email, with your notes if you add any. Only approved classmates see who uploaded what.'],
+      ['Already uploaded?', 'If a lecture already has a file, you choose: <b>Replace a part</b>, which moves the old one to the Superseded folder, or add yours as another part.'],
+      ['Not on the schedule?', '<b>Enter it yourself</b>, under the list of lectures, and it\'s added to the dashboard.']
+    ], 'upload') +
+    helpSec('mine', 'Your lectures', 'For approved classmates: the lectures you\'re writing up, at the top of your study diary.', [
+      ['How they\'re given out', 'Lectures are shared out evenly between everyone approved. You can also volunteer for more on the dashboard.'],
+      ['Hand over or swap', 'Can\'t make one? Ask a classmate to take it over, or to swap it for one of theirs. You stay on it until they accept, and the request expires after 3 days, or sooner if the lecture turns overdue. An overdue lecture stays with you.']
+    ], approved() ? 'mine' : '') +
+    '<section class="hsec" id="h-privacy" aria-labelledby="hh-privacy"><div class="hsh"><h2 id="hh-privacy">Who sees what</h2></div><div class="htab"><table class="hpriv"><tbody>' + [
+      ['Your ticks and progress', 'Only you, unless you turn on <b>Share my progress</b> in a group: then the others there who share theirs.'],
+      ['Your notes', 'Only you.'],
+      ['Your aims', 'Only you, or the group, for an aim you set for a group.'],
+      ['Your resources', 'Only you, unless you share one with a group.'],
+      ['The name of a shared file', 'The group sees the name its owner gave it. A name you give someone else\'s file is yours alone.'],
+      ['Your groups', 'The people in them.'],
+      ['Uploads', 'Slides: everyone. Sbobine: approved classmates. Who uploaded them: approved classmates.'],
+      ['Topics you add and problems you report', 'Everyone sees the topic. The admins see who added it, and the reports.'],
+      ['Visits', 'Counted to see how the site is used, without your email address.']
+    ].map(function (r) { return '<tr><th scope="row">' + h(r[0]) + '</th><td>' + r[1] + '</td></tr>'; }).join('') + '</tbody></table></div></section>' +
+    '<section class="hsec" id="h-faq" aria-labelledby="hh-faq"><div class="hsh"><h2 id="hh-faq">Questions</h2></div>' +
+    faq.map(function (q) { return '<details class="hq"><summary>' + h(q[0]) + '</summary><p>' + q[1] + '</p></details>'; }).join('') + '</section>' +
+    '</div></div></main>';
+  v.onclick = function (e) {
+    var g = e.target.closest('[data-hgo]');
+    if (g) { e.preventDefault(); var t = $('#h-' + g.getAttribute('data-hgo')); if (t) t.scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth', block: 'start' }); return; }
+    if (e.target.closest('[data-hprint]')) window.print();
+  };
+}
+// printing: open every answer first
+window.addEventListener('beforeprint', function () { $$('#help details').forEach(function (d) { d.open = true; }); });
+
+// =====================================================================================
 // The tour: a first look round the three tabs, told for each kind of visitor
 // =====================================================================================
 // It runs once on a device, remembered in the browser so it costs no server calls, and again from "Take the
 // tour" at the foot of every page. Each step points at the real page; what's closed to you gets a yellow box.
-// A prototype for now: it only runs in test mode until TOUR_LIVE is switched on.
-var TOUR_LIVE = false;
+// TOUR_LIVE off keeps it to test mode, for trying out changes to it.
+var TOUR_LIVE = true;
 var TOUR = { on: false, i: 0, seq: 0, steps: [], el: null, target: null, prev: null, opened: false, t: 0 };
 function tourAllowed() { return TOUR_LIVE || S.env === 'test'; }
 function tourFoot() {
   var f = $('#sfoot');
   if (!f) return;
-  var show = tourAllowed() && !S.locked && (S.page === 'dashboard' || S.page === 'diary' || S.page === 'upload');
-  f.innerHTML = show ? '<button class="linkbtn" id="tourlink" data-act="tour">New here? Take the tour</button>' : '';
+  var open = !S.locked && ['dashboard', 'diary', 'upload', 'help', 'signin'].indexOf(S.page) >= 0;
+  var tour = open && tourAllowed() && S.page !== 'signin';
+  f.innerHTML = open ? (tour ? '<button class="linkbtn" id="tourlink" data-act="tour">New here? Take the tour</button><span aria-hidden="true"> · </span>' : '') +
+    (S.page === 'help' ? '' : '<a href="' + h(pageHref('help')) + '" data-go="help" id="helplink">Help</a>') : '';
 }
 function maybeTour() {
   if (!tourAllowed() || TOUR.on || store.get('st.tour') || S.page !== 'dashboard') return;
@@ -5140,58 +5323,58 @@ function tourSteps() {
   var lv = level(), ph = !desk(), pend = !!(S.me && S.me.pending), s = [];
   var openLec = function () { if (DI.sel) return; var id = tourLecture(); if (id) { openDiaryLecture(id); TOUR.opened = true; } };
   var closePane = function () { if (TOUR.opened) { TOUR.opened = false; closeDiaryPane(); } };
-  s.push({ page: 'dashboard', title: 'Welcome to the Study Tracker',
+  s.push({ key: 'welcome', page: 'dashboard', title: 'Welcome to the Study Tracker',
     body: 'A one-minute look round the three tabs: the dashboard, your study diary and uploads. You can leave whenever you like and take it again from the bottom of any page.',
     lim: lv < 2 ? 'You\'re in with the class password, so you see what\'s open to the whole class. On the way we\'ll show what signing in and getting approved add.'
       : lv === 2 ? 'You\'re signed in but not approved yet, so some things are closed to you. We\'ll point them out as we go.' : '',
     limLabel: 'Your access',
     ok: lv >= 3 ? 'You\'re an approved classmate, so everything here is open to you.' : '' });
-  s.push({ page: 'dashboard', target: '.navpill', title: 'Three tabs',
+  s.push({ key: 'tabs', page: 'dashboard', target: '.navpill', title: 'Three tabs',
     body: 'The <b>dashboard</b> is the whole class\'s semester. Your <b>study diary</b> is yours alone. <b>Upload</b> is where slides and sbobine go in.' });
-  s.push({ page: 'dashboard', target: '.board', title: 'The semester at a glance',
+  s.push({ key: 'board', page: 'dashboard', target: '.board', title: 'The semester at a glance',
     body: (ph ? 'This week and the weeks either side, with the rest a tap away. ' : 'Every lecture, week by week. ') +
       'The dot is the course, the colour is how far it\'s got: green written up, yellow being written, red overdue, grey no authors yet. ' +
       (ph ? 'Tap a lecture once for its details, twice to jump to it.' : 'Point at a lecture for its details, click it to jump to it.') });
-  s.push({ page: 'dashboard', target: ['#week-table', '#ddays', '#wlist tr.row', '#wlist .dcard'], title: 'Week by week',
+  s.push({ key: 'week', page: 'dashboard', target: ['#week-table', '#ddays', '#wlist tr.row', '#wlist .dcard'], title: 'Week by week',
     body: 'Go through the weeks, or search every week by professor, module or topic. Each lecture links its slides and sbobina, with <b>Report a problem</b> if something\'s wrong.' +
       (lv >= 3 ? ' You see who\'s writing each lecture: <b>I\'ll write it</b> volunteers you, and <b>Hand over</b> passes one of yours to a classmate.' : lv === 2 ? ' You can add a topic that\'s missing.' : ''),
     lim: lv < 2 ? 'Sign in to add a missing topic. Who\'s writing each lecture is shown only to approved classmates.'
       : lv === 2 ? 'Who\'s writing each lecture is shown only to approved classmates, and only they can volunteer for one.' : '' });
-  s.push({ page: 'dashboard', target: '.strip', ready: '#weekpart', title: 'The class Drive',
+  s.push({ key: 'drive', page: 'dashboard', target: '.strip', ready: '#weekpart', title: 'The class Drive',
     body: 'Straight to the class folders. The slides are open to everyone. <b>Get the emails</b> signs you up to the mailing list.' + (lv >= 3 ? ' The three course folders hold the sbobine, shared with your Google account.' : ''),
     lim: lv < 3 ? 'The three course folders hold this year\'s sbobine, the ones uploaded here. They open only for approved classmates, once they\'ve been shared with their Google account.' : '' });
   if (lv < 2) {
-    s.push({ page: 'diary', target: '.signin .box', title: 'Your study diary',
+    s.push({ key: 'diary', page: 'diary', target: '.signin .box', title: 'Your study diary',
       body: 'Your own space: tick off lectures as you study them, set yourself dates to finish them, keep notes and links for each lecture, and study with classmates in groups.',
       lim: 'You need to sign in to have one. You can sign in with Google or with a code we email you.' });
   } else {
-    s.push({ page: 'diary', target: '#dprog', title: 'Your study diary',
+    s.push({ key: 'diary', page: 'diary', target: '#dprog', title: 'Your study diary',
       body: 'Only you see it. Your ticks, notes and resources stay private unless you share them with a study group. The bar shows how much of the semester you\'ve studied.' });
-    s.push({ page: 'diary', target: ['#dcourses', '#dwk'], title: 'This week, or a whole course',
+    s.push({ key: 'views', page: 'diary', target: ['#dcourses', '#dwk'], title: 'This week, or a whole course',
       body: 'See the week\'s lectures, or pick a course, then a module, to see all of its lectures in order. ' + (ph ? 'Swipe the list' : 'Use the arrows, or scroll sideways on the list,') + ' to change week.' });
-    s.push({ page: 'diary', target: function () { return $$('#dlist .drow').slice(0, 3); }, ready: '#dlist', title: 'Tick as you go',
+    s.push({ key: 'ticks', page: 'diary', target: function () { return $$('#dlist .drow').slice(0, 3); }, ready: '#dlist', title: 'Tick as you go',
       body: (ph ? 'Tap' : 'Click') + ' the box beside a lecture once for started and again for studied. ' + (ph ? 'Tap the lecture itself' : 'Click the lecture itself') + ' to open it.' });
-    s.push({ page: 'diary', target: '#ddetail .dcols', enter: openLec, leave: closePane, settle: 520, title: 'Everything for one lecture',
+    s.push({ key: 'lecture', page: 'diary', target: '#ddetail .dcols', enter: openLec, leave: closePane, settle: 520, title: 'Everything for one lecture',
       body: 'Your notes, which save as you type, and your resources: links or Drive files you pin to the lecture. Below them, Relevant resources finds the pages in the class\'s files that cover it, open to everyone. You can also set yourself a date to finish it.' });
-    s.push({ page: 'diary', target: '#dside', settle: ph ? 520 : 0, title: 'Study groups',
+    s.push({ key: 'groups', page: 'diary', target: '#dside', settle: ph ? 520 : 0, title: 'Study groups',
       enter: ph ? function () { DI.groups = true; DI.sel = ''; drawList(); diaryLayout(); TOUR.opened = true; } : null, leave: ph ? closePane : null,
       body: 'Make a group and invite classmates by email to see each other\'s progress and set dates together. What you share with a group shows up in everyone\'s diary. Rename a shared file and only you see the new name.' });
     if (lv === 2) {
-      s.push({ page: 'diary', target: '#askbox', ready: '#dlist', title: pend ? 'Your request is waiting' : 'Getting approved',
+      s.push({ key: 'ask', page: 'diary', target: '#askbox', ready: '#dlist', title: pend ? 'Your request is waiting' : 'Getting approved',
         body: pend ? 'You\'ve asked to be approved. You\'ll get an email once an admin says yes, and everything opens up.'
           : 'Approved classmates read and upload sbobine, see who\'s writing what, volunteer for lectures and skip the class password. You ask here.',
         lim: 'To read the class\'s sbobine, you write sbobine too. Everyone approved is given lectures to write up, shared out evenly, and uploads them on time.', limLabel: 'The deal' });
     } else {
-      s.push({ page: 'diary', target: '#mine', ready: '#dlist', title: 'Your lectures',
+      s.push({ key: 'mine', page: 'diary', target: '#mine', ready: '#dlist', title: 'Your lectures',
         body: 'The lectures you\'re writing up. If you can\'t make one, ask a classmate to take it over or to swap it for one of theirs.' });
     }
   }
   if (lv < 2) {
-    s.push({ page: 'upload', target: '.signin .box', title: 'Uploading',
+    s.push({ key: 'upload', page: 'upload', target: '.signin .box', title: 'Uploading',
       body: 'Slides and sbobine go in here. PowerPoints and Word files are turned into PDFs, named and filed in the right Drive folder for you.',
       lim: 'You need to sign in to upload. Anyone signed in can upload slides. Sbobine are for approved classmates.' });
   } else {
-    s.push({ page: 'upload', target: '#view .main', title: 'Uploading, in four steps',
+    s.push({ key: 'upload', page: 'upload', target: '#view .main', title: 'Uploading, in four steps',
       body: 'Pick the lecture, say whether it\'s the sbobina or the slides, check the details and add the files. PowerPoints and Word files are turned into PDFs, named and filed in the right Drive folder for you.' +
         (lv >= 3 ? ' A sbobina can go in from the day of the lecture, slides any time.' : ''),
       lim: lv === 2 ? 'You can upload slides. Uploading sbobine opens once you\'re approved.' : '' });
@@ -5222,11 +5405,13 @@ function tourAfter(sel, focusSel) {
     if (f) f.focus({ preventScroll: true });
   })();
 }
-function startTour() {
-  if (TOUR.on) { tourShow(0, 1); return; }
+// from the start, or (from Help) at the step with that key
+function startTour(key) {
+  var at = function () { var i = key ? TOUR.steps.map(function (x) { return x.key; }).indexOf(key) : 0; return i < 0 ? 0 : i; };
+  if (TOUR.on) { tourShow(at(), 1); return; }
   clearTimeout(TOUR.t);
   hidePop();
-  TOUR.on = true; TOUR.steps = tourSteps(); TOUR.i = 0; TOUR.prev = document.activeElement; TOUR.target = null;
+  TOUR.on = true; TOUR.steps = tourSteps(); TOUR.i = at(); TOUR.prev = document.activeElement; TOUR.target = null;
   var w = document.createElement('div');
   w.id = 'tour'; w.className = 'busy';
   w.innerHTML = '<div class="t-block"></div><div class="t-spot none"></div><div class="t-card" role="dialog" aria-modal="true" aria-labelledby="tc-h" tabindex="-1"></div>';
@@ -5236,7 +5421,7 @@ function startTour() {
   document.addEventListener('keydown', tourKey, true);
   window.addEventListener('resize', tourPlace);
   window.addEventListener('scroll', tourPlace, true);
-  tourShow(0, 1);
+  tourShow(TOUR.i, 1);
 }
 function endTour(after) {
   if (!TOUR.on) return;
