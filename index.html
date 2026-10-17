@@ -657,6 +657,10 @@ table.lt .cnote{margin-left:44px}
 .dhead{margin:0;padding:12px 16px 4px;font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--faint)}
 .dempty{margin:0;padding:24px 16px;color:var(--muted)}
 .dhint{margin:8px 4px 0;font-size:12px;color:var(--faint)}
+/* what an empty section is for, and how to fill it */
+.ehint{margin:0;font-size:13px;line-height:1.45;color:var(--muted)}
+.prog .ehint{flex:1 1 100%;margin-top:-4px}
+.res .ehint{flex:1 1 100%;margin:0 0 2px}
 .dcres{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:12px 16px;border-bottom:1px solid var(--line2)}
 .dcres .dlab{margin:0}
 .dcres .res{margin:0}
@@ -2134,7 +2138,7 @@ function renderWeekList() {
   var admin = !!S.admin, showWho = admin || approved();
   if (phone) {
     var prevD = '', html = head;
-    if (!list.length) html += '<div class="empty" style="margin:0">' + (searching ? 'Nothing matches.' : 'No lectures on this day.') + '</div>';
+    if (!list.length) html += '<div class="empty" style="margin:0">' + dashEmpty(searching, true) + '</div>';
     html += '<div class="dcards">';
     list.forEach(function (l, i) {
       if (searching && l.date !== prevD) { html += '<div class="datehead">' + h(dayLabel_(l.date)) + '</div>'; prevD = l.date; }
@@ -2149,11 +2153,25 @@ function renderWeekList() {
     });
     box.innerHTML = head + '<div class="tablebox"><table class="lt"><thead><tr><th scope="col" style="width:' + (searching ? 130 : 110) + 'px">When</th><th scope="col">Lecture</th>' +
       (showWho ? '<th scope="col" style="width:' + (admin ? 250 : 190) + 'px">Authors</th>' : '') + '<th scope="col" style="width:170px">Status</th><th scope="col" style="width:170px">Files</th></tr></thead><tbody>' +
-      (rows || '<tr><td colspan="' + (showWho ? 5 : 4) + '" style="padding:28px 24px;color:#5F6368">' + (searching ? 'Nothing matches.' : 'No lectures this week.') + '</td></tr>') + '</tbody></table></div>' +
+      (rows || '<tr><td colspan="' + (showWho ? 5 : 4) + '" style="padding:28px 24px;color:#5F6368">' + dashEmpty(searching, false) + '</td></tr>') + '</tbody></table></div>' +
       '<p class="foot">Slides open for the whole class. Sbobine open only for classmates they\'ve been shared with.</p>';
   }
 }
 
+// an empty week, search or filter: say why, and what to try
+function dashEmpty(searching, phone) {
+  if (!searching) return phone ? 'No lectures on this day.' : 'No lectures this week. Use the arrows to see another week.';
+  var q = D.q.trim();
+  if (q) return 'Nothing matches “' + h(q) + '”' + (D.filter !== 'all' ? ' with this filter' : '') + '. Try a professor\'s surname, the module or a word from the topic.';
+  return {
+    open: 'Every lecture has authors, so none is waiting for a volunteer.',
+    overdue: 'Nothing is overdue right now.',
+    writing: 'Nothing is being written right now.',
+    assigned: 'No lecture still to be held has authors yet.',
+    submitted: 'Nothing has been written up yet.',
+    slides: 'No lecture has slides yet. Anyone signed in can upload them.'
+  }[D.filter] || 'Nothing matches.';
+}
 function cancelNote(l) { return l.cancelled ? '<span class="xnote"><span class="xpill red">Cancelled</span>' + (l.cnote ? '<span class="xwhy">' + h(l.cnote) + '</span>' : '') + '</span>' : ''; }
 // under a lecture that won't take place: yellow when it moved (and where to), red when it was cancelled or dropped
 function goneNote(l, plain) {
@@ -2522,7 +2540,8 @@ function drawProgress() {
   var n = Math.max(1, list.length);
   $('#dprog').innerHTML = '<span><span class="num">' + done + ' of ' + list.length + '</span> <span class="plab">' + h(DI.module ? moduleName(DI.module) + ' lectures studied' : DI.course ? (COURSE_SHORT[DI.course] || DI.course) + ' lectures studied' : 'lectures studied this semester') + '</span></span>' +
     '<span class="bar" aria-hidden="true"><i style="width:' + (100 * done / n).toFixed(1) + '%;background:#2BA84A"></i><i style="width:' + (100 * half / n).toFixed(1) + '%;background:#E8A600"></i></span>' +
-    '<span class="lg"><span><i style="background:#2BA84A"></i>Studied ' + done + '</span><span><i style="background:#E8A600"></i>Started ' + half + '</span><span><i style="background:#E8EAED"></i>Not yet ' + (list.length - done - half) + '</span></span>';
+    '<span class="lg"><span><i style="background:#2BA84A"></i>Studied ' + done + '</span><span><i style="background:#E8A600"></i>Started ' + half + '</span><span><i style="background:#E8EAED"></i>Not yet ' + (list.length - done - half) + '</span></span>' +
+    (list.length && !done && !half ? '<p class="ehint">Nothing ticked yet. Tick a lecture\'s box when you start it, and again once you\'ve studied it. The bar fills as you go.</p>' : '');
 }
 
 // ----- resources: yours (only you, or shared with groups) and what your groups share with you
@@ -2628,11 +2647,13 @@ function detailHtml(l) {
     // your notes and your resources side by side, what the class Drive has on it across the full width below
     '<div class="dcols' + (l.cancelled && !pinned ? ' one' : '') + '"><div class="dc dcn">' +
     '<label class="dlab" for="dn-' + h(l.id) + '">Your notes</label>' +
-    '<textarea class="dnta" id="dn-' + h(l.id) + '" data-dnote="' + h(l.id) + '" rows="4" maxlength="10000" placeholder="Your notes on this lecture. Only you see them.">' + h(note) + '</textarea>' +
+    '<textarea class="dnta" id="dn-' + h(l.id) + '" data-dnote="' + h(l.id) + '" rows="4" maxlength="10000" placeholder="Your notes on this lecture. Only you see them, and they save as you type.">' + h(note) + '</textarea>' +
     '<span class="dnst" id="dns-' + h(l.id) + '" aria-live="polite"></span></div>' +
     // a cancelled lecture keeps what was pinned to it, but takes nothing new
     (l.cancelled ? (pinned ? '<div class="dc dcr"><span class="dlab">Your resources</span><div class="res">' + resChips(l.id) + '</div><p class="dcxn">Cancelled, so nothing new can be pinned here.</p></div>' : '') :
-      '<div class="dc dcr"><span class="dlab">Your resources</span><div class="res">' + resChips(l.id) + '<button class="addr" data-radd="' + h(l.id) + '">+ Add a resource</button></div></div>' +
+      '<div class="dc dcr"><span class="dlab">Your resources</span><div class="res">' + resChips(l.id) +
+        (myRes(l.id).length ? '' : '<p class="ehint">Nothing pinned yet. Add a link or a Drive file for this lecture: a video, a summary, a past exam. Only you see it unless you share it with a group.</p>') +
+        '<button class="addr" data-radd="' + h(l.id) + '">+ Add a resource</button></div></div>' +
       '<div class="dc dcw"><span class="dlab">Relevant resources</span><div class="rel" id="rel-' + h(l.id) + '" aria-live="polite">' + relHtml(l) + '</div></div>') +
     '</div></div>';
 }
@@ -2664,13 +2685,14 @@ function drawList() {
   var first = (list.filter(function (l) { return l.date >= S.data.today; })[0] || {}).id;
   if (DI.course && !DI.module) {
     var scope = 'course:' + DI.course;
-    html += '<div class="dcres"><span class="dlab">For the whole course</span><div class="res">' + resChips(scope) + '<button class="addr" data-radd="' + h(scope) + '">+ Add</button></div></div>';
+    html += '<div class="dcres"><span class="dlab">For the whole course</span><div class="res">' + resChips(scope) + '<button class="addr" data-radd="' + h(scope) + '">+ Add</button>' +
+      (myRes(scope).length ? '' : '<span class="ehint">Links for the whole course, like the syllabus or a textbook.</span>') + '</div></div>';
   }
   list.forEach(function (l) {
     if (weeks && l.date !== prev) { html += '<h3 class="dhead">' + h(dayLabel_(l.date)) + '</h3>'; prev = l.date; }
     html += rowHtml(l, compact, l.id === first);
   });
-  if (!list.length) html += '<p class="dempty">' + (weeks ? 'No lectures this week.' : 'No lectures here.') + '</p>';
+  if (!list.length) html += '<p class="dempty">' + (weeks ? 'No lectures this week. Use the arrows to see another week.' : 'No lectures here.') + '</p>';
   box.innerHTML = '<div id="dslide">' + html + '</div>';
   box.scrollTop = top;
   var hint = $('#dhint');
@@ -2792,6 +2814,7 @@ function groupCard(g) {
     '<div class="swrow"><span id="gs-' + h(g.id) + '">Share my progress with this group</span><button class="sw" role="switch" aria-labelledby="gs-' + h(g.id) + '" aria-checked="' + g.share + '" data-gshare="' + h(g.id) + '"><span class="knob"></span></button></div>' +
     '<p class="sub" style="margin:6px 0 4px;font-size:13px">' + (g.share ? 'You see the others who share too.' : 'Your ticks are private here, so you don\'t see anyone else\'s either.') + '</p>' +
     members + invites +
+    (g.members.length === 1 && !g.invites.length ? '<p class="ehint" style="margin-top:8px">Just you so far. Invite classmates by email: they get an email, and the invite waits in their study diary.</p>' : '') +
     '<form class="ginv" data-ginvite="' + h(g.id) + '"><label class="sr" for="gi-' + h(g.id) + '">Invite by email</label><input class="inp" id="gi-' + h(g.id) + '" type="text" inputmode="email" placeholder="Invite by email" autocomplete="off"><button class="sbtn">Invite</button></form>' +
     '<h4>Shared aims</h4>' + (aims || '<p class="sub" style="margin:0;font-size:13px">None yet. Set one from a lecture: choose the group when you set the aim. Anyone in the group can change it.</p>') +
     '<h4>Shared resources</h4>' + (shared.length ? '<div style="display:flex;flex-wrap:wrap;gap:6px">' + shared.map(function (r) { return '<a class="rchip" href="' + h(r.u) + '" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;padding-right:10px">' + h(r.t) + '<span class="pv sh">' + h(r.by) + '</span></a>'; }).join('') + '</div>'
