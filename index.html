@@ -886,6 +886,39 @@ table.stt input.sin{width:72px;height:32px;padding:0 8px;font-size:13px}
 @keyframes ring{from{transform:scale(.5);opacity:.75}to{transform:scale(3.2);opacity:0}}
 @keyframes burst{0%{transform:translate(0,0) rotate(0) scale(.3);opacity:0}8%{opacity:1}55%{transform:translate(var(--dx),var(--dy)) rotate(var(--r)) scale(1);opacity:1}100%{transform:translate(calc(var(--dx) * 1.15),calc(var(--dy) + 180px)) rotate(calc(var(--r) * 2.2)) scale(.9);opacity:0}}
 @keyframes glow{0%,100%{box-shadow:0 0 0 0 rgba(43,168,74,0)}50%{box-shadow:0 0 0 6px rgba(43,168,74,.25)}}
+
+/* ---------- the tour ---------- */
+.sfoot{max-width:1200px;margin:0 auto;padding:6px 40px 36px;text-align:center;font-size:14px;color:var(--muted)}
+.sfoot:empty{display:none}
+@media (max-width:899px){.sfoot{padding:6px 20px 28px}}
+#tour .t-block{position:fixed;inset:0;z-index:200}
+#tour .t-spot{position:fixed;z-index:201;border-radius:16px;pointer-events:none;box-shadow:0 0 0 3px #FFFFFF,0 0 0 200vmax rgba(27,29,31,.6);transition:top .4s cubic-bezier(.32,.72,0,1),left .4s cubic-bezier(.32,.72,0,1),width .4s cubic-bezier(.32,.72,0,1),height .4s cubic-bezier(.32,.72,0,1)}
+#tour .t-spot.none{top:50%!important;left:50%!important;width:0!important;height:0!important;box-shadow:0 0 0 200vmax rgba(27,29,31,.6)}
+#tour .t-card{position:fixed;z-index:202;width:380px;max-width:calc(100vw - 32px);background:#FFFFFF;border:2px solid var(--ink);border-radius:20px;box-shadow:6px 6px 0 var(--ink);padding:16px 20px 18px;transition:opacity .2s ease;outline:0}
+#tour .t-card.mid{top:50%!important;left:50%!important;transform:translate(-50%,-50%);width:440px}
+#tour.busy .t-card{opacity:0;pointer-events:none}
+#tour .tc-top{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:13px}
+#tour .tc-n{font-weight:800;color:var(--muted)}
+#tour .tc-x{color:var(--muted);font-size:13px}
+#tour h2{margin:8px 0 6px;font-size:21px;line-height:1.2;font-weight:900}
+#tour p{margin:0;font-size:15px;line-height:1.5;color:var(--ink2)}
+#tour .tc-lim{margin-top:12px;padding:10px 12px;border-radius:12px;background:#FFF6D6;border:1px solid var(--yline);font-size:14px;line-height:1.45;color:var(--ink)}
+#tour .tc-lim b{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;margin-bottom:3px}
+#tour .tc-ok{margin-top:12px;padding:10px 12px;border-radius:12px;background:#ECF7EF;border:1px solid var(--green2);font-size:14px;line-height:1.45;color:var(--ink)}
+#tour .tc-dots{display:flex;gap:5px;margin-top:16px}
+#tour .tc-dots i{width:7px;height:7px;border-radius:50%;background:var(--grey2)}
+#tour .tc-dots i.on{background:var(--ink);width:18px;border-radius:4px}
+#tour .tc-btns{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;margin-top:-7px}
+#tour .tc-btns .sbtn,#tour .tc-btns .sbtn2{height:42px}
+@media (max-width:899px){
+  #tour .t-card,#tour .t-card.mid{top:auto!important;left:10px!important;right:10px;bottom:calc(10px + env(safe-area-inset-bottom));width:auto;max-width:none;transform:none;max-height:58vh;overflow-y:auto;padding:14px 16px 16px;box-shadow:4px 4px 0 var(--ink)}
+  #tour h2{font-size:19px}
+  #tour p{font-size:14.5px}
+  #tour .tc-btns{margin-top:12px}
+  #tour .tc-btns .sbtn,#tour .tc-btns .sbtn2{flex:1 1 0}
+  #tour .tc-dots{margin-top:12px}
+}
+@media (prefers-reduced-motion: reduce){#tour .t-spot,#tour .t-card{transition:none}}
 </style>
 </head>
 <body>
@@ -893,6 +926,7 @@ table.stt input.sin{width:72px;height:32px;padding:0 8px;font-size:13px}
   <header class="hdr" id="hdr"></header>
   <div id="banner"></div>
   <div id="view" class="view"></div>
+  <footer class="sfoot" id="sfoot"></footer>
 </div>
 <datalist id="names-dl"></datalist>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
@@ -1441,6 +1475,7 @@ function renderHeader() {
     b.dataset.kind = kind;
     b.innerHTML = kind ? '<div class="banner-wrap"><div role="status" class="banner drop">' + html + '</div>' + (warn ? '<div class="bwarn drop" role="note">' + h(warn) + '</div>' : '') + '</div>' : '';
   }
+  tourFoot();
 }
 function inboxBadge() {
   var n = (S.data && S.data.hand ? S.data.hand.incoming.length : 0) + (S.me && S.me.invites ? S.me.invites : 0);
@@ -1517,6 +1552,8 @@ function renderPage(opt) {
 document.addEventListener('click', function (e) {
   var g = e.target.closest('[data-go]');
   if (g) { e.preventDefault(); var to = g.getAttribute('data-go'); if (to !== S.page || to === 'upload') { if (to === 'upload' && S.page === 'upload' && U.step === 'done') resetUpload(); go(to); } return; }
+  var tl = e.target.closest('[data-act="tour"]');
+  if (tl) { e.preventDefault(); startTour(); return; }
   var so = e.target.closest('[data-act="signout"]');
   if (so) { e.preventDefault(); signOut(); }
   var uo = e.target.closest('[data-act="uni-off"]');
@@ -1862,6 +1899,7 @@ function renderDashboard(v, opt) {
   wireTopicInputs(dash, refresh);
   wireVolunteer(dash, refresh);
   wireHand(dash);
+  maybeTour();
 }
 
 // ----- your lectures: hand-overs and swaps between approved classmates
@@ -5047,6 +5085,276 @@ function renderActivity() {
     return '<div class="actv" style="' + (i === 0 ? 'border-top:0' : '') + '"><span style="color:#5F6368">' + h(stampLabel(r.at)) + '</span><strong style="font-weight:800">' + h(r.who === 'Portal' || r.who === 'Import' ? r.who : shortName(r.who)) + '</strong>' +
       '<span>' + h(activityText(r)) + (r.email ? '<span class="meta" style="word-break:break-all">' + h(r.email) + '</span>' : '') + (acts ? '<span class="mact" style="margin-top:6px">' + acts + '</span>' : '') + '</span></div>';
   }).join('') + (all > shown.length ? '<div style="padding:12px 0 16px;border-top:1px solid #E8EAED"><button class="pillbtn" data-a="allact">Show all ' + all + '</button></div>' : '') : '<p style="padding:16px 0;color:#5F6368">Nothing yet.</p>';
+}
+
+// =====================================================================================
+// The tour: a first look round the three tabs, told for each kind of visitor
+// =====================================================================================
+// It runs once on a device, remembered in the browser so it costs no server calls, and again from "Take the
+// tour" at the foot of every page. Each step points at the real page; what's closed to you gets a yellow box.
+// A prototype for now: it only runs in test mode until TOUR_LIVE is switched on.
+var TOUR_LIVE = false;
+var TOUR = { on: false, i: 0, seq: 0, steps: [], el: null, target: null, prev: null, opened: false, t: 0 };
+function tourAllowed() { return TOUR_LIVE || S.env === 'test'; }
+function tourFoot() {
+  var f = $('#sfoot');
+  if (!f) return;
+  var show = tourAllowed() && !S.locked && (S.page === 'dashboard' || S.page === 'diary' || S.page === 'upload');
+  f.innerHTML = show ? '<button class="linkbtn" id="tourlink" data-act="tour">New here? Take the tour</button>' : '';
+}
+function maybeTour() {
+  if (!tourAllowed() || TOUR.on || store.get('st.tour') || S.page !== 'dashboard') return;
+  clearTimeout(TOUR.t);
+  TOUR.t = setTimeout(function () { if (S.page === 'dashboard' && !TOUR.on && !store.get('st.tour')) startTour(); }, reduced() ? 300 : 1200);
+}
+// the lecture the tour opens in the diary: the latest one held in the week on show, or the first one listed
+function tourLecture() {
+  var days = weekDays(DI.week), list = diaryLectures().filter(function (l) { return !l.cancelled && (DI.course || (l.date >= days[0] && l.date <= days[4])); });
+  var held = list.filter(function (l) { return l.date <= S.data.today; });
+  return (held[held.length - 1] || list[0] || {}).id;
+}
+function tourSteps() {
+  var lv = level(), ph = !desk(), pend = !!(S.me && S.me.pending), s = [];
+  var openLec = function () { if (DI.sel) return; var id = tourLecture(); if (id) { openDiaryLecture(id); TOUR.opened = true; } };
+  var closePane = function () { if (TOUR.opened) { TOUR.opened = false; closeDiaryPane(); } };
+  s.push({ page: 'dashboard', title: 'Welcome to the Study Tracker',
+    body: 'A one-minute look round the three tabs: the dashboard, your study diary and uploads. You can leave whenever you like and take it again from the bottom of any page.',
+    lim: lv < 2 ? 'You\'re in with the class password, so you see what\'s open to the whole class. On the way we\'ll show what signing in and getting approved add.'
+      : lv === 2 ? 'You\'re signed in but not approved yet, so some things are closed to you. We\'ll point them out as we go.' : '',
+    limLabel: 'Your access',
+    ok: lv >= 3 ? 'You\'re an approved classmate, so everything here is open to you.' : '' });
+  s.push({ page: 'dashboard', target: '.navpill', title: 'Three tabs',
+    body: 'The <b>dashboard</b> is the whole class\'s semester. Your <b>study diary</b> is yours alone. <b>Upload</b> is where slides and sbobine go in.' });
+  s.push({ page: 'dashboard', target: '.board', title: 'The semester at a glance',
+    body: (ph ? 'This week and the weeks either side, with the rest a tap away. ' : 'Every lecture, week by week. ') +
+      'The dot is the course, the colour is how far it\'s got: green written up, yellow being written, red overdue, grey no authors yet. ' +
+      (ph ? 'Tap a lecture once for its details, twice to jump to it.' : 'Point at a lecture for its details, click it to jump to it.') });
+  s.push({ page: 'dashboard', target: ['#week-table', '#ddays', '#wlist tr.row', '#wlist .dcard'], title: 'Week by week',
+    body: 'Go through the weeks, or search every week by professor, module or topic. Each lecture links its slides and sbobina, with <b>Report a problem</b> if something\'s wrong.' +
+      (lv >= 3 ? ' You see who\'s writing each lecture: <b>I\'ll write it</b> volunteers you, and <b>Hand over</b> passes one of yours to a classmate.' : lv === 2 ? ' You can add a topic that\'s missing.' : ''),
+    lim: lv < 2 ? 'Sign in to add a missing topic. Who\'s writing each lecture is shown only to approved classmates.'
+      : lv === 2 ? 'Who\'s writing each lecture is shown only to approved classmates, and only they can volunteer for one.' : '' });
+  s.push({ page: 'dashboard', target: '.strip', ready: '#weekpart', title: 'The class Drive',
+    body: 'Straight to the class folders. The slides are open to everyone. <b>Get the emails</b> signs you up to the mailing list.' + (lv >= 3 ? ' The three course folders hold the sbobine, shared with your Google account.' : ''),
+    lim: lv < 3 ? 'The three course folders hold the sbobine. They open only for approved classmates, once they\'ve been shared with their Google account.' : '' });
+  if (lv < 2) {
+    s.push({ page: 'diary', target: '.signin .box', title: 'Your study diary',
+      body: 'Your own space: tick off lectures as you study them, set yourself dates to finish them, keep notes and links for each lecture, and study with classmates in groups.',
+      lim: 'You need to sign in to have one. You can sign in with Google or with a code we email you.' });
+  } else {
+    s.push({ page: 'diary', target: '#dprog', title: 'Your study diary',
+      body: 'Only you see it. Your ticks, notes and resources stay private unless you share them with a study group. The bar shows how much of the semester you\'ve studied.' });
+    s.push({ page: 'diary', target: ['#dcourses', '#dwk'], title: 'This week, or a whole course',
+      body: 'See the week\'s lectures, or pick a course, then a module, to see all of its lectures in order. ' + (ph ? 'Swipe the list' : 'Use the arrows, or scroll sideways on the list,') + ' to change week.' });
+    s.push({ page: 'diary', target: function () { return $$('#dlist .drow').slice(0, 3); }, ready: '#dlist', title: 'Tick as you go',
+      body: (ph ? 'Tap' : 'Click') + ' the box beside a lecture once for started and again for studied. ' + (ph ? 'Tap the lecture itself' : 'Click the lecture itself') + ' to open it.' });
+    s.push({ page: 'diary', target: '#ddetail .dcols', enter: openLec, leave: closePane, settle: 520, title: 'Everything for one lecture',
+      body: 'Your notes, which save as you type, and your resources: links or Drive files you pin to the lecture. Below them, Relevant resources finds the pages in the class\'s files that cover it. You can also set yourself a date to finish it.',
+      lim: lv === 2 ? 'Relevant resources can point to sbobine, and those open only for approved classmates.' : '' });
+    s.push({ page: 'diary', target: '#dside', settle: ph ? 520 : 0, title: 'Study groups',
+      enter: ph ? function () { DI.groups = true; DI.sel = ''; drawList(); diaryLayout(); TOUR.opened = true; } : null, leave: ph ? closePane : null,
+      body: 'Make a group and invite classmates by email to see each other\'s progress and set dates together. What you share with a group shows up in everyone\'s diary. Rename a shared file and only you see the new name.' });
+    if (lv === 2) {
+      s.push({ page: 'diary', target: '#askbox', ready: '#dlist', title: pend ? 'Your request is waiting' : 'Getting approved',
+        body: pend ? 'You\'ve asked to be approved. You\'ll get an email once an admin says yes, and everything opens up.'
+          : 'Approved classmates read and upload sbobine, see who\'s writing what, volunteer for lectures and skip the class password. You ask here.',
+        lim: 'To read the class\'s sbobine, you write sbobine too. Everyone approved is given lectures to write up, shared out evenly, and uploads them on time.', limLabel: 'The deal' });
+    } else {
+      s.push({ page: 'diary', target: '#mine', ready: '#dlist', title: 'Your lectures',
+        body: 'The lectures you\'re writing up. If you can\'t make one, ask a classmate to take it over or to swap it for one of theirs.' });
+    }
+  }
+  if (lv < 2) {
+    s.push({ page: 'upload', target: '.signin .box', title: 'Uploading',
+      body: 'Slides and sbobine go in here. PowerPoints and Word files are turned into PDFs, named and filed in the right Drive folder for you.',
+      lim: 'You need to sign in to upload. Anyone signed in can upload slides. Sbobine are for approved classmates.' });
+  } else {
+    s.push({ page: 'upload', target: '#view .main', title: 'Uploading, in four steps',
+      body: 'Pick the lecture, say whether it\'s the sbobina or the slides, check the details and add the files. PowerPoints and Word files are turned into PDFs, named and filed in the right Drive folder for you.' +
+        (lv >= 3 ? ' A sbobina can go in from the day of the lecture, slides any time.' : ''),
+      lim: lv === 2 ? 'You can upload slides. Uploading sbobine opens once you\'re approved.' : '' });
+  }
+  var fin = { title: lv >= 3 ? 'You\'re all set' : 'That\'s the tour', body: '', foot: 'Want it again? <b>Take the tour</b> is at the bottom of every page.' };
+  if (lv < 2) {
+    fin.body = 'Sign in to get your study diary and upload slides. Then ask to be approved to read and write sbobine.';
+    fin.cta = 'Sign in'; fin.act = function () { S.after = 'dashboard'; S.signinNote = ''; go('signin'); };
+  } else if (lv === 2 && !pend) {
+    fin.body = 'For the sbobine, ask to be approved at the top of your study diary. Until then the diary, slides and uploading slides are all yours.';
+    fin.cta = 'Ask to be approved'; fin.act = function () { go('diary'); tourAfter('#askbox', '#rqname'); };
+  } else if (lv === 2) {
+    fin.body = 'Your request is with the admins. Until it\'s approved, the diary, slides and uploading slides are all yours.';
+  } else {
+    fin.body = 'Tick off what you study, keep your notes and links with each lecture, and upload your sbobine on time.';
+  }
+  s.push(fin);
+  return s;
+}
+// once a page has drawn, bring a part of it into view and put the cursor in a field
+function tourAfter(sel, focusSel) {
+  var t0 = Date.now();
+  (function poll() {
+    var el = $(sel);
+    if (!el) { if (Date.now() - t0 < 6000) setTimeout(poll, 80); return; }
+    el.scrollIntoView({ block: 'center' });
+    var f = focusSel && $(focusSel);
+    if (f) f.focus({ preventScroll: true });
+  })();
+}
+function startTour() {
+  if (TOUR.on) { tourShow(0, 1); return; }
+  clearTimeout(TOUR.t);
+  hidePop();
+  TOUR.on = true; TOUR.steps = tourSteps(); TOUR.i = 0; TOUR.prev = document.activeElement; TOUR.target = null;
+  var w = document.createElement('div');
+  w.id = 'tour'; w.className = 'busy';
+  w.innerHTML = '<div class="t-block"></div><div class="t-spot none"></div><div class="t-card" role="dialog" aria-modal="true" aria-labelledby="tc-h" tabindex="-1"></div>';
+  document.body.appendChild(w);
+  TOUR.el = w;
+  w.addEventListener('click', tourClick);
+  document.addEventListener('keydown', tourKey, true);
+  window.addEventListener('resize', tourPlace);
+  window.addEventListener('scroll', tourPlace, true);
+  tourShow(0, 1);
+}
+function endTour(after) {
+  if (!TOUR.on) return;
+  var st = TOUR.steps[TOUR.i];
+  if (st && st.leave) st.leave();
+  TOUR.on = false; TOUR.seq++;
+  store.set('st.tour', '1', true);
+  document.removeEventListener('keydown', tourKey, true);
+  window.removeEventListener('resize', tourPlace);
+  window.removeEventListener('scroll', tourPlace, true);
+  if (TOUR.el) TOUR.el.remove();
+  if (TOUR.ro) TOUR.ro.disconnect();
+  TOUR.el = null; TOUR.target = null; TOUR.ro = null;
+  if (after) return after();
+  var f = TOUR.prev;
+  if (f && f.focus && document.contains(f)) f.focus({ preventScroll: true });
+}
+function tourShow(i, dir) {
+  var n = TOUR.steps.length;
+  if (i < 0) { i = 0; dir = 1; }
+  if (i >= n) return endTour();
+  var st = TOUR.steps[i], cur = TOUR.steps[TOUR.i];
+  if (cur && cur !== st && cur.leave) cur.leave();
+  TOUR.i = i;
+  var seq = ++TOUR.seq;
+  TOUR.el.classList.add('busy');
+  var moved = !!(st.page && st.page !== S.page);
+  var arrive = function () {
+    if (seq !== TOUR.seq || !TOUR.on) return;
+    if (st.enter) st.enter();
+    tourWait(st, function (els) {
+      if (seq !== TOUR.seq || !TOUR.on) return;
+      // not there for you (no lectures of yours, say): skip it
+      if (st.target && !els) return tourShow(i + dir, dir);
+      setTimeout(function () { if (seq === TOUR.seq && TOUR.on) tourDraw(st, els); }, (st.settle || 0) + (moved ? 220 : 0));
+    });
+  };
+  if (moved) {
+    if (st.page === 'upload' && U.step === 'done') resetUpload();
+    go(st.page);
+    setTimeout(arrive, 180);
+  } else arrive();
+}
+function tourEls(st) {
+  var els = [].concat(typeof st.target === 'function' ? st.target() : st.target).map(function (s) { return typeof s === 'string' ? $(s) : s; })
+    .filter(function (e) { return e && e.getClientRects().length; });
+  return els.length ? els : null;
+}
+function tourWait(st, cb) {
+  if (!st.target) return cb(null);
+  var t0 = Date.now();
+  (function poll() {
+    if (!TOUR.on) return;
+    var els = tourEls(st), waited = Date.now() - t0;
+    if (els) return cb(els);
+    // the page is there but this part of it isn't
+    if ((st.ready && $(st.ready) && waited > 300) || waited > 7000) return cb(null);
+    setTimeout(poll, 60);
+  })();
+}
+function tourDraw(st, els) {
+  var n = TOUR.steps.length, i = TOUR.i, last = i === n - 1, card = $('.t-card', TOUR.el);
+  TOUR.target = els;
+  card.classList.toggle('mid', !els);
+  card.innerHTML = '<div class="tc-top"><span class="tc-n">' + (i + 1) + ' of ' + n + '</span>' + (last ? '' : '<button class="linkbtn tc-x" data-tour="skip">Skip the tour</button>') + '</div>' +
+    '<h2 id="tc-h">' + h(st.title) + '</h2><p>' + st.body + '</p>' +
+    (st.lim ? '<div class="tc-lim"><b>' + LOCK_SVG + h(st.limLabel || 'Not open to you yet') + '</b>' + h(st.lim) + '</div>' : '') +
+    (st.ok ? '<div class="tc-ok">' + h(st.ok) + '</div>' : '') +
+    (st.foot ? '<p style="margin-top:10px;font-size:13px;color:#5F6368">' + st.foot + '</p>' : '') +
+    '<div class="tc-dots" aria-hidden="true">' + TOUR.steps.map(function (x, k) { return '<i' + (k === i ? ' class="on"' : '') + '></i>'; }).join('') + '</div>' +
+    '<div class="tc-btns">' + (i ? '<button class="sbtn2" data-tour="back">Back</button>' : '') +
+    (st.cta ? '<button class="sbtn2" data-tour="next">Done</button><button class="sbtn" data-tour="cta">' + h(st.cta) + '</button>'
+      : '<button class="sbtn" data-tour="next">' + (last ? 'Done' : i === 0 ? 'Show me around' : 'Next') + '</button>') + '</div>';
+  if (els) tourScroll(els[0], card);
+  tourPlace();
+  TOUR.el.classList.remove('busy');
+  // follow the part as it finishes opening or changes size
+  if (TOUR.ro) TOUR.ro.disconnect();
+  TOUR.ro = els && window.ResizeObserver ? new ResizeObserver(tourPlace) : null;
+  if (TOUR.ro) els.forEach(function (e) { TOUR.ro.observe(e); });
+  [200, 500, 900].forEach(function (ms) { setTimeout(tourPlace, ms); });
+  var b = $('[data-tour="' + (st.cta ? 'cta' : 'next') + '"]', card);
+  if (b) b.focus({ preventScroll: true });
+}
+// bring the part into view: on a phone just under the top, above the card; on a computer with the card under
+// it when both fit, otherwise near the top
+function tourScroll(el, card) {
+  var r = el.getBoundingClientRect(), H = window.innerHeight, want, ch = card.offsetHeight + 16;
+  if (!desk()) want = 12;
+  else want = r.height + ch + 28 <= H ? Math.round((H - r.height - ch) / 2) : 24;
+  el.scrollIntoView({ block: 'start' });
+  var top = el.getBoundingClientRect().top;
+  if (Math.abs(top - Math.max(12, want)) > 2) window.scrollBy(0, top - Math.max(12, want));
+}
+function tourPlace() {
+  if (!TOUR.on || !TOUR.el) return;
+  var spot = $('.t-spot', TOUR.el), card = $('.t-card', TOUR.el), els = TOUR.target;
+  if (!els) { spot.classList.add('none'); card.style.top = card.style.left = ''; return; }
+  var W = window.innerWidth, H = window.innerHeight, ph = !desk(), r = { t: 1e9, l: 1e9, b: -1e9, r: -1e9 };
+  els.forEach(function (e) { var b = e.getBoundingClientRect(); r.t = Math.min(r.t, b.top); r.l = Math.min(r.l, b.left); r.b = Math.max(r.b, b.bottom); r.r = Math.max(r.r, b.right); });
+  var cw = card.offsetWidth, ch = card.offsetHeight, pad = 8, gap = 16;
+  var t = Math.max(6, r.t - pad), b = Math.min(ph ? H - ch - 22 : H - 6, r.b + pad), l = Math.max(4, r.l - pad), rr = Math.min(W - 4, r.r + pad);
+  if (b < t + 40) b = t + 40;
+  spot.classList.remove('none');
+  spot.style.top = t + 'px'; spot.style.left = l + 'px'; spot.style.width = (rr - l) + 'px'; spot.style.height = (b - t) + 'px';
+  if (ph) return;
+  var clamp = function (v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }, top = null, left = null;
+  if (b + gap + ch <= H - 16) top = b + gap;
+  else if (t - gap - ch >= 16) top = t - gap - ch;
+  if (top !== null) left = clamp(l, 16, W - cw - 16);
+  else if (rr + gap + cw <= W - 16) { left = rr + gap; top = clamp(t, 16, H - ch - 16); }
+  else if (l - gap - cw >= 16) { left = l - gap - cw; top = clamp(t, 16, H - ch - 16); }
+  else { left = W - cw - 28; top = H - ch - 28; }
+  card.style.top = top + 'px'; card.style.left = left + 'px';
+}
+function tourClick(e) {
+  var b = e.target.closest('[data-tour]');
+  if (!b) return;
+  var a = b.getAttribute('data-tour'), st = TOUR.steps[TOUR.i];
+  if (a === 'next') { if (TOUR.i === TOUR.steps.length - 1) endTour(function () { if (S.page !== 'dashboard') go('dashboard'); }); else tourShow(TOUR.i + 1, 1); }
+  if (a === 'back') tourShow(TOUR.i - 1, -1);
+  if (a === 'skip') endTour();
+  if (a === 'cta' && st.act) endTour(st.act);
+}
+function tourKey(e) {
+  if (!TOUR.on) return;
+  var card = TOUR.el && $('.t-card', TOUR.el);
+  if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); endTour(); return; }
+  if (TOUR.el.classList.contains('busy')) { if (e.key !== 'Tab') return; e.preventDefault(); return; }
+  if (e.key === 'ArrowRight' && TOUR.i < TOUR.steps.length - 1) { e.preventDefault(); tourShow(TOUR.i + 1, 1); return; }
+  if (e.key === 'ArrowLeft' && TOUR.i > 0) { e.preventDefault(); tourShow(TOUR.i - 1, -1); return; }
+  // keep the keyboard inside the card
+  if (e.key === 'Tab' && card) {
+    var f = $$('button', card);
+    if (!f.length) return;
+    var first = f[0], lastB = f[f.length - 1];
+    if (!card.contains(document.activeElement)) { e.preventDefault(); first.focus(); }
+    else if (e.shiftKey && document.activeElement === first) { e.preventDefault(); lastB.focus(); }
+    else if (!e.shiftKey && document.activeElement === lastB) { e.preventDefault(); first.focus(); }
+  }
 }
 
 // =====================================================================================
