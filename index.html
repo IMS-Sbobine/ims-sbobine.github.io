@@ -4038,8 +4038,8 @@ function uploadOne(slot, file, done, total, onBytes) {
       return next();
     };
     if (!b.loc) return viaServer(0);
-    var status = function () { return api('uploadStatus', { token: b.token }); };
-    return putDirect(b.loc, file, count).then(status, status).then(function (st) {
+    var status = function (e) { return api('uploadStatus', { token: b.token, why: e && e.message ? e.message : '' }); };
+    return putDirect(b.loc, file, count).then(function () { return status(); }, status).then(function (st) {
       if (st.done) { count(file.size - sent); return b.token; }
       return viaServer(st.received || 0);
     });
@@ -4050,8 +4050,9 @@ function putDirect(loc, file, count) {
     var x = new XMLHttpRequest(), last = 0;
     x.open('PUT', loc);
     x.upload.onprogress = function (e) { if (e.lengthComputable) { count(e.loaded - last); last = e.loaded; } };
-    x.onload = function () { if (x.status === 200 || x.status === 201) res(); else rej(new Error('Drive said ' + x.status)); };
-    x.onerror = x.ontimeout = x.onabort = function () { rej(new Error('The connection to Drive dropped')); };
+    x.onload = function () { if (x.status === 200 || x.status === 201) res(); else rej(new Error('Drive answered ' + x.status + ' ' + String(x.responseText || '').replace(/\s+/g, ' ').slice(0, 120))); };
+    // no progress at all: the browser refused (CORS) or the connection went; the server says how much Drive got
+    x.onerror = x.ontimeout = x.onabort = function () { rej(new Error(last ? 'the connection dropped after ' + (last / 1048576).toFixed(1) + ' MB' : 'the request failed before any progress (refused by the browser, or the connection dropped)')); };
     x.send(file);
   });
 }
