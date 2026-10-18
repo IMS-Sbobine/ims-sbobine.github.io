@@ -1005,7 +1005,7 @@ var BOOT = (function () {
 })();
 (function () {
   var ENDPOINT = "https://script.google.com/macros/s/AKfycbyzvgqPu4lHzLkeXqsGstP7E_G7Qn7NeffVOAGxpLakzixImu-df15zMPKzzY1ET7Im/exec";
-  var READ_ONLY = ['state', 'adminState', 'listFolders', 'schedulePdf', 'signIn', 'memberEmails'];
+  var READ_ONLY = ['state', 'adminState', 'listFolders', 'schedulePdf', 'signIn', 'memberEmails', 'uploadStatus'];
   function call(fn, args, ok, fail) {
     if (fn !== 'api') { if (fail) fail(new Error('Unknown server call ' + fn)); return; }
     var attempt = 0;
@@ -4020,17 +4020,39 @@ function progress(frac, label) {
   $('.bar i', p).style.width = Math.round(frac * 100) + '%';
   $('.lbl', p).textContent = label;
 }
+// The file goes straight from here to Drive in one go, through the upload the server opened for it. If Drive won't
+// take it from the browser, or the connection drops, the server says how much arrived and the rest goes the old
+// way: in pieces through the server, each one a call of its own (much slower, but it always works).
 function uploadOne(slot, file, done, total, onBytes) {
-  return api('beginUpload', { slot: slot, name: file.name, size: file.size }).then(function (b) {
-    var start = 0;
-    var next = function () {
-      if (start >= file.size) return b.token;
-      var end = Math.min(file.size, start + b.chunk);
-      return toBase64(file.slice(start, end)).then(function (data) {
-        return api('uploadChunk', { token: b.token, start: start, data: data });
-      }).then(function () { onBytes(end - start); start = end; return next(); });
+  return api('beginUpload', { slot: slot, name: file.name, size: file.size, origin: location.origin }).then(function (b) {
+    var sent = 0, count = function (n) { sent += n; onBytes(n); };
+    var viaServer = function (start) {
+      count(start - sent);
+      var next = function () {
+        if (start >= file.size) return b.token;
+        var end = Math.min(file.size, start + b.chunk);
+        return toBase64(file.slice(start, end)).then(function (data) {
+          return api('uploadChunk', { token: b.token, start: start, data: data });
+        }).then(function () { count(end - start); start = end; return next(); });
+      };
+      return next();
     };
-    return next();
+    if (!b.loc) return viaServer(0);
+    var status = function () { return api('uploadStatus', { token: b.token }); };
+    return putDirect(b.loc, file, count).then(status, status).then(function (st) {
+      if (st.done) { count(file.size - sent); return b.token; }
+      return viaServer(st.received || 0);
+    });
+  });
+}
+function putDirect(loc, file, count) {
+  return new Promise(function (res, rej) {
+    var x = new XMLHttpRequest(), last = 0;
+    x.open('PUT', loc);
+    x.upload.onprogress = function (e) { if (e.lengthComputable) { count(e.loaded - last); last = e.loaded; } };
+    x.onload = function () { if (x.status === 200 || x.status === 201) res(); else rej(new Error('Drive said ' + x.status)); };
+    x.onerror = x.ontimeout = x.onabort = function () { rej(new Error('The connection to Drive dropped')); };
+    x.send(file);
   });
 }
 function doUpload() {
